@@ -39,9 +39,9 @@ def print_table(con):
 
         cur = con.cursor()    
         #cur.execute('''SELECT * FROM Cars''')
-        cur.execute('SELECT * FROM Cars WHERE Name like "Vo%"')
-        rows = cur.fetchall()
-        print(rows)
+        #cur.execute('SELECT * FROM Cars WHERE Id BETWEEN 4 AND 5')
+        #rows = cur.fetchall()
+        #print(rows)
         cur.execute('''SELECT * FROM Cars''')
         rows = cur.fetchall()
         for row in rows:
@@ -51,6 +51,19 @@ def print_table(con):
             pri = row["Price"]
             print "{} {} {}".format(idd, name, pri)
 
+
+def update_table(con):
+    uId = 4
+    uPrice = 62300 
+
+    with con:
+        cur = con.cursor()    
+        cur.execute("UPDATE Cars SET Price=? WHERE Id < ?", (uPrice, uId))        
+        con.commit()
+        print "Number of rows updated: %d" % cur.rowcount
     
 fill_table(con, cars)
+print_table(con)
+print()
+update_table(con)
 print_table(con)
