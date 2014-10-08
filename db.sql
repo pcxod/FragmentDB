@@ -1,14 +1,14 @@
 CREATE TABLE Fragment (
 	Id	INTEGER NOT NULL,
 	tag	VARCHAR(255),
-	Reference	TEXT,
 	Name	TEXT,
+	Reference	TEXT,
 	comment    TEXT,
 	PRIMARY KEY(Id)
 );
 
 
-CREATE TABLE Atom (
+CREATE TABLE Atoms (
 	Id	INTEGER NOT NULL,
 	FragmentId	INTEGER NOT NULL,
 	tag	    VARCHAR(255),
@@ -35,10 +35,10 @@ PRIMARY KEY(Id),
       ON DELETE CASCADE
       ON UPDATE NO ACTION);
 
-CREATE INDEX Atom_FK ON Atom(FragmentId);
+CREATE INDEX Atoms_FK ON Atom(FragmentId);
 CREATE INDEX Restraint_FK ON Restraints(FragmentId);
-CREATE INDEX Fragment_Name ON Atom(Name);
-CREATE INDEX AtomId ON Atom(Id);
+CREATE INDEX Fragment_Name ON Atoms(Name);
+CREATE INDEX AtomId ON Atoms(Id);
 
 
 
