@@ -4,7 +4,12 @@ Created on 09.10.2014
 @author: Daniel Kratzert
 '''
 import sqlite3
+import sys
+from sqlite3 import OperationalError
 
+
+print(sys.version)
+print
 
 def dice_coefficient(a, b):
     '''
@@ -42,12 +47,26 @@ class DatabaseRequest(object):
         '''
         creates a database request
         '''
+        # open the database
         self.con = sqlite3.connect(dbfile)
 
-    def db_request(self, request):
+    def db_request(self, request, *args):
+        '''
+        Performs a SQLite3 database request with "request" and optional arguments
+        to insert parameters via "?" into the database request.
+        :param request:
+        :type request:
+        '''
         with self.con:
+            # set the database cursor
             self.cur = self.con.cursor()
-            self.cur.execute(request)
+            # make the request
+            try:
+                self.cur.execute(request, args)
+            except OperationalError as e:
+                print(e)
+                return False
+            # fetch all rows
             rows = self.cur.fetchall()
         return rows
 
@@ -56,26 +75,35 @@ class FragmentTable(DatabaseRequest, object):
     def __init__(self, dbfile):
         super(FragmentTable, self).__init__()
 
-    def get_fragment_names(self):
-            req = '''SELECT fragment.id, fragment.name FROM fragment ORDER BY name'''
-            rows = self.db_request(req)
-            for name in rows:
-                print(name[0], name[1])
+    def get_all_fragment_names(self):
+        '''
+        returns all fragment names in the database, sorted by name
+        '''
+        req = '''SELECT fragment.id, fragment.name FROM fragment ORDER BY name'''
+        rows = self.db_request(req)
+        return rows
 
 
     def get_fragment(self, fragment_id):
         '''
-        returns a full fragment with all atoms, restraints, ... as a dictionary
+        returns a full fragment with all atoms, restraints, atom types as a dictionary
         :param fragment_id: id of the fragment in the database
         :type fragment_id: integer
         '''
+        req_atoms = '''SELECT atoms.name, atoms.element, atoms.x, atoms.y, atoms.z
+            FROM fragment, atoms on fragment.id=atoms.fragmentid WHERE
+            fragment.id = {}'''.format(fragment_id)
+        req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+            FROM Restraints WHERE FragmentId = ?'''
+        atomrows = self.db_request(req_atoms)
+        restraintrows = self.db_request(req_restr, fragment_id)
+        return (restraintrows, atomrows)
 
 
     def find_fragment_by_name(self, name, selection=5):
         '''
         find a fragment by its name in the database. This method will output a
         selection of (default=5) best hits.
-
         :param name: (part of) the name of a fragment to find
         :type name: string
         :return fragment_id: list of id numbers of the found fragments e.g. [1, 5]
@@ -90,6 +118,12 @@ class FragmentTable(DatabaseRequest, object):
     def _search_name(self, search_string, frags, selection=5):
         '''
         searches the names in the database for a given name
+        :param search_string: search for this string
+        :type search_string: string
+        :param frags: fragments in the database
+        :type frags: list
+        :param selection: return this amount of results
+        :type selection: integer
         '''
         search_results = {}
         for i in frags:
@@ -137,8 +171,9 @@ class Atom(object):
 if __name__ == '__main__':
     dbfile = 'F:\GitHub\DSR-db\dk-database.sqlite'
     db = FragmentTable(dbfile)
-    db.get_fragment_names()
-    print('##################')
-    found = db.find_fragment_by_name('CF3')
-    print(found)
-
+    print(db.get_all_fragment_names())
+    #print('##################')
+    #found = db.find_fragment_by_name('CF3', selection=3)
+    #print(found)
+    #for i in db.get_fragment(fragment_id=2):
+    #    print(i)
