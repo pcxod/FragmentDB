@@ -44,12 +44,13 @@ def dice_coefficient(a, b):
 
 
 class DatabaseRequest():
-    def __init__(self):
+    def __init__(self, dbfile):
         '''
         creates a database request
         '''
         # open the database
         self.con = sqlite3.connect(dbfile)
+        self.con.text_factory = str
 
     def db_request(self, request, *args):
         '''
@@ -69,18 +70,23 @@ class DatabaseRequest():
                 return False
             # fetch all rows
             rows = self.cur.fetchall()
+
         return rows
 
 
 class FragmentTable(DatabaseRequest):
     def __init__(self, dbfile):
-        super(FragmentTable, self).__init__()
+        super(FragmentTable, self).__init__(dbfile)
         self.all_fragments = self.get_all_fragment_names()
-        self.all_names = [i[1] for i in self.all_fragments]
+        if not self.all_fragments:
+            print('no database items found')
+            sys.exit()
+        self.all_names = [i[1].lower() for i in self.all_fragments]
 
     def __contains__(self, name):
         if type(name) == str():
-            return name in self.all_names
+            found = name.lower() in self.all_names
+            return found
 
     def __iter__(self):
         return (i[1] for i in self.all_fragments)
@@ -165,7 +171,7 @@ class FragmentTable(DatabaseRequest):
 
 class Restraints(DatabaseRequest):
     def __init__(self, dbfile):
-        super(Restraints, self).__init__()
+        super(Restraints, self).__init__(dbfile)
 
 
     def get_restraints_from_fragmentId(self, fragment_id):
@@ -180,19 +186,19 @@ if __name__ == '__main__':
     dbfile = 'F:\GitHub\DSR-db\dk-database.sqlite'
     db = FragmentTable(dbfile)
     print(db.get_all_fragment_names())
-    res = Restraints(dbfile)
-    for r in res.get_restraints_from_fragmentId(15):
-        pass
+ #   res = Restraints(dbfile)
+  #  for r in res.get_restraints_from_fragmentId(15):
+  #      pass
         #print(r)
 
-    print(hasattr(db, '__iter__'))
-    if 'Octane, C8H18' in db:
-        print('yes')
-    else:
-        print('no benz')
+ #   print(hasattr(db, '__iter__'))
+ #   if 'OC(CF3)3' in db:
+ #       print('yes')
+ #   else:
+ #       print('no benz')
 
-   # for i in db:
-   #     print(i)
+    # for i in db:
+    #     print(i)
 
     #print('##################')
     #found = db.find_fragment_by_name('CF3', selection=3)
