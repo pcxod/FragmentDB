@@ -39,6 +39,7 @@ def match_dbfrag(fragId=17):
     #olx.xf.au.SetAtomOccupancy(id, 1)
     # or U/Uiso using olx.xf.au.SetAtomU(id, *[U values])
     olx.xf.au.SetAtomU(id, 0.04)
+  #olx.Fuse()
   olx.xf.EndUpdate()
 
 OV.registerFunction(match_dbfrag)
