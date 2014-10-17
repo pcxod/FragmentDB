@@ -20,12 +20,19 @@ def dktest():
   print('hello world')
   print(datadir)
   print(basedir)
+  print(olx.xf.GetFormula('list'))
 
-OV.registerFunction(dktest)
 
+def olex_functions():
+  #print(olx.xf.latt.IsGrown())
+  for i in dir(olx):
+    print(help(i))
+      
 
+OV.registerFunction(olex_functions)
+
+dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 def match_dbfrag(fragId=17):
-  dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
   db = FragmentTable(dbfile)
   #print(db.get_all_fragment_names())
   for i in db.get_fragment(fragId)[1]:
@@ -46,7 +53,6 @@ def match_dbfrag(fragId=17):
 OV.registerFunction(match_dbfrag)
 
 def find_frag(name):
-  dbfile = 'C:\Program Files\Olex2-1.2\etc\scripts\dk-database.sqlite'
   db = FragmentTable(dbfile)
   for num, name in db.find_fragment_by_name(name):
     print(num, name)
