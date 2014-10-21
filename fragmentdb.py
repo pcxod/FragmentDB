@@ -8,7 +8,6 @@ __metaclass__ = type  # use new-style classes
 import sqlite3
 import sys
 from sqlite3 import OperationalError
-
 print(sys.version)
 print
 
@@ -24,15 +23,12 @@ def dice_coefficient(a, b):
     if not len(a) or not len(b): return 0.0
     if len(a) == 1:  a=a+'.'
     if len(b) == 1:  b=b+'.'
-
     a_bigram_list=[]
     for i in range(len(a)-1):
         a_bigram_list.append(a[i:i+2])
-
     b_bigram_list=[]
     for i in range(len(b)-1):
         b_bigram_list.append(b[i:i+2])
-
     a_bigrams = set(a_bigram_list)
     b_bigrams = set(b_bigram_list)
     overlap = len(a_bigrams & b_bigrams)
@@ -99,7 +95,7 @@ class FragmentTable(DatabaseRequest):
         rows = self.db_request(req)
         return rows
 
-
+    
     def get_fragment(self, fragment_id):
         '''
         returns a full fragment with all atoms, restraints, atom types as a dictionary
@@ -167,6 +163,7 @@ class FragmentTable(DatabaseRequest):
         :param comment: any comment
         :type comment: string
         '''
+        pass
 
 
 class Restraints(DatabaseRequest):
@@ -186,6 +183,8 @@ if __name__ == '__main__':
     dbfile = 'F:\GitHub\DSR-db\dk-database.sqlite'
     db = FragmentTable(dbfile)
     print(db.get_all_fragment_names())
+    #import cProfile
+    #cProfile.run("allnames()", "foo.profile")
  #   res = Restraints(dbfile)
   #  for r in res.get_restraints_from_fragmentId(15):
   #      pass
