@@ -95,21 +95,30 @@ class FragmentTable(DatabaseRequest):
         rows = self.db_request(req)
         return rows
 
-    
+
     def get_fragment(self, fragment_id):
         '''
-        returns a full fragment with all atoms, restraints, atom types as a dictionary
+        returns a full fragment with all atoms, atom types as a dictionary
         :param fragment_id: id of the fragment in the database
         :type fragment_id: integer
         '''
         req_atoms = '''SELECT atoms.name, atoms.element, atoms.x, atoms.y, atoms.z
             FROM fragment, atoms on fragment.id=atoms.fragmentid WHERE
             fragment.id = {}'''.format(fragment_id)
-        req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
-            FROM Restraints WHERE FragmentId = ?'''
         atomrows = self.db_request(req_atoms)
+        return (atomrows)
+
+
+    def get_restraints(self, fragment_Id):
+        '''
+        returns the restraints for Fragment(Id) from the database.
+        :param fragment_Id: id of the fragment in the database
+        :type fragment_Id: integer
+        '''
+        req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+                        FROM Restraints WHERE FragmentId = ?'''
         restraintrows = self.db_request(req_restr, fragment_id)
-        return (restraintrows, atomrows)
+        (restraintrows)
 
 
     def find_fragment_by_name(self, name, selection=5):

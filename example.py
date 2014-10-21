@@ -4,7 +4,6 @@ import olx
 from fragmentdb import FragmentTable
 from olexFunctions import OlexFunctions
 OV = OlexFunctions()
-import cProfile
 '''
 To run this example script, type spy.example("Hello") in Olex2
 '''
@@ -30,11 +29,11 @@ def olex_functions():
   #print(olx.xf.latt.IsGrown())
   print(help(olx.xf.au.NewAtom))
 
-      
+
 
 OV.registerFunction(olex_functions)
 
-dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
+dbfile = r'C:\Program Files\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 db = FragmentTable(dbfile)
 
 def all_frags():
@@ -42,7 +41,7 @@ def all_frags():
 
 
 def match_dbfrag(fragId=17):
-  for i in db.get_fragment(fragId)[1]:
+  for i in db.get_fragment(fragId):
     label = str(i[0])
     print(i[0], i[2],i[3],i[4])
     x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
