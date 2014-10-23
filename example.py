@@ -37,7 +37,8 @@ dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 db = FragmentTable(dbfile)
 
 def all_frags():
-  print(db.get_all_fragment_names())
+  for i in db.get_all_fragment_names():
+    print(i)
 
 OV.registerFunction(all_frags)
 
@@ -54,6 +55,7 @@ def match_dbfrag(fragId=17):
 #  olx.xf.EndUpdate()
   #olx.Mode('fit')
   olx.xf.EndUpdate()
+  print('Now you can fit the fragment with "mode fit"')
 
 
 OV.registerFunction(match_dbfrag)
