@@ -41,7 +41,8 @@ def all_frags():
 
 
 def match_dbfrag(fragId=17):
-  for i in db.get_fragment(fragId):
+  #db[fragId]
+  for i in db[fragId]:
     label = str(i[0])
     x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
     id = olx.xf.au.NewAtom(label, x, y, z, False)
