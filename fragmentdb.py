@@ -113,6 +113,7 @@ class FragmentTable(DatabaseRequest):
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
     '''
+    print('binhier')
     if isinstance(fragment_id, int):
       found = self.get_fragment(fragment_id)
       if found:
@@ -125,16 +126,6 @@ class FragmentTable(DatabaseRequest):
         return found 
       else:
         raise IndexError
-  
-  def __setitem__(self, args):
-    '''
-    Store a database fragment in the database.
-    db[{fragment_name: 'name', atoms: [[atom1],[atom2],...], 
-      restraints: ['SADI x y','SIMU x y', ...], tag: 'optinal short tag', 
-      reference: 'optional short description where it came from', 
-      comment: 'optional any comment about the fragment'}]
-    '''
-    print(args)
   
   def __delitem__(self, fragment_id):
     '''
@@ -180,7 +171,7 @@ class FragmentTable(DatabaseRequest):
     atomrows = self.db_request(req_atoms)
     return (atomrows)
 
-  def get_restraints(self, fragment_Id):
+  def get_restraints(self, fragment_id):
     '''
     returns the restraints for Fragment(Id) from the database.
     :param fragment_Id: id of the fragment in the database
@@ -189,7 +180,7 @@ class FragmentTable(DatabaseRequest):
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.db_request(req_restr, fragment_id)
-    (restraintrows)
+    return (restraintrows)
 
   def find_fragment_by_name(self, name, selection=5):
     '''
@@ -224,9 +215,15 @@ class FragmentTable(DatabaseRequest):
     selected_results = [search_results[i] for i in sorted(search_results)[0:selection]]
     return selected_results
 
-  def store_fragment(self, fragment_name, atoms, restraints, tag, reference, comment):
+  def store_fragment(self, fragment_name, atoms, restraints, tag=None, 
+                     reference=None, comment=None):
     '''
-    Store a new fragment into the database
+    Store a new fragment into the database.
+    db[{fragment_name: 'name', atoms: [[atom1],[atom2],...], 
+      restraints: ['SADI x y','SIMU x y', ...], tag: 'optinal short tag', 
+      reference: 'optional short description where it came from', 
+      comment: 'optional any comment about the fragment'}]
+    
     :param fragment_name: full chemical name of the fragment
     :type fragment_name: string
     :param atoms: atoms of the fragment ['name', 'atomic number', 'x', 'y', 'z']
@@ -240,7 +237,8 @@ class FragmentTable(DatabaseRequest):
     :param comment: any comment
     :type comment: string
     '''
-    pass
+    fragment_id = 999
+    return fragment_id
 
 
 class Restraints(DatabaseRequest):
@@ -259,36 +257,37 @@ if __name__ == '__main__':
   dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
   db = FragmentTable(dbfile)
   
-  print(db[5])
+  #print(db[5])
+  def match_dbfrag(fragId=17):
+    for i in db[fragId]:
+      print(i)
   
-  for i in db[3]:
-    print(i)
-  
-  tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'], 
-                                    ['C1', '6', '0.6123', '1.3624', '0.3645']]}
-  
+  #tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'], 
+  #                                  ['C1', '6', '0.6123', '1.3624', '0.3645']]}
+  #print(tst['name'])
+  #db[99, tst]
   
   #for i in db:
   #  print(i)
   
-  print('len', len(db))
-  if 'benzene' in db:
-    print('yes')
+ # print('len', len(db))
+ # if 'benzene' in db:
+ #   print('yes')
 
   
   
   #import cProfile
   #cProfile.run("allnames()", "foo.profile")
- #   res = Restraints(dbfile)
+  #   res = Restraints(dbfile)
   #  for r in res.get_restraints_from_fragmentId(15):
   #    pass
     #print(r)
 
- #   print(hasattr(db, '__iter__'))
- #   if 'OC(CF3)3' in db:
- #     print('yes')
- #   else:
- #     print('no benz')
+  #   print(hasattr(db, '__iter__'))
+  #   if 'OC(CF3)3' in db:
+  #     print('yes')
+  #   else:
+  #     print('no benz')
 
   # for i in db:
   #   print(i)

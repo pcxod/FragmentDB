@@ -39,9 +39,10 @@ db = FragmentTable(dbfile)
 def all_frags():
   print(db.get_all_fragment_names())
 
+OV.registerFunction(all_frags)
+
 
 def match_dbfrag(fragId=17):
-  #db[fragId]
   for i in db[fragId]:
     label = str(i[0])
     x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
@@ -51,7 +52,7 @@ def match_dbfrag(fragId=17):
     olx.xf.au.SetAtomOccu(id, 1)
     olx.xf.au.SetAtomU(id, 0.04)
 #  olx.xf.EndUpdate()
-  olx.Mode('fit')
+  #olx.Mode('fit')
   olx.xf.EndUpdate()
 
 
