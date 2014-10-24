@@ -40,32 +40,39 @@ def dice_coefficient(a, b):
     return 0.0
   return round(dice_coeff, 6)
 
+SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST', 
+             'L.S.', 'CGLS', 'BOND', 'FMAP', 'PLAN', 'TEMP', 'ACTA', 'CONF', 
+             'SIMU', 'RIGU', 'WGHT', 'FVAR', 'DELU', 'SAME', 'DISP', 'LAUE', 
+             'REM',  'MORE', 'TIME', 'END',  'HKLF', 'OMIT', 'SHEL', 'BASF', 
+             'TWIN', 'EXTI', 'SWAT', 'HOPE', 'MERG', 'SPEC', 'RESI', 'MOVE',
+             'ANIS', 'AFIX', 'HFIX', 'FRAG', 'FEND', 'EXYZ', 'EADP', 'EQIV', 
+             'CONN', 'BIND', 'FREE', 'DFIX', 'BUMP', 'SADI', 'CHIV', 'FLAT', 
+             'DEFS', 'ISOR', 'NCSY', 'SUMP', 'BLOC', 'DAMP', 'STIR', 'MPLA', 
+             'RTAB', 'HTAB', 'SIZE', 'WPDB', 'GRID', 'MOLE', 'XNPD', 'REST', 
+             'CHAN', 'FLAP', 'RNUM', 'SOCC', 'PRIG', 'WIGL', 'RANG', 'TANG',
+             'ADDA', 'STAG', 'NEUT', 'ABIN', 'ANSC', 'ANSR', 'NOTR', 'TWST', 
+             'PART', 'DANG')
 
 class DatabaseRequest():
   def __init__(self, dbfile):
     '''
-    creates a connection to the SQLite3 database file "dbfile".
+    creates a connection and the cursor to the SQLite3 database file "dbfile".
     :param dbfile: database file
     :type dbfile: str
     '''
     # open the database
     self.con = sqlite3.connect(dbfile)
-    self.con.text_factory = str
+    #self.con.text_factory = str
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
-
-  def commit(self):
-    '''
-    commit to the database
-    '''
-    self.con.commit()
-
 
   def db_request(self, request, *args):
     '''
     Performs a SQLite3 database request with "request" and optional arguments
     to insert parameters via "?" into the database request.
+    A push request will return the last row-Id.
+    A pull request will return the requested rows
     :param request: sqlite database request like: """SELECT fragment.id FROM fragment"""
     :type request: str
     '''
@@ -76,15 +83,25 @@ class DatabaseRequest():
       pass
     try:
       self.cur.execute(request, args)
+      last_rowid = self.cur.lastrowid
     except OperationalError as e:
       print(e)
       return False
     rows = self.cur.fetchall()
-    return rows
+    if not rows:
+      self.con.commit()
+      return last_rowid
+    else:
+      return rows
 
 
 class FragmentTable():
   def __init__(self, dbfile):
+    '''
+    Class to modify the database tables of the fragment database in "dbfile"
+    :param dbfile: database file path
+    :type dbfile: str
+    '''
     self.database = DatabaseRequest(dbfile)
 
   def __contains__(self, name):
@@ -243,17 +260,34 @@ class FragmentTable():
     :param comment: optional any comment about the fragment
     :type comment: string
     '''
-    fragment_id = 999
-    return fragment_id
-
-  def fill_fragment_table(self, table):
-    req = '''INSERT INTO Fragment (tag, name, comment)
-                       VALUES(?, ?, ?)'''
-    self.database.db_request(req, table)
-    self.database.commit()
+    FragmentId = self._fill_fragment_table((tag, fragment_name, comment))
+    self._fill_atom_table(FragmentId, atoms)
+    if restraints:
+      self._fill_restraint_table(FragmentId, restraints)
 
 
-class Restraints(DatabaseRequest):
+  def _fill_fragment_table(self, table):
+    req = '''INSERT INTO Fragment (tag, name, comment) VALUES(?, ?, ?)'''
+    return self.database.db_request(req, table)
+
+  def _fill_atom_table(self, FragmentId, table):
+    pass
+  
+  def _fill_restraint_table(self, FragmentId, table):
+        #def fill_restraints_table(FragmentId, head):
+    for line in table:
+      restr_table = []
+      if line[0][:4] in SHX_CARDS:
+ #       restr_table.append(FragmentId)
+        restr_table.append(' '.join(line))
+#        restr_table = ' '.join([str(i) for i in restr_table])
+        print(restr_table)
+        req = '''INSERT INTO Restraints (FragmentId, ShelxName, atoms) 
+                  VALUES(?, ?, ?)'''
+        self.database.db_request(FragmentId, req)
+
+  
+class Restraints():
   def __init__(self, dbfile):
     self.database = DatabaseRequest(dbfile)
 
@@ -261,13 +295,13 @@ class Restraints(DatabaseRequest):
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
       FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
-    return(restraintrows)
+    return restraintrows
 
 
 
 if __name__ == '__main__':
-  #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
-  dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
+  dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
+  #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
   db = FragmentTable(dbfile)
 
   #print(db[5])
@@ -278,43 +312,50 @@ if __name__ == '__main__':
   #match_dbfrag(57)
 
   #print(db.get_restraints(57))
-
-  table = ['supersilyle', 'Tris(trimethylsilyl)silane, [(CH3)3Si]3Si, Supersilyle', 'Name: Tris(trimethylsilyl)silane, [(CH3)3Si]3Si, Supersilyle\nSrc: CCDC CEYMID']
-
-  db.fill_fragment_table(table)
+  atoms = [(u'C1', u'6', 1.2, -0.023, 3.615), (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
+  
+  table = ['sBenzene', 'super Benzene', 
+           'Name: Trisxdfhdcxh, [(CH3)3Si]3Si, Sudfhdle\nSrc: CCDC CEYMID']
+  restraints = [(u'SADI', u'C1 F1 C2 F2'),
+                (u'SADI', u'0.04 F2 C3 F1 C6 F2 C1 F1 C2'),
+                (u'SAME', u'C2 > C6 C1'),
+                (u'FLAT', u'C1 > F2'),
+                (u'SIMU', u'C1 > F2'),
+                (u'RIGU', u'C1 > F2')]
+    
+  fragment_name=table[1]
+  tag=table[0]
+  db.store_fragment(fragment_name, atoms, restraints, tag)
 
   #tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'],
   #                                  ['C1', '6', '0.6123', '1.3624', '0.3645']]}
   #print(tst['name'])
-  #db[99, tst]
-
-  #for i in db:
-  #  print(i)
+  print(db[58])
 
   # print('len', len(db))
   # if 'benzene' in db:
   #   print('yes')
 
-
-
+  #dbr = DatabaseRequest(dbfile)
+  #dbr.db_request('''SELECT FROM asert''')
+  
   #import cProfile
   #cProfile.run("allnames()", "foo.profile")
   #   res = Restraints(dbfile)
-  #  for r in res.get_restraints_from_fragmentId(15):
-  #    pass
-    #print(r)
+  for r in db.get_restraints(15):
+    print(r)
 
   #   print(hasattr(db, '__iter__'))
-  #   if 'OC(CF3)3' in db:
-  #     print('yes')
-  #   else:
-  #     print('no benz')
+  if 'OC(CF3)3' in db:
+    print('yes')
+  else:
+    print('no benz')
 
-  for i in db:
-    print(i)
+  #for i in db:
+  #  print(i)
 
   #print('##################')
-  found = db.find_fragment_by_name('super', selection=3)
-  print(found)
+  #found = db.find_fragment_by_name('super', selection=3)
+  #print(found)
   #for i in db.get_fragment(fragment_id=2):
   #  print(i)

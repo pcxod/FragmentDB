@@ -32,8 +32,8 @@ def olex_functions():
 
 
 OV.registerFunction(olex_functions)
-#dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
-dbfile = r'C:\Program Files\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
+dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
+#dbfile = r'C:\Program Files\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 db = FragmentTable(dbfile)
 
 def all_frags():
