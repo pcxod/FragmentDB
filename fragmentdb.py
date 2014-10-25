@@ -8,8 +8,8 @@ __metaclass__ = type  # use new-style classes
 import sqlite3
 import sys
 from sqlite3 import OperationalError
-#print(sys.version)
-#print
+print(sys.version)
+print
 
 # handle database updates!
 
@@ -250,7 +250,10 @@ class FragmentTable():
   def store_fragment(self, fragment_name, atoms, restraints=None, tag=None,
                      reference=None, comment=None):
     '''
-    Store a complete new fragment into the database.
+    Store a complete new fragment into the database. Minimal requirement is a
+    fragment name (Full chemical name) and a list of atoms. Restraints, short
+    name tag, reference and comments are optional.
+
     :param fragment_name: full chemical name of the fragment
     :type fragment_name: string
     :param atoms: atoms of the fragment ['name', 'atomic number', 'x', 'y', 'z']
@@ -264,11 +267,16 @@ class FragmentTable():
     :param comment: optional any comment about the fragment
     :type comment: string
     '''
+    # first stores the meta-information in the Fragment table:
     FragmentId = self._fill_fragment_table(fragment_name, tag=None, comment=None)
+    if not FragmentId:
+      raise Exception('No Id obtained during fragment storage.')
+    # then stores atoms with the previously obtained FragmentId
     self._fill_atom_table(FragmentId, atoms)
+    # in case of supplied restraints store them also:
     if restraints:
       self._fill_restraint_table(FragmentId, restraints)
-    print('stored fragment', FragmentId)
+    print('stored fragment:', FragmentId)
     return FragmentId
 
 
@@ -291,21 +299,26 @@ class FragmentTable():
     '''
     Fills atoms into the Atoms table.
     [('C1', '6', 1.2, -0.023, 3.615), ('C2', '6', 1.203, -0.012, 2.106), ...]
+    or
+    [('C1 6 1.2 -0.023 3.615'), ('C2 6 1.203 -0.012 2.106'), ...]
     :param FragmentId: Id of the respective Fragment
     :type FragmentId: int or str
-    :param atom_table: list of lits
-    :type atom_table:
+    :param atom_table: list of lits or list of strings
+    :type atom_table: list
     '''
+    # test wether atom_table is a list or list of list, because we want no string
+    # in a list here.
+    if not isinstance(atom_table[0], (list, tuple)):
+      atom_table = [i.split() for i in atom_table]
     for line in atom_table:
         Name = line[0]
         element = line[1]
         x = line[2]
         y = line[3]
         z = line[4]
-        atom = (FragmentId, tag, Name, element, x, y, z)
         req = '''INSERT INTO atoms (FragmentId, tag, Name, element,
                 x, y, z) VALUES(?, ?, ?, ?, ?, ?, ?)'''
-        self.database.db_request(req, atom)
+        self.database.db_request(req, (FragmentId, tag, Name, element, x, y, z))
 
 
   def _fill_restraint_table(self, FragmentId, restraints_list):
@@ -320,6 +333,10 @@ class FragmentTable():
     :param restraints_list: list with restraints
     :type restraints_list:
     '''
+    # test if restraint_list is a list of strings. we dont want list of list here.
+    if isinstance(restraints_list[0], (list, tuple)):
+      # convert to list of stings
+      restraints_list = [' '.join(['{}'.format(a) for a in i]) for i in restraints_list]
     for line in restraints_list:
       restr_table = []
       if line[:4] in SHX_CARDS:
@@ -356,7 +373,10 @@ if __name__ == '__main__':
   #match_dbfrag(57)
 
   #print(db.get_restraints(57))
-  atoms = [(u'C1', u'6', 1.2, -0.023, 3.615), (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
+  #atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
+  atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
+
+  #print([' '.join(['{}'.format(a) for a in i]) for i in atoms])
 
   table = ['sBenzene', 'super Benzene',
            'Name: Trisxdfhdcxh, [(CH3)3Si]3Si, Sudfhdle\nSrc: CCDC CEYMID']
@@ -369,19 +389,21 @@ if __name__ == '__main__':
 
   fragment_name=table[1]
   tag=table[0]
-  db.store_fragment(fragment_name, atoms, restraints, tag)
+  id = db.store_fragment(fragment_name, atoms, restraints, tag)
 
   #tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'],
   #                                  ['C1', '6', '0.6123', '1.3624', '0.3645']]}
   #print(tst['name'])
- # print(db[58])
+  print(db[id])
 
   # print('len', len(db))
   # if 'benzene' in db:
   #   print('yes')
-  del db[72]
+
+  #del db[id]
+
   #dbr = DatabaseRequest(dbfile)
-  #dbr.db_request('''SELECT FROM asert''')
+  #dbr.db_request('''SELECT * FROM asert''')
 
   #import cProfile
   #cProfile.run("allnames()", "foo.profile")
