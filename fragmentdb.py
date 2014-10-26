@@ -11,8 +11,6 @@ from sqlite3 import OperationalError
 print(sys.version)
 print
 
-# handle database updates!
-
 
 __all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints' ]
 
@@ -122,7 +120,7 @@ class FragmentTable():
       self.no_db()
     all_names = (i[1].lower() for i in all_fragments)
     found = False
-    if isinstance(name, (str, unicode)):
+    if isinstance(name, (basestring)):
       name = name.lower()
       found = any(name in s for s in all_names)
       return found
@@ -136,7 +134,10 @@ class FragmentTable():
     '''
     req = '''SELECT fragment.id FROM fragment'''
     rows = self.database.db_request(req)
-    return len(rows)
+    if rows:
+      return len(rows)
+    else:
+      return False
 
   def __getitem__(self, fragment_id):
     '''
@@ -145,18 +146,14 @@ class FragmentTable():
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
     '''
-    if isinstance(fragment_id, int):
-      found = self.get_fragment(fragment_id)
+    if self.fragment_id_is_valid(fragment_id):
+      found = self._get_fragment(fragment_id)
       if found:
         return found
       else:
-        raise IndexError
-    if isinstance(fragment_id, (str, unicode)):
-      found = self.get_fragment(fragment_id)
-      if found:
-        return found
-      else:
-        raise IndexError
+        raise IndexError('Database fragment not found.')
+    else:
+      return False
 
   def __delitem__(self, fragment_id):
     '''
@@ -165,8 +162,10 @@ class FragmentTable():
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
     '''
+    deleted = False
     req = '''DELETE FROM fragment WHERE fragment.id = ?'''
-    deleted = self.database.db_request(req, fragment_id)
+    if self.fragment_id_is_valid(fragment_id):
+      deleted = self.database.db_request(req, fragment_id)
     return deleted
 
   def __iter__(self):
@@ -176,11 +175,34 @@ class FragmentTable():
       print(i)
     '''
     all_fragments = self.get_all_fragment_names()
-    return (i[1] for i in all_fragments)
+    if all_fragments:
+      return (i[1] for i in all_fragments)
+    else:
+      return False
+
+  def fragment_id_is_valid(self, fragment_id):
+    '''
+    Returns True if the supplied fragment id is valid for a database request.
+    :param fragment_id: a primary database key
+    :type fragment_id: int (str if convertable to int)
+    '''
+    valid = False
+    if isinstance(fragment_id, int):
+      valid = True
+    if isinstance(fragment_id, float):
+      valid = False
+    if isinstance(fragment_id, (basestring)):
+      try:
+        int(fragment_id)
+      except(SyntaxError, KeyError, ValueError):
+        valid = False
+        return valid
+      valid = True
+    return valid
 
   def no_db(self):
     print('No database items found!')
-    sys.exit()
+    return False
 
   def get_all_fragment_names(self):
     '''
@@ -188,11 +210,14 @@ class FragmentTable():
     '''
     req = '''SELECT fragment.id, fragment.name FROM fragment ORDER BY name'''
     rows = self.database.db_request(req)
-    return rows
+    if rows:
+      return rows
+    else:
+      return False
 
-  def get_fragment(self, fragment_id):
+  def _get_fragment(self, fragment_id):
     '''
-    returns a full fragment with all atoms, atom types as a dictionary
+    returns a full fragment with all atoms, atom types as a tuple.
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
@@ -210,9 +235,11 @@ class FragmentTable():
     '''
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
-    print(fragment_id)
     restraintrows = self.database.db_request(req_restr, fragment_id)
-    return (restraintrows)
+    if restraintrows:
+      return (restraintrows)
+    else:
+      return False
 
   def find_fragment_by_name(self, name, selection=5):
     '''
@@ -276,7 +303,6 @@ class FragmentTable():
     # in case of supplied restraints store them also:
     if restraints:
       self._fill_restraint_table(FragmentId, restraints)
-    print('stored fragment:', FragmentId)
     return FragmentId
 
 
@@ -309,7 +335,10 @@ class FragmentTable():
     # test wether atom_table is a list or list of list, because we want no string
     # in a list here.
     if not isinstance(atom_table[0], (list, tuple)):
-      atom_table = [i.split() for i in atom_table]
+      if isinstance(atom_table[0], str):
+        atom_table = [i.split() for i in atom_table]
+      else:
+        raise Exception('wrong data type "{}" for atom list.'.format(type(atom_table[0])))
     for line in atom_table:
         Name = line[0]
         element = line[1]
@@ -334,9 +363,19 @@ class FragmentTable():
     :type restraints_list:
     '''
     # test if restraint_list is a list of strings. we dont want list of list here.
+    try:
+      restraints_list[0] # is there even one restraint?
+    except KeyError:
+      print('No restraints found in input.')
+      return False
     if isinstance(restraints_list[0], (list, tuple)):
       # convert to list of stings
       restraints_list = [' '.join(['{}'.format(a) for a in i]) for i in restraints_list]
+    if isinstance(restraints_list[0], str):
+      pass
+    else:
+      raise Exception('wrong data type "{}" for restraint list.'.format(
+                                                  type(restraints_list[0])))
     for line in restraints_list:
       restr_table = []
       if line[:4] in SHX_CARDS:
@@ -362,7 +401,8 @@ class Restraints():
 
 if __name__ == '__main__':
   #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
-  dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
+  #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
+  dbfile = 'dk-database_2.sqlite'
   db = FragmentTable(dbfile)
 
   #print(db[5])
@@ -380,28 +420,32 @@ if __name__ == '__main__':
 
   table = ['sBenzene', 'super Benzene',
            'Name: Trisxdfhdcxh, [(CH3)3Si]3Si, Sudfhdle\nSrc: CCDC CEYMID']
-  restraints = [('SADI C1 F1 C2 F2'),
+  drestraints = [('SADI C1 F1 C2 F2'),
                 ('SADI 0.04 F2 C3 F1 C6 F2 C1 F1 C2'),
                 ('SAME C2 > C6 C1'),
                 ('FLAT C1 > F2'),
                 ('SIMU C1 > F2'),
                 ('RIGU C1 > F2')]
-
+  restraints = {'name': 3245}
   fragment_name=table[1]
   tag=table[0]
   id = db.store_fragment(fragment_name, atoms, restraints, tag)
-
+  if id:
+    print('stored', id)
   #tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'],
   #                                  ['C1', '6', '0.6123', '1.3624', '0.3645']]}
   #print(tst['name'])
-  print(db[id])
+  #print(db[id])
+
+  #for i in db[11]:
+    #print(i)
 
   # print('len', len(db))
   # if 'benzene' in db:
   #   print('yes')
 
   #del db[id]
-
+  print(len(db))
   #dbr = DatabaseRequest(dbfile)
   #dbr.db_request('''SELECT * FROM asert''')
 
@@ -425,5 +469,5 @@ if __name__ == '__main__':
   #print('##################')
   #found = db.find_fragment_by_name('super', selection=3)
   #print(found)
-  #for i in db.get_fragment(fragment_id=2):
+  #for i in db._get_fragment(fragment_id=2):
   #  print(i)
