@@ -2,6 +2,36 @@
 Created on 09.10.2014
 
 @author: Daniel Kratzert
+
+Usage:
+dbfile = 'database_file.sqlite'
+db = FragmentTable(dbfile)
+
+db[2]   # get database fragment number 2
+----------
+del db[3]  # deletes fragment 3.
+----------
+if 'Benzene' in db: # test if name 'Benzene' is in the database
+  pass
+----------
+for i in db:
+  print(i)  # get all fragment names and their id number.
+----------
+for i in db[2]:
+  print(i)  # get all atoms of fragment number 2
+----------
+for i in db.get_restraints(15):
+  print(i)   # get restraints of fragment number 15
+----------  
+len(db)  # number of fragments in the database
+----------
+# store a fragment into the database.
+id = db.store_fragment(fragment_name, atoms, restraints, tag)
+if id:
+  print('fragment is stored successfully')
+----------  
+db.find_fragment_by_name('super', selection=3) # find a fragment with 
+                                                 foult tolerance search
 '''
 
 __metaclass__ = type  # use new-style classes
@@ -171,12 +201,17 @@ class FragmentTable():
   def __iter__(self):
     '''
     This method is called when an iterator is required for FragmentTable.
+    Returns the Id and the Name as tuple. 
+    e.g.:
+    (21, u'Octane, C8H18')
+    (33, u'PM4, C37H32B2N8O9')
     for i in db:
       print(i)
     '''
     all_fragments = self.get_all_fragment_names()
     if all_fragments:
-      return (i[1] for i in all_fragments)
+      #return (i[1] for i in all_fragments)
+      return (i for i in all_fragments)
     else:
       return False
 
@@ -210,10 +245,7 @@ class FragmentTable():
     '''
     req = '''SELECT fragment.id, fragment.name FROM fragment ORDER BY name'''
     rows = self.database.db_request(req)
-    if rows:
-      return rows
-    else:
-      return False
+    return rows
 
   def _get_fragment(self, fragment_id):
     '''
@@ -236,10 +268,7 @@ class FragmentTable():
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
-    if restraintrows:
-      return (restraintrows)
-    else:
-      return False
+    return (restraintrows)
 
   def find_fragment_by_name(self, name, selection=5):
     '''
@@ -295,7 +324,7 @@ class FragmentTable():
     :type comment: string
     '''
     # first stores the meta-information in the Fragment table:
-    FragmentId = self._fill_fragment_table(fragment_name, tag=None, comment=None)
+    FragmentId = self._fill_fragment_table(tag, fragment_name, comment)
     if not FragmentId:
       raise Exception('No Id obtained during fragment storage.')
     # then stores atoms with the previously obtained FragmentId
@@ -352,8 +381,8 @@ class FragmentTable():
 
   def _fill_restraint_table(self, FragmentId, restraints_list):
     '''
-    Fills the restraints table with restraints. restraints_list must be a list or tuple of
-    string lists like:
+    Fills the restraints table with restraints. restraints_list must be a list 
+    or tuple of string lists like:
     [['SADI C1 F1 C2 F2'],
     ['SADI 0.04 F2 C3 F1 C6 F2 C1 F1 C2'],
     ['SAME C2 > C6 C1']]
@@ -420,30 +449,37 @@ if __name__ == '__main__':
 
   table = ['sBenzene', 'super Benzene',
            'Name: Trisxdfhdcxh, [(CH3)3Si]3Si, Sudfhdle\nSrc: CCDC CEYMID']
-  drestraints = [('SADI C1 F1 C2 F2'),
+  restraints2 = (('SADI C1 F1 C2 F2'),
                 ('SADI 0.04 F2 C3 F1 C6 F2 C1 F1 C2'),
                 ('SAME C2 > C6 C1'),
                 ('FLAT C1 > F2'),
                 ('SIMU C1 > F2'),
-                ('RIGU C1 > F2')]
-  restraints = {'name': 3245}
+                ('RIGU C1 > F2'))
+  restraints = (('SADI', 'C1', 'F1', 'C2', 'F2'),
+                ('SADI', 0.04, 'F2', 'C3', 'F1', 'C6', 'F2', 'C1', 'F1', 'C2'),
+                ('SAME', 'C2 > C6', 'C1'),
+                ('FLAT', 'C1 > F2'),
+                ('SIMU', 'C1 > F2'),
+                ('RIGU' 'C1 > F2'))
+
+  #restraints = {'name': 3245}
   fragment_name=table[1]
   tag=table[0]
-  id = db.store_fragment(fragment_name, atoms, restraints, tag)
-  if id:
-    print('stored', id)
+ # id = db.store_fragment(fragment_name, atoms, restraints, tag)
+  #if id:
+  #  print('stored', id)
   #tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'],
   #                                  ['C1', '6', '0.6123', '1.3624', '0.3645']]}
   #print(tst['name'])
   #print(db[id])
 
-  #for i in db[11]:
-    #print(i)
+  for i in db:
+    print(i)
 
   # print('len', len(db))
   # if 'benzene' in db:
   #   print('yes')
-
+  print(db)
   #del db[id]
   print(len(db))
   #dbr = DatabaseRequest(dbfile)
