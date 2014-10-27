@@ -159,7 +159,8 @@ class FragmentTable():
     '''
     all_fragments = self.get_all_fragment_names()
     if not all_fragments:
-      self.no_db()
+      print('No database items found!')
+      return False
     all_names = (i[1].lower() for i in all_fragments)
     found = False
     if isinstance(name, (basestring)):
@@ -246,10 +247,6 @@ class FragmentTable():
         return valid
       valid = True
     return valid
-
-  def no_db(self):
-    print('No database items found!')
-    return False
 
   def get_all_fragment_names(self):
     '''
