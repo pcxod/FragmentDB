@@ -52,8 +52,6 @@ def match_dbfrag(fragId=17):
     olx.xf.au.SetAtomPart(id, -1)
     olx.xf.au.SetAtomOccu(id, 1)
     olx.xf.au.SetAtomU(id, 0.04)
-#  olx.xf.EndUpdate()
-  #olx.Mode('fit')
   olx.xf.EndUpdate()
   print('Now you can fit the fragment with "mode fit"')
 

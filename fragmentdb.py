@@ -32,14 +32,26 @@ if id:
 ----------  
 db.find_fragment_by_name('super', selection=3) # find a fragment with 
                                                  foult tolerance search
+
+def match_dbfrag(fragId):
+  for i in db[fragId]:
+    label = str(i[0])
+    x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
+    id = olx.xf.au.NewAtom(label, x, y, z, False)
+    print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
+    olx.xf.au.SetAtomPart(id, -1)
+    olx.xf.au.SetAtomOccu(id, 1)
+    olx.xf.au.SetAtomU(id, 0.04)
+  olx.xf.EndUpdate()
+  print('Now you can fit the fragment with "mode fit"')                                                 
 '''
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
 import sys
 from sqlite3 import OperationalError
-print(sys.version)
-print
+#print(sys.version)
+#print
 
 
 __all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints' ]
@@ -324,7 +336,7 @@ class FragmentTable():
     :type comment: string
     '''
     # first stores the meta-information in the Fragment table:
-    FragmentId = self._fill_fragment_table(tag, fragment_name, comment)
+    FragmentId = self._fill_fragment_table(fragment_name, tag, reference, comment)
     if not FragmentId:
       raise Exception('No Id obtained during fragment storage.')
     # then stores atoms with the previously obtained FragmentId
@@ -335,7 +347,7 @@ class FragmentTable():
     return FragmentId
 
 
-  def _fill_fragment_table(self, fragment_name, tag=None, comment=None):
+  def _fill_fragment_table(self, fragment_name, tag=None, reference=None, comment=None):
     '''
     Fills a fragment into the database.
     :param fragment_name: Nam eof the Fragment
@@ -345,8 +357,8 @@ class FragmentTable():
     :param comment: any comment about the fragment
     :type comment: str
     '''
-    table = (fragment_name, tag, comment)
-    req = '''INSERT INTO Fragment (tag, name, comment) VALUES(?, ?, ?)'''
+    table = (tag, fragment_name, reference, comment)
+    req = '''INSERT INTO Fragment (tag, name, reference, comment) VALUES(?, ?, ?, ?)'''
     return self.database.db_request(req, table)
 
 
@@ -461,26 +473,26 @@ if __name__ == '__main__':
                 ('FLAT', 'C1 > F2'),
                 ('SIMU', 'C1 > F2'),
                 ('RIGU' 'C1 > F2'))
-
-  #restraints = {'name': 3245}
+  reference = 'sdfg ayrfgrawg adrgaegh ef'
   fragment_name=table[1]
-  tag=table[0]
- # id = db.store_fragment(fragment_name, atoms, restraints, tag)
-  #if id:
-  #  print('stored', id)
-  #tst = {'name': 'hallofrag', 'atoms': [['C1', '6', '0.123', '1.324', '0.345'],
-  #                                  ['C1', '6', '0.6123', '1.3624', '0.3645']]}
-  #print(tst['name'])
+  tag= 'benz'
+  comment = 'asfgagr'
+  id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
+  if id:
+    print('stored', id)
+  
+  del db[id]
+  
   #print(db[id])
 
-  for i in db:
-    print(i)
+  #for i in db:
+  #  print(i)
 
   # print('len', len(db))
   # if 'benzene' in db:
   #   print('yes')
-  print(db)
-  #del db[id]
+  
+  
   print(len(db))
   #dbr = DatabaseRequest(dbfile)
   #dbr.db_request('''SELECT * FROM asert''')
