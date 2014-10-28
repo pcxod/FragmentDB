@@ -126,7 +126,6 @@ class DatabaseRequest():
         args = args[0]
     except IndexError:
       pass
-#      print request
     try:
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
@@ -176,7 +175,7 @@ class FragmentTable():
     Called to implement the built-in function len().
     Should return the number of database entrys.
     '''
-    req = '''SELECT fragment.id FROM fragment'''
+    req = '''SELECT Fragment.id FROM Fragment'''
     rows = self.database.db_request(req)
     if rows:
       return len(rows)
@@ -207,7 +206,7 @@ class FragmentTable():
     :type fragment_id: int
     '''
     deleted = False
-    req = '''DELETE FROM fragment WHERE fragment.id = ?'''
+    req = '''DELETE FROM Fragment WHERE Fragment.id = ?'''
     if self.fragment_id_is_valid(fragment_id):
       deleted = self.database.db_request(req, fragment_id)
     return deleted
@@ -253,7 +252,7 @@ class FragmentTable():
     '''
     returns all fragment names in the database, sorted by name
     '''
-    req = '''SELECT fragment.id, fragment.name FROM fragment ORDER BY name'''
+    req = '''SELECT Fragment.Id, Fragment.name FROM Fragment ORDER BY Name'''
     rows = self.database.db_request(req)
     return rows
 
@@ -289,7 +288,7 @@ class FragmentTable():
     :return fragment_id: list of id numbers of the found fragments e.g. [1, 5]
     :type fragment_id: int
     '''
-    req = '''SELECT fragment.id, fragment.name FROM fragment'''
+    req = '''SELECT Fragment.Id, Fragment.Name FROM Fragment'''
     frags = self.database.db_request(req)
     fragment_ids = self._search_name(name, frags, selection)
     return fragment_ids

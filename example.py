@@ -45,7 +45,17 @@ def all_frags():
 OV.registerFunction(all_frags)
 
 def dblookup():
-  print(db[2])
+  con = sqlite3.connect(dbfile)
+  con.execute("PRAGMA foreign_keys = ON")
+  #self.con.text_factory = str
+  request = '''SELECT * from fragment'''# WHERE fragment.id = 2'''
+  with con:
+    print('')
+    # set the database cursor
+    cur = con.cursor()
+    cur.execute(request)
+    rows = cur.fetchall()
+  print(rows)
   
 OV.registerFunction(dblookup)
 
