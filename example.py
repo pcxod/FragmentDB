@@ -3,6 +3,7 @@ import olx
 #import sys
 from fragmentdb import FragmentTable
 from olexFunctions import OlexFunctions
+import sqlite3
 OV = OlexFunctions()
 '''
 To run this example script, type spy.example("Hello") in Olex2
@@ -32,6 +33,7 @@ def olex_functions():
 
 
 OV.registerFunction(olex_functions)
+
 dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 #dbfile = r'C:\Program Files\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 db = FragmentTable(dbfile)
@@ -42,6 +44,10 @@ def all_frags():
 
 OV.registerFunction(all_frags)
 
+def dblookup():
+  print(db[2])
+  
+OV.registerFunction(dblookup)
 
 def match_dbfrag(fragId=17):
   for i in db[fragId]:

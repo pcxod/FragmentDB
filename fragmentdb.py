@@ -126,6 +126,7 @@ class DatabaseRequest():
         args = args[0]
     except IndexError:
       pass
+#      print request
     try:
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
@@ -262,9 +263,9 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_atoms = '''SELECT atoms.name, atoms.element, atoms.x, atoms.y, atoms.z
-      FROM fragment, atoms on fragment.id=atoms.fragmentid WHERE
-      fragment.id = {}'''.format(fragment_id)
+    req_atoms = '''SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
+      FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
+      Fragment.Id = {}'''.format(fragment_id)
     atomrows = self.database.db_request(req_atoms)
     return (atomrows)
 
@@ -474,13 +475,13 @@ if __name__ == '__main__':
   fragment_name=table[1]
   tag= 'benz'
   comment = 'asfgagr'
-  id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
-  if id:
-    print('stored', id)
+  #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
+  #if id:
+  #  print('stored', id)
   
-  del db[id]
-  
-  #print(db[id])
+  #del db[id]
+  id = '2'
+  print(db[id])
 
   #for i in db:
   #  print(i)
@@ -488,7 +489,6 @@ if __name__ == '__main__':
   # print('len', len(db))
   # if 'benzene' in db:
   #   print('yes')
-  
   
   print(len(db))
   #dbr = DatabaseRequest(dbfile)
