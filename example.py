@@ -34,7 +34,8 @@ def olex_functions():
 
 OV.registerFunction(olex_functions)
 
-dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
+#dbfile = 'F:\Programme\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
+dbfile = 'C:\Program Files\Olex2-1.2-dev\Olex2-1.2-alpha\etc\scripts\dk-database.sqlite'
 #dbfile = r'C:\Program Files\Olex2-1.2-dev\etc\scripts\dk-database.sqlite'
 db = FragmentTable(dbfile)
 
@@ -60,18 +61,28 @@ def dblookup():
 OV.registerFunction(dblookup)
 
 def match_dbfrag(fragId=17):
+  atoms = []
   for i in db[fragId]:
     label = str(i[0])
     x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
     id = olx.xf.au.NewAtom(label, x, y, z, False)
-    print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
     olx.xf.au.SetAtomPart(id, -1)
     olx.xf.au.SetAtomOccu(id, 1)
     olx.xf.au.SetAtomU(id, 0.04)
     name = olx.xf.au.GetAtomName(id)
-    print(name)
-    OV.Sel(name)
+    print('adding {}, name: {}, Id: {}, coords: {} {} {}'.format(i[0], name, id, x, y, z))
+    atoms.append(name)
+  #OV.cmd("RESI tst1 1")#{}".format(name))
   olx.xf.EndUpdate()
+  #OV.cmd("sel {}".format(' '.join(atoms)))
+  # wenn die atomnamen uniq sind klappt das hier, aber ich haette gerne die
+  # moeglichkeit die eingefuegten atome zu selektiren und erst mal in eine residue
+  # zu tun. am besten sogar mit den namen aus der datenbank.
+  # dann wird das mit den restraints auch einfacher.
+  # dann koennte man OV.cmd("sel atoms") manchen und dann OV.cmd("RESI atoms")
+  # dann 
+  #for i in db.get_restraints(fragId):
+  #  OV.cmd("{}".format(i))
   print('Now you can fit the fragment with "mode fit"')
 
 
