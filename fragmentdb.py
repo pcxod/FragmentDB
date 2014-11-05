@@ -48,7 +48,6 @@ def match_dbfrag(fragId):
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
-import sys
 from sqlite3 import OperationalError
 #print(sys.version)
 #print
