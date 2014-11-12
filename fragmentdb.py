@@ -22,15 +22,15 @@ for i in db[2]:
 ----------
 for i in db.get_restraints(15):
   print(i)   # get restraints of fragment number 15
-----------  
+----------
 len(db)  # number of fragments in the database
 ----------
 # store a fragment into the database.
 id = db.store_fragment(fragment_name, atoms, restraints, tag)
 if id:
   print('fragment is stored successfully')
-----------  
-db.find_fragment_by_name('super', selection=3) # find a fragment with 
+----------
+db.find_fragment_by_name('super', selection=3) # find a fragment with
                                                  foult tolerance search
 
 def match_dbfrag(fragId):
@@ -43,7 +43,7 @@ def match_dbfrag(fragId):
     olx.xf.au.SetAtomOccu(id, 1)
     olx.xf.au.SetAtomU(id, 0.04)
   olx.xf.EndUpdate()
-  print('Now you can fit the fragment with "mode fit"')                                                 
+  print('Now you can fit the fragment with "mode fit"')
 '''
 
 __metaclass__ = type  # use new-style classes
@@ -53,7 +53,7 @@ from sqlite3 import OperationalError
 #print
 
 
-__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints' ]
+__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints']
 
 def dice_coefficient(a, b):
   '''
@@ -65,12 +65,14 @@ def dice_coefficient(a, b):
   a = a.lower()
   b = b.lower()
   if not len(a) or not len(b): return 0.0
-  if len(a) == 1:  a=a+'.'
-  if len(b) == 1:  b=b+'.'
-  a_bigram_list=[]
+  if len(a) == 1:
+      a = a+'.'
+  if len(b) == 1:
+      b = b + '.'
+  a_bigram_list = []
   for i in range(len(a)-1):
     a_bigram_list.append(a[i:i+2])
-  b_bigram_list=[]
+  b_bigram_list = []
   for i in range(len(b)-1):
     b_bigram_list.append(b[i:i+2])
   a_bigrams = set(a_bigram_list)
@@ -85,7 +87,7 @@ def dice_coefficient(a, b):
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
              'L.S.', 'CGLS', 'BOND', 'FMAP', 'PLAN', 'TEMP', 'ACTA', 'CONF',
              'SIMU', 'RIGU', 'WGHT', 'FVAR', 'DELU', 'SAME', 'DISP', 'LAUE',
-             'REM',  'MORE', 'TIME', 'END',  'HKLF', 'OMIT', 'SHEL', 'BASF',
+             'REM', 'MORE', 'TIME', 'END', 'HKLF', 'OMIT', 'SHEL', 'BASF',
              'TWIN', 'EXTI', 'SWAT', 'HOPE', 'MERG', 'SPEC', 'RESI', 'MOVE',
              'ANIS', 'AFIX', 'HFIX', 'FRAG', 'FEND', 'EXYZ', 'EADP', 'EQIV',
              'CONN', 'BIND', 'FREE', 'DFIX', 'BUMP', 'SADI', 'CHIV', 'FLAT',
@@ -117,7 +119,8 @@ class DatabaseRequest():
     to insert parameters via "?" into the database request.
     A push request will return the last row-Id.
     A pull request will return the requested rows
-    :param request: sqlite database request like: """SELECT fragment.id FROM fragment"""
+    :param request: sqlite database request like:
+                """SELECT fragment.id FROM fragment"""
     :type request: str
     '''
     try:
@@ -213,7 +216,7 @@ class FragmentTable():
   def __iter__(self):
     '''
     This method is called when an iterator is required for FragmentTable.
-    Returns the Id and the Name as tuple. 
+    Returns the Id and the Name as tuple.
     e.g.:
     (21, u'Octane, C8H18')
     (33, u'PM4, C37H32B2N8O9')
@@ -265,7 +268,7 @@ class FragmentTable():
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
       Fragment.Id = {}'''.format(fragment_id)
     atomrows = self.database.db_request(req_atoms)
-    return (atomrows)
+    return atomrows
 
   def get_restraints(self, fragment_id):
     '''
@@ -276,7 +279,7 @@ class FragmentTable():
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
-    return (restraintrows)
+    return restraintrows
 
   def find_fragment_by_name(self, name, selection=5):
     '''
@@ -389,7 +392,7 @@ class FragmentTable():
 
   def _fill_restraint_table(self, FragmentId, restraints_list):
     '''
-    Fills the restraints table with restraints. restraints_list must be a list 
+    Fills the restraints table with restraints. restraints_list must be a list
     or tuple of string lists like:
     [['SADI C1 F1 C2 F2'],
     ['SADI 0.04 F2 C3 F1 C6 F2 C1 F1 C2'],
@@ -412,7 +415,7 @@ class FragmentTable():
       pass
     else:
       raise Exception('wrong data type "{}" for restraint list.'.format(
-                                                  type(restraints_list[0])))
+          type(restraints_list[0])))
     for line in restraints_list:
       restr_table = []
       if line[:4] in SHX_CARDS:
@@ -458,11 +461,11 @@ if __name__ == '__main__':
   table = ['sBenzene', 'super Benzene',
            'Name: Trisxdfhdcxh, [(CH3)3Si]3Si, Sudfhdle\nSrc: CCDC CEYMID']
   restraints2 = (('SADI C1 F1 C2 F2'),
-                ('SADI 0.04 F2 C3 F1 C6 F2 C1 F1 C2'),
-                ('SAME C2 > C6 C1'),
-                ('FLAT C1 > F2'),
-                ('SIMU C1 > F2'),
-                ('RIGU C1 > F2'))
+                 ('SADI 0.04 F2 C3 F1 C6 F2 C1 F1 C2'),
+                 ('SAME C2 > C6 C1'),
+                 ('FLAT C1 > F2'),
+                 ('SIMU C1 > F2'),
+                 ('RIGU C1 > F2'))
   restraints = (('SADI', 'C1', 'F1', 'C2', 'F2'),
                 ('SADI', 0.04, 'F2', 'C3', 'F1', 'C6', 'F2', 'C1', 'F1', 'C2'),
                 ('SAME', 'C2 > C6', 'C1'),
@@ -476,18 +479,18 @@ if __name__ == '__main__':
   #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
   #if id:
   #  print('stored', id)
-  
+
   #del db[id]
   id = '2'
   print(db[id])
 
-  #for i in db:
-  #  print(i)
+  for i in db:
+    print(i)
 
   # print('len', len(db))
-  # if 'benzene' in db:
-  #   print('yes')
-  
+  if 'benzene' in db:
+    print('yes')
+
   print(len(db))
   #dbr = DatabaseRequest(dbfile)
   #dbr.db_request('''SELECT * FROM asert''')
@@ -496,9 +499,9 @@ if __name__ == '__main__':
   #cProfile.run("allnames()", "foo.profile")
   #   res = Restraints(dbfile)
 
-  #for r in db.get_restraints(15):
+  for r in db.get_restraints(15):
   #  pass
-  #  print(r)
+    print(r)
 
   #   print(hasattr(db, '__iter__'))
  # if 'OC(CF3)3' in db:
