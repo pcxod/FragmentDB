@@ -268,7 +268,7 @@ class FragmentTable():
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
       Fragment.Id = {}'''.format(fragment_id)
     atomrows = self.database.db_request(req_atoms)
-    return atomrows
+    return (atomrows)
 
   def get_restraints(self, fragment_id):
     '''
@@ -279,7 +279,7 @@ class FragmentTable():
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
-    return restraintrows
+    return (restraintrows)
 
   def find_fragment_by_name(self, name, selection=5):
     '''

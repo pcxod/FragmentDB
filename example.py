@@ -1,6 +1,6 @@
 import olex
 import olx
-#import sys
+import gui
 from fragmentdb import FragmentTable
 from olexFunctions import OlexFunctions
 import sqlite3
@@ -77,14 +77,17 @@ def match_dbfrag(fragId=17):
   olx.xf.EndUpdate()
   OV.cmd("sel #c{}".format(' #c'.join(atoms)))
   OV.cmd("RESI tst1 9")
-  print(labeldict)
-  for i in db.get_restraints(fragId):
-    if '>' in i[1]:
-      continue
+  #print(labeldict)
+  for num, i in enumerate(db.get_restraints(fragId)):
+    if '>' in i[1]: # needs a renge resolving method
+      continue      # ignore ranges for now
     line = []
     for at in i[1].split():
       if at[0].isalpha():
-        line.append('#c'+labeldict[at])
+        try:
+          line.append('#c'+labeldict[at])
+        except(KeyError):
+          print('\nBad restraint found in line {}.\n'.format(num))
       else:
         line.append(at)
     OV.cmd("{} {}".format(i[0], ' '.join(line)))
@@ -94,6 +97,15 @@ def match_dbfrag(fragId=17):
 
 
 OV.registerFunction(match_dbfrag)
+
+def windowsopen():
+  w, h = 650, 700
+  #x, y = gui.GetBoxPosition(w, h)
+  x = 10
+  y = 10
+  path = "{}/etc/gui/tools/users-db.htm".format(olx.BaseDir())
+  olx.Popup("users-db", path, s=True, b="t", t="Manage database fragment",
+           w=w, h=h, x=x, y=y)
 
 def find_frag(name):
   for num, name in db.find_fragment_by_name(name):
