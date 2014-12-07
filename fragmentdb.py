@@ -3,13 +3,7 @@ Created on 09.10.2014
 
 @author: Daniel Kratzert
 
-Usage:
-dbfile = 'database_file.sqlite'
-db = FragmentTable(dbfile)
 
-db[2]   # get database fragment number 2
-----------
-del db[3]  # deletes fragment 3.
 ----------
 if 'Benzene' in db: # test if name 'Benzene' is in the database
   pass
@@ -55,6 +49,24 @@ from sqlite3 import OperationalError
 
 __all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints']
 
+
+SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
+             'L.S.', 'CGLS', 'BOND', 'FMAP', 'PLAN', 'TEMP', 'ACTA', 'CONF',
+             'SIMU', 'RIGU', 'WGHT', 'FVAR', 'DELU', 'SAME', 'DISP', 'LAUE',
+             'REM', 'MORE', 'TIME', 'END', 'HKLF', 'OMIT', 'SHEL', 'BASF',
+             'TWIN', 'EXTI', 'SWAT', 'HOPE', 'MERG', 'SPEC', 'RESI', 'MOVE',
+             'ANIS', 'AFIX', 'HFIX', 'FRAG', 'FEND', 'EXYZ', 'EADP', 'EQIV',
+             'CONN', 'BIND', 'FREE', 'DFIX', 'BUMP', 'SADI', 'CHIV', 'FLAT',
+             'DEFS', 'ISOR', 'NCSY', 'SUMP', 'BLOC', 'DAMP', 'STIR', 'MPLA',
+             'RTAB', 'HTAB', 'SIZE', 'WPDB', 'GRID', 'MOLE', 'XNPD', 'REST',
+             'CHAN', 'FLAP', 'RNUM', 'SOCC', 'PRIG', 'WIGL', 'RANG', 'TANG',
+             'ADDA', 'STAG', 'NEUT', 'ABIN', 'ANSC', 'ANSR', 'NOTR', 'TWST',
+             'PART', 'DANG')
+
+RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP', 
+                'HFIX', 'SADI', 'CHIV', 'FLAT', 'DEFS', 'ISOR', 'NCSY', 'DANG')
+
+
 def dice_coefficient(a, b):
   '''
   dice coefficient 2nt/na + nb
@@ -84,18 +96,37 @@ def dice_coefficient(a, b):
     return 0.0
   return round(dice_coeff, 6)
 
-SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
-             'L.S.', 'CGLS', 'BOND', 'FMAP', 'PLAN', 'TEMP', 'ACTA', 'CONF',
-             'SIMU', 'RIGU', 'WGHT', 'FVAR', 'DELU', 'SAME', 'DISP', 'LAUE',
-             'REM', 'MORE', 'TIME', 'END', 'HKLF', 'OMIT', 'SHEL', 'BASF',
-             'TWIN', 'EXTI', 'SWAT', 'HOPE', 'MERG', 'SPEC', 'RESI', 'MOVE',
-             'ANIS', 'AFIX', 'HFIX', 'FRAG', 'FEND', 'EXYZ', 'EADP', 'EQIV',
-             'CONN', 'BIND', 'FREE', 'DFIX', 'BUMP', 'SADI', 'CHIV', 'FLAT',
-             'DEFS', 'ISOR', 'NCSY', 'SUMP', 'BLOC', 'DAMP', 'STIR', 'MPLA',
-             'RTAB', 'HTAB', 'SIZE', 'WPDB', 'GRID', 'MOLE', 'XNPD', 'REST',
-             'CHAN', 'FLAP', 'RNUM', 'SOCC', 'PRIG', 'WIGL', 'RANG', 'TANG',
-             'ADDA', 'STAG', 'NEUT', 'ABIN', 'ANSC', 'ANSR', 'NOTR', 'TWST',
-             'PART', 'DANG')
+
+def restraint_check(restraints, atoms, fragment_name):
+  '''
+  - Checks if the Atomnames in the restraints are also in
+    the atom list of the respective dbentry.
+  - Checks wether restraints cards are valid.
+  not used atm and not ready
+  '''
+  import sys
+  atoms = [i[0].upper() for i in atoms]
+  restraint_atoms_list = set([])
+  for n, line in enumerate(restraints):
+    if not line:
+        continue
+    if line[:4].upper() not in SHX_CARDS:  # only the first 4 characters, because SADI_TOL would be bad
+      print('Bad line in header of database entry "{}" found!'.format(n, fragment_name))
+      print(' '.join(line))
+      sys.exit(False)
+    if line[:4].upper() in RESTRAINT_CARDS:
+      line = line[5:].split()
+      for i in line:
+        if i in ('>', '<'):
+          continue
+        try:
+          float(i)
+        except(ValueError):
+          restraint_atoms_list.add(i)
+  for atom in restraint_atoms_list:
+    if not atom.upper() in atoms:
+      print('Bad atom "{}" in restraints of "{}"'.format(atom, fragment_name))
+
 
 class DatabaseRequest():
   def __init__(self, dbfile):
@@ -111,7 +142,6 @@ class DatabaseRequest():
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
-
 
   def db_request(self, request, *args):
     '''
@@ -143,6 +173,12 @@ class DatabaseRequest():
 
 
 class FragmentTable():
+  '''
+  >>> dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
+  >>> db = FragmentTable(dbfile)
+  >>> print db[2]
+  [(u'N1', u'7', 20.6124, 12.15, 22.3497), (u'N2', u'7', 20.9206, 10.5397, 20.3473), (u'C1', u'6', 20.425, 12.9255, 23.3244), (u'C2', u'6', 19.2147, 13.3242, 23.9359), (u'C3', u'6', 17.9873, 12.5825, 23.4736), (u'C4', u'6', 18.2353, 11.6971, 22.5007), (u'C5', u'6', 19.5035, 11.446, 21.9744), (u'C6', u'6', 19.6805, 10.5356, 20.7944), (u'C7', u'6', 18.6945, 9.6218, 20.3676), (u'C8', u'6', 18.9823, 8.7613, 19.3477), (u'C9', u'6', 20.2843, 8.7959, 18.8213), (u'C10', u'6', 21.23, 9.6533, 19.2507)]
+  '''
   def __init__(self, dbfile):
     '''
     Class to modify the database tables of the fragment database in "dbfile"
@@ -151,27 +187,56 @@ class FragmentTable():
     '''
     self.database = DatabaseRequest(dbfile)
 
+  
+  def __setitem__(self, fragment_id=None, fragment_data=None):
+    '''
+    Implementation of FragmentDB[id, fragment_data]
+    :param fragment_id: id of db fragment
+    :param fragment_data: dictionary with all data to store a fragment
+    
+    {id: 1, 
+    name: 'Toluene', 
+    restraints: [['SADI C1 F1 C2 F2'], ['DFIX 1.45 C1 C2'], ... ],
+    ...
+      }
+    
+    '''
+    pass
+    
+  
   def __contains__(self, name):
     '''
     Returns a database fragment if its name contains "name".
-    if 'benzene' in db:
-      print('yes')
+    >>> 
+    >>> dbfile = 'dk-database_2.sqlite'
+    >>> 2 in FragmentTable(dbfile)
+    True
+    >>> 'benzene' in FragmentTable(dbfile)
+    Traceback (most recent call last):
+      ...
+    Exception: Wrong type.
     :param name: (partial) name of a database fragment.
     :type name: str
     '''
-    all_fragments = self.get_all_fragment_names()
-    if not all_fragments:
-      print('No database items found!')
-      return False
-    all_names = (i[1].lower() for i in all_fragments)
-    found = False
-    if isinstance(name, (basestring)):
-      name = name.lower()
-      found = any(name in s for s in all_names)
-      return found
+    if isinstance(name, int):
+      if self.has_index(name):
+        return True
+      else:
+        return False
     else:
-      raise TypeError('Name must be string.')
-
+      raise Exception('Wrong type.')
+  
+  
+  def has_name(self, name):
+    req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
+    if self.database.db_request(req):
+      return True
+  
+  def has_index(self, Id):
+    req = '''SELECT Id FROM Fragment WHERE Fragment.Id = {}'''.format(Id)
+    if self.database.db_request(req):
+      return True
+  
   def __len__(self):
     '''
     Called to implement the built-in function len().
@@ -224,11 +289,8 @@ class FragmentTable():
       print(i)
     '''
     all_fragments = self.get_all_fragment_names()
-    if all_fragments:
-      #return (i[1] for i in all_fragments)
-      return (i for i in all_fragments)
-    else:
-      return False
+    return iter(all_fragments)
+
 
   def fragment_id_is_valid(self, fragment_id):
     '''
@@ -270,6 +332,17 @@ class FragmentTable():
     atomrows = self.database.db_request(req_atoms)
     return (atomrows)
 
+  def _get_fragment_name(self, fragment_id):
+    '''
+    returns the "Name" column entry of fragment with id "fragment_id" 
+    :param fragment_id: id of the fragment in the database
+    :type fragment_id: int
+    '''
+    req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = {}
+               '''.format(fragment_id)
+    name = self.database.db_request(req_name)
+    return name
+  
   def get_restraints(self, fragment_id):
     '''
     returns the restraints for Fragment(Id) from the database.
@@ -355,6 +428,7 @@ class FragmentTable():
     :type tag: str
     :param comment: any comment about the fragment
     :type comment: str
+    :rtype list: 
     '''
     table = (tag, fragment_name, reference, comment)
     req = '''INSERT INTO Fragment (tag, name, reference, comment) VALUES(?, ?, ?, ?)'''
@@ -439,7 +513,15 @@ class Restraints():
 
 
 
+
+
+
 if __name__ == '__main__':
+  
+  import doctest
+  doctest.testmod()
+
+  
   #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
   #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
   dbfile = 'dk-database_2.sqlite'
@@ -482,13 +564,13 @@ if __name__ == '__main__':
 
   #del db[id]
   id = '2'
-  print(db[id])
-
-  for i in db:
-    print(i)
+  #print(db[2])
+  
+#  for i in db:
+#    print(i)
 
   # print('len', len(db))
-  if 'benzene' in db:
+  if 2 in db:
     print('yes')
 
   print(len(db))
@@ -499,9 +581,9 @@ if __name__ == '__main__':
   #cProfile.run("allnames()", "foo.profile")
   #   res = Restraints(dbfile)
 
-  for r in db.get_restraints(15):
+  #for r in db.get_restraints(15):
   #  pass
-    print(r)
+#    print(r)
 
   #   print(hasattr(db, '__iter__'))
  # if 'OC(CF3)3' in db:
