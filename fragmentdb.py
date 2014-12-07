@@ -4,15 +4,7 @@ Created on 09.10.2014
 @author: Daniel Kratzert
 
 
-----------
-if 'Benzene' in db: # test if name 'Benzene' is in the database
-  pass
-----------
-for i in db:
-  print(i)  # get all fragment names and their id number.
-----------
-for i in db[2]:
-  print(i)  # get all atoms of fragment number 2
+
 ----------
 for i in db.get_restraints(15):
   print(i)   # get restraints of fragment number 15
@@ -142,7 +134,7 @@ class DatabaseRequest():
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
-
+      
   def db_request(self, request, *args):
     '''
     Performs a SQLite3 database request with "request" and optional arguments
@@ -174,10 +166,21 @@ class DatabaseRequest():
 
 class FragmentTable():
   '''
-  >>> dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
+  >>> dbfile = 'dk-database_2.sqlite'
   >>> db = FragmentTable(dbfile)
   >>> print db[2]
   [(u'N1', u'7', 20.6124, 12.15, 22.3497), (u'N2', u'7', 20.9206, 10.5397, 20.3473), (u'C1', u'6', 20.425, 12.9255, 23.3244), (u'C2', u'6', 19.2147, 13.3242, 23.9359), (u'C3', u'6', 17.9873, 12.5825, 23.4736), (u'C4', u'6', 18.2353, 11.6971, 22.5007), (u'C5', u'6', 19.5035, 11.446, 21.9744), (u'C6', u'6', 19.6805, 10.5356, 20.7944), (u'C7', u'6', 18.6945, 9.6218, 20.3676), (u'C8', u'6', 18.9823, 8.7613, 19.3477), (u'C9', u'6', 20.2843, 8.7959, 18.8213), (u'C10', u'6', 21.23, 9.6533, 19.2507)]
+    
+  >>> for num, i in enumerate(db):
+  ...   print(i)
+  ...   if num >= 5: break
+  (64, u'(1-methyl-1H-imidazol-2-yl)methanol, C5H8N2O')
+  (59, u'1,2-Dichlorobenzene, C6H4Cl2')
+  (55, u'1,2-Difluorobenzene, C6H4F2')
+  (56, u'1,2-Dimethoxyethane, coordinated to Na, C4H10O2, DME')
+  (22, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
+  (26, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
+  
   '''
   def __init__(self, dbfile):
     '''
@@ -186,7 +189,6 @@ class FragmentTable():
     :type dbfile: str
     '''
     self.database = DatabaseRequest(dbfile)
-
   
   def __setitem__(self, fragment_id=None, fragment_data=None):
     '''
@@ -206,15 +208,18 @@ class FragmentTable():
   
   def __contains__(self, name):
     '''
-    Returns a database fragment if its name contains "name".
-    >>> 
+    Returns a database fragment if its name contains element of type int. 
+    E.g. db[2]
+ 
     >>> dbfile = 'dk-database_2.sqlite'
     >>> 2 in FragmentTable(dbfile)
     True
+    
     >>> 'benzene' in FragmentTable(dbfile)
     Traceback (most recent call last):
       ...
-    Exception: Wrong type.
+    TypeError: Wrong type. Only int allowed.
+    
     :param name: (partial) name of a database fragment.
     :type name: str
     '''
@@ -224,15 +229,23 @@ class FragmentTable():
       else:
         return False
     else:
-      raise Exception('Wrong type.')
-  
+      raise TypeError('Wrong type. Only int allowed.')
   
   def has_name(self, name):
+    '''
+    Returns True if a partial name is found in the DB. 
+    '''
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
     if self.database.db_request(req):
       return True
   
   def has_index(self, Id):
+    '''
+    Returns True if db has index Id 
+    :param Id: Id of the respective fragment
+    :type Id: int
+    :rtype: bool
+    '''
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = {}'''.format(Id)
     if self.database.db_request(req):
       return True
@@ -241,32 +254,71 @@ class FragmentTable():
     '''
     Called to implement the built-in function len().
     Should return the number of database entrys.
+    :rtype: int
     '''
     req = '''SELECT Fragment.id FROM Fragment'''
     rows = self.database.db_request(req)
     if rows:
       return len(rows)
     else:
-      return False
+      raise IndexError('Could not determine database size')
 
   def __getitem__(self, fragment_id):
     '''
     Called to implement evaluation of self[fragment_id].
     print FragmentTable[fragment_id]
+    
+    >>> dbfile = 'dk-database_2.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> for i in db[2]:
+    ...   print(i)
+    (u'N1', u'7', 20.6124, 12.15, 22.3497)
+    (u'N2', u'7', 20.9206, 10.5397, 20.3473)
+    (u'C1', u'6', 20.425, 12.9255, 23.3244)
+    (u'C2', u'6', 19.2147, 13.3242, 23.9359)
+    (u'C3', u'6', 17.9873, 12.5825, 23.4736)
+    (u'C4', u'6', 18.2353, 11.6971, 22.5007)
+    (u'C5', u'6', 19.5035, 11.446, 21.9744)
+    (u'C6', u'6', 19.6805, 10.5356, 20.7944)
+    (u'C7', u'6', 18.6945, 9.6218, 20.3676)
+    (u'C8', u'6', 18.9823, 8.7613, 19.3477)
+    (u'C9', u'6', 20.2843, 8.7959, 18.8213)
+    (u'C10', u'6', 21.23, 9.6533, 19.2507)
+    
+    >>> dblen = len(db)
+    >>> print(db[dblen-1])
+    [(u'O1', u'8', -2.0934, 1.1341, -0.085), (u'C1', u'6', -0.7437, 1.2282, -0.5749), (u'C2', u'6', -0.0311, 0.005, 0.0066), (u'C3', u'6', -0.7498, 1.181, -2.1104), (u'C4', u'6', -0.1025, 2.529, -0.0678)]
+    
+    >>> print(db[-1])
+    [(u'O1', u'8', -2.0934, 1.1341, -0.085), (u'C1', u'6', -0.7437, 1.2282, -0.5749), (u'C2', u'6', -0.0311, 0.005, 0.0066), (u'C3', u'6', -0.7498, 1.181, -2.1104), (u'C4', u'6', -0.1025, 2.529, -0.0678)]
+    
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
     '''
-    if self.fragment_id_is_valid(fragment_id):
-      found = self._get_fragment(fragment_id)
-      if found:
-        return found
-      else:
-        raise IndexError('Database fragment not found.')
+    if not isinstance(fragment_id, int):
+      raise TypeError('Wrong type. Integer expected')
+    if fragment_id < 0:
+      fragment_id = len(self)-abs(fragment_id)
+    found = self._get_fragment(fragment_id)
+    if found:
+      return found
     else:
-      return False
+      raise IndexError('Database fragment not found.')
+  
 
   def __delitem__(self, fragment_id):
     '''
+    # have to create a copy of the db before I delete the entry:
+    >>> import shutil, os
+    >>> shutil.copyfile('dk-database_2.sqlite', 'tst.sqlite')
+    >>> dbfile = 'tst.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> del db[2]
+    >>> db[2]
+    Traceback (most recent call last):
+      ...
+    IndexError: Database fragment not found.
+
     Called to implement deletion of self[fragment_id].
     del FragmentTable[3]
     :param fragment_id: Id number of fragment to delete.
@@ -520,7 +572,7 @@ if __name__ == '__main__':
   
   import doctest
   doctest.testmod()
-
+  print('passed all tests!')
   
   #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
   #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
@@ -558,6 +610,7 @@ if __name__ == '__main__':
   fragment_name=table[1]
   tag= 'benz'
   comment = 'asfgagr'
+  
   #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
   #if id:
   #  print('stored', id)
@@ -570,10 +623,10 @@ if __name__ == '__main__':
 #    print(i)
 
   # print('len', len(db))
-  if 2 in db:
-    print('yes')
+  #if 2 in db:
+   # print('yes')
 
-  print(len(db))
+  #print(len(db))
   #dbr = DatabaseRequest(dbfile)
   #dbr.db_request('''SELECT * FROM asert''')
 
