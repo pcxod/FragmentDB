@@ -3,33 +3,12 @@ Created on 09.10.2014
 
 @author: Daniel Kratzert
 
-
-
-----------
-for i in db.get_restraints(15):
-  print(i)   # get restraints of fragment number 15
-----------
-len(db)  # number of fragments in the database
-----------
 # store a fragment into the database.
 id = db.store_fragment(fragment_name, atoms, restraints, tag)
 if id:
   print('fragment is stored successfully')
-----------
-db.find_fragment_by_name('super', selection=3) # find a fragment with
-                                                 foult tolerance search
 
-def match_dbfrag(fragId):
-  for i in db[fragId]:
-    label = str(i[0])
-    x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
-    id = olx.xf.au.NewAtom(label, x, y, z, False)
-    print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
-    olx.xf.au.SetAtomPart(id, -1)
-    olx.xf.au.SetAtomOccu(id, 1)
-    olx.xf.au.SetAtomU(id, 0.04)
-  olx.xf.EndUpdate()
-  print('Now you can fit the fragment with "mode fit"')
+----------------------------------------------
 '''
 
 __metaclass__ = type  # use new-style classes
@@ -39,7 +18,7 @@ from sqlite3 import OperationalError
 #print
 
 
-__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints']
+__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'restraint_check']
 
 
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
@@ -158,12 +137,16 @@ class DatabaseRequest():
       return False
     rows = self.cur.fetchall()
     if not rows:
+      # this line is the slowest in the whole program:
       self.con.commit()
       return last_rowid
     else:
       return rows
 
-
+# is this a good idea instead of commit above?
+#  def __del__(self):
+#    self.con.commit()
+  
 class FragmentTable():
   '''
   >>> dbfile = 'dk-database_2.sqlite'
@@ -189,22 +172,6 @@ class FragmentTable():
     :type dbfile: str
     '''
     self.database = DatabaseRequest(dbfile)
-
-  def __setitem__(self, fragment_id=None, fragment_data=None):
-    '''
-    Implementation of FragmentDB[id, fragment_data]
-    :param fragment_id: id of db fragment
-    :param fragment_data: dictionary with all data to store a fragment
-
-    {id: 1,
-    name: 'Toluene',
-    restraints: [['SADI C1 F1 C2 F2'], ['DFIX 1.45 C1 C2'], ... ],
-    ...
-      }
-
-    '''
-    pass
-
 
   def __contains__(self, name):
     '''
@@ -236,29 +203,17 @@ class FragmentTable():
     else:
       raise TypeError('Wrong type. Only int allowed.')
 
-  def has_name(self, name):
-    '''
-    Returns True if a partial name is found in the DB.
-    '''
-    req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
-    if self.database.db_request(req):
-      return True
-
-  def has_index(self, Id):
-    '''
-    Returns True if db has index Id
-    :param Id: Id of the respective fragment
-    :type Id: int
-    :rtype: bool
-    '''
-    req = '''SELECT Id FROM Fragment WHERE Fragment.Id = {}'''.format(Id)
-    if self.database.db_request(req):
-      return True
-
   def __len__(self):
     '''
     Called to implement the built-in function len().
     Should return the number of database entrys.
+    
+    # number of fragments in the database:
+    >>> dbfile = 'dk-database_2.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> len(db)  
+    70
+    
     :rtype: int
     '''
     req = '''SELECT Fragment.id FROM Fragment'''
@@ -275,6 +230,11 @@ class FragmentTable():
 
     >>> dbfile = 'dk-database_2.sqlite'
     >>> db = FragmentTable(dbfile)
+    >>> print(db[0])
+    Traceback (most recent call last):
+      ...
+    IndexError: Database fragment not found.
+    
     >>> for i in db[2]:
     ...   print(i)
     (u'N1', u'7', 20.6124, 12.15, 22.3497)
@@ -325,12 +285,23 @@ class FragmentTable():
     Traceback (most recent call last):
       ...
     IndexError: Database fragment not found.
-
+    
+    >>> print 'before:', len(db)
+    before: 69
+    
+    # del db[0] deletes nothing:
+    
+    >>> del db[0]
+    >>> print 'after:', len(db)
+    after: 69
+    
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
     '''
     deleted = False
-    req = '''DELETE FROM Fragment WHERE Fragment.id = ?'''
+    if fragment_id < 0:
+      fragment_id = self.get_all_rowids()[fragment_id]
+    req = '''DELETE FROM Fragment WHERE rowid = ?'''
     if isinstance(fragment_id, int):
       deleted = self.database.db_request(req, fragment_id)
     else:
@@ -355,6 +326,37 @@ class FragmentTable():
     all_fragments = self.get_all_fragment_names()
     return iter(all_fragments)
 
+  def has_name(self, name):
+    '''
+    Returns True if a partial name is found in the DB.
+    '''
+    req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
+    if self.database.db_request(req):
+      return True
+
+  def has_index(self, Id):
+    '''
+    Returns True if db has index Id
+    :param Id: Id of the respective fragment
+    :type Id: int
+    :rtype: bool
+    '''
+    req = '''SELECT Id FROM Fragment WHERE Fragment.Id = {}'''.format(Id)
+    if self.database.db_request(req):
+      return True
+  
+  def get_all_rowids(self):
+    '''
+    returns all Ids in the database as list.
+    :rtype: list 
+    '''
+    ids = []
+    req = '''SELECT Id FROM Fragment ORDER BY Id'''
+    rows = self.database.db_request(req)
+    for i in rows:
+      ids.append(i[0])
+    return ids
+  
   def get_all_fragment_names(self):
     '''
     returns all fragment names in the database, sorted by name
@@ -368,6 +370,7 @@ class FragmentTable():
     returns a full fragment with all atoms, atom types as a tuple.
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
+    :rtype: tuple
     '''
     req_atoms = '''SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
@@ -464,8 +467,10 @@ class FragmentTable():
     :type reference: string
     :param comment: optional any comment about the fragment
     :type comment: string
+    :rtype int: FragmentId -> last_rowid
     '''
     # first stores the meta-information in the Fragment table:
+    # The FragmentId is the last_rowid from sqlite
     FragmentId = self._fill_fragment_table(fragment_name, tag, reference, comment)
     if not FragmentId:
       raise Exception('No Id obtained during fragment storage.')
@@ -486,7 +491,7 @@ class FragmentTable():
     :type tag: str
     :param comment: any comment about the fragment
     :type comment: str
-    :rtype list:
+    :rtype list: last_rowid
     '''
     table = (tag, fragment_name, reference, comment)
     req = '''INSERT INTO Fragment (tag, name, reference, comment) VALUES(?, ?, ?, ?)'''
@@ -579,15 +584,15 @@ if __name__ == '__main__':
   import doctest
   doctest.testmod()
   print('passed all tests!')
-
+  import cProfile
+  
   #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
   #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
   dbfile = 'dk-database_2.sqlite'
   db = FragmentTable(dbfile)
 
-  #atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
-  atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
-
+  atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
+  #atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
   table = ['sBenzene', 'super Benzene',
            'Name: Trisxdfhdcxh, [(CH3)3Si]3Si, Sudfhdle\nSrc: CCDC CEYMID']
   restraints2 = (('SADI C1 F1 C2 F2'),
@@ -607,11 +612,13 @@ if __name__ == '__main__':
   tag= 'benz'
   comment = 'asfgagr'
 
+  #del db[-1]
+  #cProfile.run("db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)", "foo.profile")
   #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
   #if id:
   #  print('stored', id)
+  
+  
+  print('ready')
 
-  #import cProfile
-  #cProfile.run("allnames()", "foo.profile")
-  #   res = Restraints(dbfile)
 
