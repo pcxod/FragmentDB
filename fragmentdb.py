@@ -137,15 +137,14 @@ class DatabaseRequest():
       return False
     rows = self.cur.fetchall()
     if not rows:
-      # this line is the slowest in the whole program:
-      self.con.commit()
       return last_rowid
     else:
       return rows
 
-# is this a good idea instead of commit above?
-#  def __del__(self):
-#    self.con.commit()
+  def __del__(self):
+    # commit is very slow:
+    self.con.commit()
+    self.con.close()
   
 class FragmentTable():
   '''
@@ -615,7 +614,7 @@ if __name__ == '__main__':
   #del db[-1]
   #cProfile.run("db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)", "foo.profile")
   #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
-  #if id:
+ # if id:
   #  print('stored', id)
   
   
