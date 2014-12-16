@@ -76,8 +76,13 @@ def match_dbfrag(fragId=17):
     atoms.append(id)
   olx.xf.EndUpdate()
   OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+  make_restraints(fragId, labeldict, atoms)
+  OV.cmd("mode fit")
+  #print('Now you can fit the fragment with "mode fit"')
+
+
+def make_restraints(fragId, labeldict, atoms):
   OV.cmd("RESI tst1 9")
-  #print(labeldict)
   for num, i in enumerate(db.get_restraints(fragId)):
     if '>' in i[1]: # needs a renge resolving method
       continue      # ignore ranges for now
@@ -92,9 +97,6 @@ def match_dbfrag(fragId=17):
         line.append(at)
     OV.cmd("{} {}".format(i[0], ' '.join(line)))
   OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-  OV.cmd("mode fit")
-  #print('Now you can fit the fragment with "mode fit"')
-
 
 OV.registerFunction(match_dbfrag)
 

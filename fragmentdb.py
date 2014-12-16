@@ -3,20 +3,11 @@ Created on 09.10.2014
 
 @author: Daniel Kratzert
 
-# store a fragment into the database.
-id = db.store_fragment(fragment_name, atoms, restraints, tag)
-if id:
-  print('fragment is stored successfully')
-
-----------------------------------------------
 '''
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
-#print(sys.version)
-#print
-
 
 __all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'restraint_check']
 
@@ -583,7 +574,7 @@ if __name__ == '__main__':
   import doctest
   doctest.testmod()
   print('passed all tests!')
-  import cProfile
+ # import cProfile
   
   #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
   #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
