@@ -1,0 +1,37 @@
+<!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragementDB_1; help_ext=FragementDB_1;1; -->
+  <td ALIGN='left' width='100%'>
+    <a>Welcome to your new Plugin: FragementDB</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragementDB_2; help_ext=FragementDB_2;1; -->
+  <td ALIGN='left' width='100%'>
+     <b><a href="spy.FragementDB.run()">RUN</a>
+     <b><a href="spy.FragementDB.match_dbfrag(18)">MATCH FRAGMENT</a>
+     <b><a href="spy.FragementDB.list_fragments()">list FRAGMENTs</a>
+  </td>
+
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragementDB_3; help_ext=FragementDB_3;1; -->
+  <td ALIGN='left' width='100%'>
+
+$+
+    html.Snippet("gui/snippets/input-combo",
+    "name=LIST_FRAGMENTS",
+    "items=spy.FragementDB.list_fragments()",
+    "value=",
+    "onchange=",
+    "readonly=false",
+    "manage=true")
+$-
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
+
+
