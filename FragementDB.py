@@ -33,6 +33,7 @@ class FragementDB(PT):
     OV.registerFunction(self.run,True,"FragementDB")
     OV.registerFunction(self.match_dbfrag,True,"FragementDB")
     OV.registerFunction(self.list_fragments,True,"FragementDB")
+    OV.registerFunction(self.testmethod,True,"FragementDB")
 
     
   def list_fragments(self):
@@ -41,11 +42,14 @@ class FragementDB(PT):
     items = ""
     for fragment in db:
       _ = fragment[1].replace(',', ' ')
-      items += "%s;" %_
+      ID = fragment[0]
+      items += "%s<-%s;" %(_, ID)
     #olx.html.SetItems("LIST_FRAGMENTS", items)
     return items
 
-    
+  def testmethod(self):
+    fragId = olx.GetVar('fragment_ID')
+    self.match_dbfrag(fragId)
     
   def run(self):
     dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
