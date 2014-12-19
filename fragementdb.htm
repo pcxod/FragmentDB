@@ -98,6 +98,28 @@
   </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_OCC_1';help_ext=Frag-OCC-1;1 -->
+<td>%Occupancy:%</td>
+  <td>
+    <font size="$GetVar('HtmlFontSizeControls')">
+    <input
+      type="text"
+      height="$GetVar('HtmlInputHeight')"
+      width="30"
+      bgcolor="$GetVar('HtmlInputBgColour')"
+      valign='center'
+      name = "FRAG_OCCUPANCY"
+      value = "1"
+      min='-4'
+      max='4'
+      onchange='SetVar(frag_occ,html.GetValue(~name~))'
+    >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
 
 
