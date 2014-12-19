@@ -33,9 +33,28 @@ class FragementDB(PT):
     OV.registerFunction(self.run,True,"FragementDB")
     OV.registerFunction(self.match_dbfrag,True,"FragementDB")
     OV.registerFunction(self.list_fragments,True,"FragementDB")
-    OV.registerFunction(self.testmethod,True,"FragementDB")
+    OV.registerFunction(self.fit_frag,True,"FragementDB")
+    OV.registerFunction(self.set_part,True,"FragementDB")
+    OV.registerFunction(self.set_resi,True,"FragementDB")
+    OV.registerFunction(self.set_occ,True,"FragementDB")
+    OV.registerFunction(self.set_fvar,True,"FragementDB")
 
-    
+   
+  def set_part(self):
+    frag_part = olx.GetVar('frag_part')
+    print(frag_part)
+  
+  def set_resi(self):
+    frag_resi = olx.GetVar('frag_resi')
+    print(frag_resi)
+  
+  def set_occ(self):
+    pass
+  
+  def set_fvar(self):
+    frag_fvar = olx.GetVar('frag_fvar')
+    print(frag_fvar)
+  
   def list_fragments(self):
     dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
     db = FragmentTable(dbfile)
@@ -47,7 +66,7 @@ class FragementDB(PT):
     #olx.html.SetItems("LIST_FRAGMENTS", items)
     return items
 
-  def testmethod(self):
+  def fit_frag(self):
     fragId = olx.GetVar('fragment_ID')
     self.match_dbfrag(fragId)
     
