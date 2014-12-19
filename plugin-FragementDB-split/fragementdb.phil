@@ -1,0 +1,11 @@
+
+fragement_runner{
+  gui{
+    location = 'tools'
+      .type = str
+      .help = The tab item where the FragementDB GUI shall appear.
+    before = 'images'
+      .type = str
+      .help = The tool before which the FragementDB GUI shall appear.
+    }
+}

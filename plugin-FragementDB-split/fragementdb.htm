@@ -1,0 +1,125 @@
+<!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=fragement_runner_1; help_ext=fragement_runner_1;1; -->
+  <td ALIGN='left' width='100%'>
+    <a>Welcome to your new Plugin: FragementDB</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragementDB_2; help_ext=FragementDB_2;1; -->
+  <td ALIGN='left' width='100%'>
+     <b><a href="spy.fragement_runner.run()">RUN</a>
+     <b><a href="spy.fragement_runner.match_dbfrag(18)">FIT FRAGMENT 18</a>
+     <b><a href="spy.fragement_runner.list_fragments()">list FRAGMENTs</a>
+  </td>
+
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=fragement_runner_3; help_ext=fragement_runner_3;1; -->
+  <td ALIGN='left' width='100%'>
+
+    $+
+    html.Snippet("gui/snippets/input-combo",
+    "name=LIST_FRAGMENTS",
+    "items=spy.fragement_runner.list_fragments()",
+    "value=",
+    "onchange=SetVar(fragment_ID,html.GetValue(~name~))",
+    "readonly=false",
+    "manage=true")
+    $-
+  
+    <b><a href="spy.fragement_runner.fit_frag()">FIT FRAGMENT</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_PART_1';help_ext=Frag-Part-1;1 -->
+  <td width='100%'>
+    <a href="spy.fragement_runner.set_part()" <b>Put fragment into Part:</b></a>
+  </td>
+  <td VALIGN='center'>
+    <font size='2'>
+      <input
+        type="spin"
+        name="FRAG_PART"
+        width="50"
+        height="17"
+        max='99'
+        min='-99'
+        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
+        value='0'
+        onchange='SetVar(frag_part,html.GetValue(~name~))'
+      >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_RESI_1';help_ext=Frag-Resi-1;1 -->
+  <td width='100%'>
+    <a href="spy.fragement_runner.set_resi()" <b>Put fragment into residue:</b></a>
+  </td>
+  <td VALIGN='center'>
+    <font size='2'>
+      <input
+        type="spin"
+        name="RESIDUE"
+        width="50"
+        height="17"
+        max='99'
+        min='-99'
+        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
+        value='0'
+        onchange='SetVar(frag_resi,html.GetValue(~name~))'
+      >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Frag-FVAR-1;1 -->
+  <td width='100%'>
+    <a href="spy.fragement_runner.set_fvar()" <b>Assign free variable to fragment:</b></a>
+  </td>
+  <td VALIGN='center'>
+    <font size='2'>
+      <input
+        type="spin"
+        name="FRAG_FVAR"
+        width="50"
+        height="17"
+        max='99'
+        min='-99'
+        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
+        value='0'
+        onchange='SetVar(frag_fvar,html.GetValue(~name~))'
+      >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_OCC_1';help_ext=Frag-OCC-1;1 -->
+<td>%Occupancy:%</td>
+  <td>
+    <font size="$GetVar('HtmlFontSizeControls')">
+    <input
+      type="text"
+      height="$GetVar('HtmlInputHeight')"
+      width="50"
+      bgcolor="$GetVar('HtmlInputBgColour')"
+      valign='center'
+      name = "FRAG_OCCUPANCY"
+      value = "1"
+      min='-4'
+      max='4'
+      onchange='SetVar(frag_occ,html.GetValue(~name~))'
+    >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+
+<!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
+
+
