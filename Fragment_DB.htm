@@ -8,7 +8,6 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=FragmentDB_2;1; -->
   <td ALIGN='left' width='100%'>
-     <b><a href="spy.FragmentDB.run()">RUN</a>
      <b><a href="spy.FragmentDB.list_fragments()">list FRAGMENTs</a>
   </td>
 
@@ -30,7 +29,7 @@
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value='0'
-        onchange='SetVar(frag_part,html.GetValue(~name~))'
+        onchange='spy.SetParam(fragment_DB.fragment.frag_part,html.GetValue(~name~))'
       >
     </font>
   </td>
@@ -54,7 +53,7 @@
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value='0'
-        onchange="spy.SetParam(db.resinum)"
+        onchange="spy.SetParam(fragment_DB.fragment.resinum)"
   >
   <td width='30%' align='right'><b>%Residue Class:%</b></td>
   <td width='70%' align='left'>
@@ -67,7 +66,7 @@
       valign='center'
       name = "RESIDUE_CLASS"
       value = ""
-      onchange='SetVar(resi_class,html.GetValue(~name~))'
+      onchange='spy.SetParam(fragment_DB.fragment.resi_class,html.GetValue(~name~))'
   >
     </font>
   </td>
@@ -89,7 +88,7 @@
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value='0'
-        onchange='SetVar(frag_fvar,html.GetValue(~name~))'
+        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar,html.GetValue(~name~))'
       >
     </font>
   </td>
@@ -110,7 +109,7 @@
       value = "1"
       min='-4'
       max='4'
-      onchange='SetVar(frag_occ,html.GetValue(~name~))'
+      onchange='spy.SetParam(fragment_DB.fragment.frag_occ,html.GetValue(~name~))'
     >
     </font>
   </td>

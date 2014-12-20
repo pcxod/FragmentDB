@@ -18,19 +18,19 @@ fragment_DB{
       .type = int
       .help = Places the fragment in the residue with the respective number.
       
-    resiclass = False
+    resi_class = False
       .type = str
       .help = Defines the class (name) of the residue.
     
-    partnum = 0
+    frag_part = 0
       .type = int
       .help = Defines the part number of the fragment.
     
-    occupancy = 1
+    frag_occ = 0.9
       .type = float
       .help = Defines the occupancy of the whole fragment.
       
-    freevar = 1
+    frag_fvar = 1
       .type = int
       .help = Defines the free variable for the occupancy of a fragment.
     }
