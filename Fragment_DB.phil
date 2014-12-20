@@ -8,4 +8,13 @@ fragment_DB{
       .type = str
       .help = The tool before which the FragementDB GUI shall appear.
     }
+  
+  fit{
+    resinum = 0
+      .type = int
+      .help = Places the fragment in the residue with the respective number.
+  
+  
+    }
+  
 }

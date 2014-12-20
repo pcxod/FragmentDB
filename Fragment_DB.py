@@ -96,6 +96,9 @@ class FragmentDB(PT):
     dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
     db = FragmentTable(dbfile)
     resinum = olx.GetVar('resinum')
+    resiclass = olx.GetVar('resi_class')
+    partnum = olx.GetVar('frag_part')
+    occupancy = olx.GetVar('frag_occ')
     atoms = []
     labeldict = {}
     for i in db[fragId]:
@@ -103,8 +106,8 @@ class FragmentDB(PT):
       x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
       id = olx.xf.au.NewAtom(label, x, y, z, False)
       labeldict[label.upper()] = id 
-      olx.xf.au.SetAtomPart(id, -1)
-      olx.xf.au.SetAtomOccu(id, 1)
+      olx.xf.au.SetAtomPart(id, partnum)
+      olx.xf.au.SetAtomOccu(id, occupancy)
       olx.xf.au.SetAtomU(id, 0.04)
       name = olx.xf.au.GetAtomName(id)
       print('adding {}, name: {}, Id: {}, coords: {} {} {}'.format(i[0], name, id, x, y, z))
@@ -112,9 +115,9 @@ class FragmentDB(PT):
     olx.xf.EndUpdate()
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     if resinum:
-      OV.cmd("RESI tst1 {}".format(resinum))
+      OV.cmd("RESI {} {}".format(resiclass, resinum))
     for num, i in enumerate(db.get_restraints(fragId)):
-      if '>' in i[1]: # needs a renge resolving method
+      if '>' in i[1]: # needs a range resolving method
         continue      # ignore ranges for now
       line = []
       for at in i[1].split():

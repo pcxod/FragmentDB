@@ -57,11 +57,11 @@
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_RESI_1';help_ext=Frag-Resi-1;1 -->
-  <td width='20%' align='left'>
-   <b>%Residue:%</b>
+  <td width='25%' align='left'>
+   <b>%Residue number:%</b>
   </td>
   <td 
-  width='30%' align='right' 
+  width='10%' align='left' 
   VALIGN='center'>
     <font size='2'>
       <input
@@ -75,8 +75,8 @@
         value='0'
         onchange='SetVar(resinum,html.GetValue(~name~))'
   >
-  <td width='30%' align='right'>%Residue Class:%</td>
-  <td width='20%' align='right'>
+  <td width='30%' align='right'><b>%Residue Class:%</b></td>
+  <td width='70%' align='left'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
