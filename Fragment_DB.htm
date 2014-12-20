@@ -35,8 +35,8 @@
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_PART_1';help_ext=Frag-Part-1;1 -->
-  <td width='100%'>
-    <a href="spy.FragmentDB.set_part()" <b>Put fragment into Part:</b></a>
+  <td width='70%'><b>%Put fragment into Part:%</b></td>
+  <td width='30%'>
   </td>
   <td VALIGN='center'>
     <font size='2'>
@@ -57,10 +57,12 @@
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_RESI_1';help_ext=Frag-Resi-1;1 -->
-  <td width='100%'>
-    <a href="spy.FragmentDB.set_resi()" <b>Put fragment into residue:</b></a>
+  <td width='20%' align='left'>
+   <b>%Residue:%</b>
   </td>
-  <td VALIGN='center'>
+  <td 
+  width='30%' align='right' 
+  VALIGN='center'>
     <font size='2'>
       <input
         type="spin"
@@ -72,14 +74,28 @@
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value='0'
         onchange='SetVar(resinum,html.GetValue(~name~))'
-      >
+  >
+  <td width='30%' align='right'>%Residue Class:%</td>
+  <td width='20%' align='right'>
+    <font size="$GetVar('HtmlFontSizeControls')">
+    <input
+      type="text"
+      height="$GetVar('HtmlInputHeight')"
+      width="35"
+      bgcolor="$GetVar('HtmlInputBgColour')"
+      valign='center'
+      name = "RESIDUE_CLASS"
+      value = ""
+      onchange='SetVar(resi_class,html.GetValue(~name~))'
+  >
     </font>
+  </td>
   </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Frag-FVAR-1;1 -->
   <td width='100%'>
-    <a href="spy.FragmentDB.set_fvar()" <b>Assign free variable to fragment:</b></a>
+    <b>%Assign free variable to fragment:%</b>
   </td>
   <td VALIGN='center'>
     <font size='2'>
@@ -100,13 +116,13 @@
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_OCC_1';help_ext=Frag-OCC-1;1 -->
-<td>%Occupancy:%</td>
-  <td>
+<td><b>%Occupancy:%</b></td>
+  <td width='74%' align='right'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
       height="$GetVar('HtmlInputHeight')"
-      width="30"
+      width="35"
       bgcolor="$GetVar('HtmlInputBgColour')"
       valign='center'
       name = "FRAG_OCCUPANCY"
