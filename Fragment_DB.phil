@@ -9,12 +9,30 @@ fragment_DB{
       .help = The tool before which the FragementDB GUI shall appear.
     }
   
-  fit{
+  fragment{
+    fragId = 0
+      .type = int
+      .help = Places the fragment in the residue with the respective number.
+
     resinum = 0
       .type = int
       .help = Places the fragment in the residue with the respective number.
-  
-  
+      
+    resiclass = False
+      .type = str
+      .help = Defines the class (name) of the residue.
+    
+    partnum = 0
+      .type = int
+      .help = Defines the part number of the fragment.
+    
+    occupancy = 1
+      .type = float
+      .help = Defines the occupancy of the whole fragment.
+      
+    freevar = 1
+      .type = int
+      .help = Defines the free variable for the occupancy of a fragment.
     }
   
 }

@@ -32,9 +32,11 @@ class FragmentDB(PT):
     self.print_version_date()
     self.setup_gui()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
-    self.db = FragmentTable(self.dbfile)
+    #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
     OV.registerFunction(self.list_fragments,True,"FragmentDB")
     OV.registerFunction(self.run,True,"FragmentDB")
+    OV.registerFunction(self.make_residue,True,"FragmentDB")
+    OV.registerFunction(self.make_restraints,True,"FragmentDB")
     OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
 
     
@@ -61,31 +63,53 @@ class FragmentDB(PT):
 
     
   def fit_db_fragment(self):
-    fragId = olx.GetVar('fragment_ID')
+    OV.SetParam('diagnostics.debug', True)
     db = FragmentTable(self.dbfile)
-    resinum = olx.GetVar('resinum')
-    resiclass = olx.GetVar('resi_class')
-    partnum = olx.GetVar('frag_part')
-    occupancy = olx.GetVar('frag_occ')
+    fragId = OV.GetParam('fragment_ID')
+    resinum = OV.GetParam('resinum')
+    resiclass = OV.GetParam('resi_class')
+    partnum = OV.GetParam('frag_part')
+    occupancy = OV.GetParam('frag_occ')
+    freevar = OV.GetParam('freevar')
     atoms = []
-    labeldict = {}
+    labeldict = OrderedDict({})
     for i in db[fragId]:
       label = str(i[0])
       x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
       id = olx.xf.au.NewAtom(label, x, y, z, False)
       labeldict[label.upper()] = id 
       olx.xf.au.SetAtomPart(id, partnum)
-      olx.xf.au.SetAtomOccu(id, occupancy)
-      olx.xf.au.SetAtomU(id, 0.04)
+      olx.xf.au.SetFvar(id, freevar, occupancy)
+      olx.xf.au.SetAtomU(id, 0.045)
       name = olx.xf.au.GetAtomName(id)
       print('adding {}, name: {}, Id: {}, coords: {} {} {}'.format(i[0], name, id, x, y, z))
       atoms.append(id)
     olx.xf.EndUpdate()
+    if resiclass and resinum:
+      self.make_residue(atoms, resiclass, resinum)
+    self.make_restraints(atoms, db, labeldict, fragId)
+    # select all atoms to do the fit:
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    if resinum:
-      OV.cmd("RESI {} {}".format(resiclass, resinum))
+    OV.cmd("mode fit")
+
+  def make_residue(self, atoms, resiclass, resinum):
+    '''
+    selects the atoms and applies "RESI class number" to them
+    '''
+    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+    OV.cmd("RESI {} {}".format(resiclass, resinum))
+    
+  def make_restraints(self, atoms, db, labeldict, fragId):
+    '''
+    applies restraints to atoms
+    TODO:
+    - resolve ranges like 'C1 > C5' or 'C5 < C2'
+    '''
+    print(labeldict)
     for num, i in enumerate(db.get_restraints(fragId)):
-      if '>' in i[1]: # needs a range resolving method
+      # i[0] is restraint like SADI or DFIX
+      # i[1] is a string of atoms like 'C1 C2'
+      if '>' in i[1]: # needs a range resolving method!!!
         continue      # ignore ranges for now
       line = []
       for at in i[1].split():
@@ -96,11 +120,8 @@ class FragmentDB(PT):
             print('\nBad restraint found in line {}.\n'.format(num))
         else:
           line.append(at)
+      # applies the restraint to atoms in line
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
-    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("mode fit")
-
-  def make_restraints():
-    pass
+    
     
 FragmentDB_instance = FragmentDB()
