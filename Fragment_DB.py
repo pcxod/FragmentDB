@@ -31,51 +31,24 @@ class FragmentDB(PT):
     self.deal_with_phil(operation='read')
     self.print_version_date()
     self.setup_gui()
-    OV.registerFunction(self.run,True,"FragmentDB")
-    OV.registerFunction(self.match_dbfrag,True,"FragmentDB")
+    self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
+    self.db = FragmentTable(self.dbfile)
     OV.registerFunction(self.list_fragments,True,"FragmentDB")
-    OV.registerFunction(self.fit_frag,True,"FragmentDB")
-    OV.registerFunction(self.set_part,True,"FragmentDB")
-    OV.registerFunction(self.set_resi,True,"FragmentDB")
-    OV.registerFunction(self.set_occ,True,"FragmentDB")
-    OV.registerFunction(self.set_fvar,True,"FragmentDB")
-  
-   
-  def set_part(self):
-    frag_part = olx.GetVar('frag_part')
-    print(frag_part)
-  
-  def set_resi(self):
-    frag_resi = olx.GetVar('resinum')
-    print(frag_resi)
-  
-  def set_occ(self):
-    frag_occ = olx.GetVar('frag_occ')
-    print(frag_occ)
-  
-  def set_fvar(self):
-    frag_fvar = olx.GetVar('frag_fvar')
-    print(frag_fvar)
+    OV.registerFunction(self.run,True,"FragmentDB")
+    OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
 
     
   def list_fragments(self):
-    dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
-    db = FragmentTable(dbfile)
+    db = FragmentTable(self.dbfile)
     items = ""
     for fragment in db:
       _ = fragment[1]#.replace(',', ' ')
       ID = fragment[0]
       items += "%s<-%s;" %(_, ID)
-    #olx.html.SetItems("LIST_FRAGMENTS", items)
     return items
-
-  def fit_frag(self):
-    fragId = olx.GetVar('fragment_ID')
-    self.match_dbfrag(fragId)
     
   def run(self):
-    dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
-    db = FragmentTable(dbfile)
+    db = FragmentTable(self.dbfile)
     db[2]   # get database fragment number 2
     for i in db:
       print(i)  # get all fragment names and their id number.
@@ -84,17 +57,12 @@ class FragmentDB(PT):
     for i in db.get_restraints(15):
       print(i)   # get restraints of fragment number 15
     len(db)  # number of fragments in the database
-
-    ## store a fragment into the database.
-    #id = db.store_fragment(fragment_name, atoms, restraints, tag)
-    #if id:
-      #print('fragment is stored successfully')
-
     db.find_fragment_by_name('super', selection=3) # find a fragment with default tolerance search
 
-  def match_dbfrag(self, fragId=None):
-    dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
-    db = FragmentTable(dbfile)
+    
+  def fit_db_fragment(self):
+    fragId = olx.GetVar('fragment_ID')
+    db = FragmentTable(self.dbfile)
     resinum = olx.GetVar('resinum')
     resiclass = olx.GetVar('resi_class')
     partnum = olx.GetVar('frag_part')
@@ -132,6 +100,7 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
 
-
+  def make_restraints():
+    pass
     
 FragmentDB_instance = FragmentDB()
