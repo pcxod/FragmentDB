@@ -46,7 +46,7 @@ class FragmentDB(PT):
     print(frag_part)
   
   def set_resi(self):
-    frag_resi = olx.GetVar('frag_resi')
+    frag_resi = olx.GetVar('resinum')
     print(frag_resi)
   
   def set_occ(self):
@@ -63,7 +63,7 @@ class FragmentDB(PT):
     db = FragmentTable(dbfile)
     items = ""
     for fragment in db:
-      _ = fragment[1].replace(',', ' ')
+      _ = fragment[1]#.replace(',', ' ')
       ID = fragment[0]
       items += "%s<-%s;" %(_, ID)
     #olx.html.SetItems("LIST_FRAGMENTS", items)
@@ -95,6 +95,7 @@ class FragmentDB(PT):
   def match_dbfrag(self, fragId=None):
     dbfile  = os.sep.join([self.p_path, "dk-database.sqlite"])
     db = FragmentTable(dbfile)
+    resinum = olx.GetVar('resinum')
     atoms = []
     labeldict = {}
     for i in db[fragId]:
@@ -110,7 +111,8 @@ class FragmentDB(PT):
       atoms.append(id)
     olx.xf.EndUpdate()
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("RESI tst1 9")
+    if resinum:
+      OV.cmd("RESI tst1 {}".format(resinum))
     for num, i in enumerate(db.get_restraints(fragId)):
       if '>' in i[1]: # needs a renge resolving method
         continue      # ignore ranges for now
