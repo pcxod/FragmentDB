@@ -4,7 +4,7 @@ Created on 09.10.2014
 @author: Daniel Kratzert
 
 '''
-
+print('fdb ############')
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
@@ -185,13 +185,14 @@ class FragmentTable():
     :param name: (partial) name of a database fragment.
     :type name: str
     '''
-    if isinstance(name, int):
-      if self.has_index(name):
-        return True
-      else:
-        return False
+    try:
+      fragment_id = int(fragment_id)
+    except(ValueError, TypeError):
+      Print('Wrong type. Expected integer.')
+    if self.has_index(name):
+      return True
     else:
-      raise TypeError('Wrong type. Only int allowed.')
+      return False
 
   def __len__(self):
     '''
@@ -250,8 +251,11 @@ class FragmentTable():
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
     '''
-    if not isinstance(fragment_id, int):
-      raise TypeError('Wrong type. Integer expected')
+    try:
+      fragment_id = int(fragment_id)
+    except(ValueError, KeyError):
+      print('Wrong type. Integer expected')
+      sys.exit()
     if fragment_id < 0:
       fragment_id = len(self)-abs(fragment_id)
     found = self._get_fragment(fragment_id)
@@ -292,10 +296,11 @@ class FragmentTable():
     if fragment_id < 0:
       fragment_id = self.get_all_rowids()[fragment_id]
     req = '''DELETE FROM Fragment WHERE rowid = ?'''
-    if isinstance(fragment_id, int):
-      deleted = self.database.db_request(req, fragment_id)
-    else:
-      raise TypeError('Wrong type. Expected integer.')
+    try:
+      fragment_id = int(fragment_id)
+    except(ValueError, TypeError):
+      Print('Wrong type. Expected integer.')
+    deleted = self.database.db_request(req, fragment_id)
     return deleted
 
   def __iter__(self):

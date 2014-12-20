@@ -1,4 +1,4 @@
-
+print('halllo DBrunnner')
 from olexFunctions import OlexFunctions
 OV = OlexFunctions()
 
@@ -6,24 +6,24 @@ import os
 import htmlTools
 import olex
 import olx
-import FragmentDB
-from FragementDB import FragmentTable
+from FragmentDB_handler import FragmentTable
+
 
 instance_path = OV.DataDir()
 
 p_path = os.path.dirname(os.path.abspath(__file__))
-OV.SetVar('FragementDB_plugin_path', p_path)
-p_name = "FragementDB"
-p_scope = "fragementdb"
-p_htm = "FragementDB"
-p_img = [("FragementDB",'h1')]
+OV.SetVar('FragmentDB_plugin_path', p_path)
+p_name = "Fragment_DB"
+p_scope = "fragment_DB"
+p_htm = "Fragment_DB"
+p_img = [("FragmentDB",'h1')]
 
 from PluginTools import PluginTools as PT
 
-class FragementDB(PT):
+class FragmentDB(PT):
 
   def __init__(self):
-    super(FragementDB, self).__init__()
+    super(FragmentDB, self).__init__()
     self.p_name = p_name
     self.p_path = p_path
     self.p_scope = p_scope
@@ -32,14 +32,14 @@ class FragementDB(PT):
     self.deal_with_phil(operation='read')
     self.print_version_date()
     self.setup_gui()
-    OV.registerFunction(self.run,True,"FragementDB")
-    OV.registerFunction(self.match_dbfrag,True,"FragementDB")
-    OV.registerFunction(self.list_fragments,True,"FragementDB")
-    OV.registerFunction(self.fit_frag,True,"FragementDB")
-    OV.registerFunction(self.set_part,True,"FragementDB")
-    OV.registerFunction(self.set_resi,True,"FragementDB")
-    OV.registerFunction(self.set_occ,True,"FragementDB")
-    OV.registerFunction(self.set_fvar,True,"FragementDB")
+    OV.registerFunction(self.run,True,"FragmentDB")
+    OV.registerFunction(self.match_dbfrag,True,"FragmentDB")
+    OV.registerFunction(self.list_fragments,True,"FragmentDB")
+    OV.registerFunction(self.fit_frag,True,"FragmentDB")
+    OV.registerFunction(self.set_part,True,"FragmentDB")
+    OV.registerFunction(self.set_resi,True,"FragmentDB")
+    OV.registerFunction(self.set_occ,True,"FragmentDB")
+    OV.registerFunction(self.set_fvar,True,"FragmentDB")
   
    
   def set_part(self):
@@ -130,4 +130,4 @@ class FragementDB(PT):
 
 
     
-FragementDB_instance = FragementDB()
+FragmentDB_instance = FragmentDB()
