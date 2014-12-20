@@ -4,7 +4,7 @@ Created on 09.10.2014
 @author: Daniel Kratzert
 
 '''
-print('fdb ############')
+
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
@@ -163,7 +163,7 @@ class FragmentTable():
     '''
     self.database = DatabaseRequest(dbfile)
 
-  def __contains__(self, name):
+  def __contains__(self, fragment_id):
     '''
     Returns a database fragment if its name contains element of type int.
     E.g. db[2]
@@ -178,9 +178,15 @@ class FragmentTable():
     yes
 
     >>> 'benzene' in FragmentTable(dbfile)
-    Traceback (most recent call last):
-      ...
-    TypeError: Wrong type. Only int allowed.
+    Wrong type. Expected integer.
+    no such column: benzene
+    False
+
+    >>> '2' in FragmentTable(dbfile)
+    True
+    
+    >>> 2 in FragmentTable(dbfile)
+    True
 
     :param name: (partial) name of a database fragment.
     :type name: str
@@ -188,8 +194,8 @@ class FragmentTable():
     try:
       fragment_id = int(fragment_id)
     except(ValueError, TypeError):
-      Print('Wrong type. Expected integer.')
-    if self.has_index(name):
+      print('Wrong type. Expected integer.')
+    if self.has_index(fragment_id):
       return True
     else:
       return False

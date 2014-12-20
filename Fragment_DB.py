@@ -1,4 +1,3 @@
-print('halllo DBrunnner')
 from olexFunctions import OlexFunctions
 OV = OlexFunctions()
 
