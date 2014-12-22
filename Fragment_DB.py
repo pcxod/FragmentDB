@@ -39,6 +39,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.make_residue,True,"FragmentDB")
     OV.registerFunction(self.make_restraints,True,"FragmentDB")
     OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
+    OV.registerFunction(self.call_profile,True,"FragmentDB")
 
   def list_fragments(self):
     db = FragmentTable(self.dbfile)
@@ -102,6 +103,11 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
 
+  def call_profile(self):
+    import cProfile
+    cProfile.run('self.fit_db_fragment()', 'foo.profile')
+  
+  
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
