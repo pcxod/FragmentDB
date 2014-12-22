@@ -43,11 +43,7 @@ class FragmentDB(PT):
 
   def list_fragments(self):
     db = FragmentTable(self.dbfile)
-    items = ""
-    for fragment in db:
-      _ = fragment[1]#.replace(',', ' ')
-      ID = fragment[0]
-      items += "%s<-%s;" %(_, ID)
+    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
     return items
 
   def run(self):
@@ -75,9 +71,9 @@ class FragmentDB(PT):
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    #
+    print('#'*20)
     print('resinum, resiclass, partnum, freevar, occupancy:', resinum, resiclass, partnum, freevar, occupancy)
-    #
+    print('#'*20)
     atoms = []
     labeldict = OrderedDict()
     # adding atoms to structure:
