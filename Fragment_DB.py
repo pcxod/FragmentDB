@@ -35,11 +35,10 @@ class FragmentDB(PT):
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
     OV.registerFunction(self.list_fragments,True,"FragmentDB")
-    #OV.registerFunction(self.run,True,"FragmentDB")
+    #OV.registerFunction(self.range_resolver,True,"FragmentDB")
     OV.registerFunction(self.make_residue,True,"FragmentDB")
     OV.registerFunction(self.make_restraints,True,"FragmentDB")
     OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
-
 
   def list_fragments(self):
     db = FragmentTable(self.dbfile)
@@ -59,22 +58,24 @@ class FragmentDB(PT):
     db.find_fragment_by_name('super', selection=3) # find a fragment with default tolerance search
 
 
-  def fit_db_fragment(self):
+  def fit_db_fragment(self, fragId=None):
     db = FragmentTable(self.dbfile)
-    try:
-      fragId = olx.GetVar('fragment_ID')
-    except(RuntimeError):
-      # no fragment chosen-> do nothing
-      return
+    if not fragId:
+      try:
+        fragId = olx.GetVar('fragment_ID')
+      except(RuntimeError):
+        # no fragment chosen-> do nothing
+        return
     resinum = OV.GetParam('fragment_DB.fragment.resinum')
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    print('#'*20)
+    print('#'*40)
     print('resinum, resiclass, partnum, freevar, occupancy:', resinum, resiclass, partnum, freevar, occupancy)
-    print('#'*20)
+    print('#'*40)
     atoms = []
+    atom_names = []
     labeldict = OrderedDict()
     # adding atoms to structure:
     for i in db[fragId]:
@@ -85,16 +86,19 @@ class FragmentDB(PT):
       olx.xf.au.SetAtomPart(id, partnum)
       olx.xf.au.SetAtomU(id, 0.045)
       name = olx.xf.au.GetAtomName(id)
+      atom_names.append(name)
       print('adding {}, name: {}, Id: {}, coords: {} {} {}'.format(i[0], name, id, x, y, z))
       atoms.append(id)
     olx.xf.EndUpdate()
     # now residues and otgher stuff:
     if resiclass and resinum:
       self.make_residue(atoms, resiclass, resinum)
-    self.make_restraints(atoms, db, labeldict, fragId)
+    # Placing restraints:
+    self.make_restraints(atoms, db, labeldict, fragId, atom_names)
     # select all atoms to do the fit:
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("fvar {} {}".format(freevar, occupancy))
+    # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
 
@@ -105,7 +109,7 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("RESI {} {}".format(resiclass, resinum))
 
-  def make_restraints(self, atoms, db, labeldict, fragId):
+  def make_restraints(self, atoms, db, labeldict, fragId, atom_names):
     '''
     applies restraints to atoms
     TODO:
@@ -114,10 +118,11 @@ class FragmentDB(PT):
     for num, i in enumerate(db.get_restraints(fragId)):
       # i[0] is restraint like SADI or DFIX
       # i[1] is a string of atoms like 'C1 C2'
-      if '>' in i[1]: # needs a range resolving method!!!
-        continue      # ignore ranges for now
+      restraintat = i[1]
+      if '>' in restraintat or '<' in restraintat:
+        restraintat = self.range_resolver(restraintat, atom_names)
       line = []
-      for at in i[1].split():
+      for at in restraintat.split():
         if at[0].isalpha():
           try:
             line.append('#c'+labeldict[at])
@@ -130,5 +135,46 @@ class FragmentDB(PT):
       # applies the restraint to atoms in line
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
+  def range_resolver(self, restraintat, atom_names):
+    '''
+    resolves the atom names of ranges like "C1 > C5"
+    works for each restraint line separately.
+    TODO:
+    - does not work for SAME, need to resolve SADI!
+    '''
+    restraintat = restraintat.split()
+    # dict with lists of indexes of the > or < sign:
+    rightleft = {'>':[], '<': []}
+    for rl in rightleft:
+      for num, i in enumerate(restraintat):
+        if rl == i:
+          # fill the dictionary:
+          rightleft[rl].append(num)
+    for rl in rightleft:
+      # for each sign:
+      for i in rightleft[rl]:
+        # for each position of < or >:
+        if rl == '>':
+          # forward range
+          left = atom_names.index(restraintat[i-1])+1
+          right = atom_names.index(restraintat[i+1])
+          restraintat[i:i+1] = atom_names[left:right]
+        else:
+          # backward range
+          left = atom_names.index(restraintat[i-1])
+          right = atom_names.index(restraintat[i+1])+1
+          names = atom_names[right:left]
+          names.reverse()
+          restraintat[i:i+1] = names
+    return ' '.join(restraintat)
+    
 
 FragmentDB_instance = FragmentDB()
+
+'''
+    import olex_core
+    for r in olex_core.GetRefinementModel(true)['aunit']['residues']:
+      print(r)      
+'''
+
+
