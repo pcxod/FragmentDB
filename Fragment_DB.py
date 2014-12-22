@@ -99,6 +99,7 @@ class FragmentDB(PT):
     # select all atoms to do the fit:
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("fvar {} {}".format(freevar, occupancy))
+    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
 
   def make_residue(self, atoms, resiclass, resinum):

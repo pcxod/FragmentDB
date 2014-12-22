@@ -18,7 +18,7 @@ fragment_DB{
       .type = int
       .help = Places the fragment in the residue with the respective number.
       
-    resi_class = False
+    resi_class = ""
       .type = str
       .help = Defines the class (name) of the residue.
     
@@ -26,7 +26,7 @@ fragment_DB{
       .type = int
       .help = Defines the part number of the fragment.
     
-    frag_occ = 0.9
+    frag_occ = 0.5
       .type = float
       .help = Defines the occupancy of the whole fragment.
       
