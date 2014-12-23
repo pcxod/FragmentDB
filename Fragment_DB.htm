@@ -1,5 +1,12 @@
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
 
+<!-- Fragen:
+- Wie begrenze ich ein eingabefeld von type="text" auf 4 zeichen und Anfang mit .isalpha()?
+- Wie könnte man bereits benutzte residue nummern im type="spin" rot einfärben?
+- Wär vielleich sinnvoll beim free variable assignment die fvar-zuordnungen anzuzeigen (labels).
+
+-->
+
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1;1; -->
   <td ALIGN='left' width='100%'>
     <a>Welcome to FragmentDB</a>
@@ -117,7 +124,7 @@
     "name=LIST_FRAGMENTS",
     "items=spy.FragmentDB.list_fragments()",
     "value=",
-    "onchange=SetVar(fragment_ID, html.GetValue(~name~))",
+    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()",
     "readonly=false",
     "manage=true")
     $-

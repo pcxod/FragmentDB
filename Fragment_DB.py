@@ -36,7 +36,7 @@ class FragmentDB(PT):
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
     OV.registerFunction(self.list_fragments,True,"FragmentDB")
     OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
-    #OV.registerFunction(self.call_profile,True,"FragmentDB")
+    OV.registerFunction(self.resi_class,True,"FragmentDB")
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
 
 
@@ -182,18 +182,21 @@ class FragmentDB(PT):
     residues.sort()
     # find unused numbers in the list:
     resi = False
-    for i, j in zip(residues, range(1, residues[-1]+1)):
-      # gap in list found:
-      if i != j:
-        resi = j
-        break
+    try:
+      for i, j in zip(residues, range(1, residues[-1]+1)):
+        # gap in list found:
+        if i != j:
+          resi = j
+          break
+    except(IndexError):
+      return 1
     # no gap, thus use next number:
     if not resi:
       try:
         resi = residues[-1]+1
       except(IndexError):
         # no residue at all in the structure
-        resi = 0
+        return 1
     return resi
     
   def get_residue_numbers(self):
@@ -212,7 +215,7 @@ class FragmentDB(PT):
     residues.sort()
     return residues
   
-  def resi_class(self, class_changed=False):
+  def resi_class(self):
     '''
     returns the residue class from the respective database fragment.
     '''
@@ -220,7 +223,7 @@ class FragmentDB(PT):
     try:
       fragId = olx.GetVar('fragment_ID')
     except(RuntimeError):
-      print('could not get fragments ID!')
+      #print('could not get fragments ID!')
       return
     resiclass = db.get_residue_class(fragId)
     if OV.IsControl('RESIDUE_CLASS'):
