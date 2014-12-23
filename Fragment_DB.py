@@ -35,31 +35,24 @@ class FragmentDB(PT):
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
     OV.registerFunction(self.list_fragments,True,"FragmentDB")
-    #OV.registerFunction(self.range_resolver,True,"FragmentDB")
-    OV.registerFunction(self.make_residue,True,"FragmentDB")
-    OV.registerFunction(self.make_restraints,True,"FragmentDB")
     OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
-    OV.registerFunction(self.call_profile,True,"FragmentDB")
+    #OV.registerFunction(self.call_profile,True,"FragmentDB")
+    OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
+
 
   def list_fragments(self):
+    '''
+    returns the available fragments in the database
+    the list of names is separated by semicolon
+    '''
     db = FragmentTable(self.dbfile)
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
     return items
 
-  def run(self):
-    db = FragmentTable(self.dbfile)
-    db[2]   # get database fragment number 2
-    for i in db:
-      print(i)  # get all fragment names and their id number.
-    for i in db[2]:
-      print(i)  # get all atoms of fragment number 2
-    for i in db.get_restraints(15):
-      print(i)   # get restraints of fragment number 15
-    len(db)  # number of fragments in the database
-    db.find_fragment_by_name('super', selection=3) # find a fragment with default tolerance search
-
-
   def fit_db_fragment(self, fragId=None):
+    '''
+    fit a molecular fragment from the database into olex2
+    '''
     db = FragmentTable(self.dbfile)
     if not fragId:
       try:
@@ -88,7 +81,7 @@ class FragmentDB(PT):
       olx.xf.au.SetAtomU(id, 0.045)
       name = olx.xf.au.GetAtomName(id)
       atom_names.append(name)
-      print('adding {}, name: {}, Id: {}, coords: {} {} {}'.format(i[0], name, id, x, y, z))
+      print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
       atoms.append(id)
     olx.xf.EndUpdate()
     # now residues and otgher stuff:
@@ -103,11 +96,6 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
 
-  def call_profile(self):
-    import cProfile
-    cProfile.run('self.fit_db_fragment()', 'foo.profile')
-  
-  
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
@@ -118,8 +106,6 @@ class FragmentDB(PT):
   def make_restraints(self, atoms, db, labeldict, fragId, atom_names):
     '''
     applies restraints to atoms
-    TODO:
-    - resolve ranges like 'C1 > C5' or 'C5 < C2'
     '''
     for num, i in enumerate(db.get_restraints(fragId)):
       # i[0] is restraint like SADI or DFIX
@@ -149,7 +135,7 @@ class FragmentDB(PT):
     - does not work for SAME, need to resolve SADI!
     '''
     restraintat = restraintat.split()
-    # dict with lists of indexes of the > or < sign:
+    # dict with lists of positions of the > or < sign:
     rightleft = {'>':[], '<': []}
     for rl in rightleft:
       for num, i in enumerate(restraintat):
@@ -170,17 +156,80 @@ class FragmentDB(PT):
           left = atom_names.index(restraintat[i-1])
           right = atom_names.index(restraintat[i+1])+1
           names = atom_names[right:left]
-          names.reverse()
+          names.reverse() # counting backwards
           restraintat[i:i+1] = names
     return ' '.join(restraintat)
-    
 
+  def call_profile(self):
+    import cProfile
+    cProfile.run('self.fit_db_fragment()', 'foo.profile')
+    
+  def find_free_residue_num(self):
+    '''
+    Determines which residue number is unused.
+    Either finds the first unused residue in the list of residue numbers
+    or returns the last used + 1.
+    '''
+    import olex_core
+    residues = []
+    # get the properties of the atoms:
+    for r in olex_core.GetRefinementModel(True)['aunit']['residues']:
+      try:
+        # atoms in residue 0 have no 'number'
+        residues.append(r['number'])
+      except:
+        pass
+    residues.sort()
+    # find unused numbers in the list:
+    resi = False
+    for i, j in zip(residues, range(1, residues[-1]+1)):
+      # gap in list found:
+      if i != j:
+        resi = j
+        break
+    # no gap, thus use next number:
+    if not resi:
+      try:
+        resi = residues[-1]+1
+      except(IndexError):
+        # no residue at all in the structure
+        resi = 0
+    return resi
+    
+  def get_residue_numbers(self):
+    '''
+    returns a list of residue numbers in the structure
+    '''
+    import olex_core
+    residues = []
+    # get the properties of the atoms:
+    for r in olex_core.GetRefinementModel(True)['aunit']['residues']:
+      try:
+        # atoms in residue 0 have no 'number'
+        residues.append(r['number'])
+      except:
+        pass
+    residues.sort()
+    return residues
+  
+  def resi_class(self, class_changed=False):
+    '''
+    returns the residue class from the respective database fragment.
+    '''
+    db = FragmentTable(self.dbfile)
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      print('could not get fragments ID!')
+      return
+    resiclass = db.get_residue_class(fragId)
+    if OV.IsControl('RESIDUE_CLASS'):
+      olx.html.SetValue('RESIDUE_CLASS', resiclass)
+    OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
+    
+    
 FragmentDB_instance = FragmentDB()
 
-'''
-    import olex_core
-    for r in olex_core.GetRefinementModel(true)['aunit']['residues']:
-      print(r)      
-'''
+
 
 

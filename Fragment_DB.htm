@@ -30,8 +30,8 @@
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_RESI_1';help_ext=Frag-Resi-1;1 -->
-  <td width='25%' align='left'>
-   <b>%Residue number:%</b>
+  <td width='50%' align='left'>
+   <b>%Residue number (must be uniq):%</b>
   </td>
   <td 
   width='10%' align='left' 
@@ -45,7 +45,7 @@
         max='99'
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
-        value="spy.GetParam(fragment_DB.fragment.resinum)"
+        value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
         onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))"
   >
   <td width='30%' align='right'><b>%Residue Class:%</b></td>
@@ -58,7 +58,7 @@
       bgcolor="$GetVar('HtmlInputBgColour')"
       valign='center'
       name = "RESIDUE_CLASS"
-      value = "spy.GetParam(fragment_DB.fragment.resi_class)"
+      value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.resi_class())"
       onchange='spy.SetParam(fragment_DB.fragment.resi_class, html.GetValue(~name~))'
   >
     </font>
@@ -111,7 +111,7 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_3; help_ext=FragmentDB_3;1; -->
   <td ALIGN='left' width='100%'>
-
+    <b>%Fragment:%</b>
     $+
     html.Snippet("gui/snippets/input-combo",
     "name=LIST_FRAGMENTS",
@@ -128,11 +128,17 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmenDB_4; help_ext=FragentDB_4;1; -->
   <td ALIGN='left' width='100%'>
-
- 
-    <b><a href="spy.FragmentDB.fit_db_fragment(67)">FIT FRAGMENT thf</a>
-    <b><a href="spy.FragmentDB.fit_db_fragment(37)">FIT FRAGMENT oc(cf3)3</a>
-    <b><a href="spy.FragmentDB.call_profile()"> profile</a>
+    <b><a ALIGN='left' href="spy.FragmentDB.fit_db_fragment(67)">FIT FRAGMENT thf</a>
+    <br>
+    <b><a ALIGN='center' href="spy.FragmentDB.fit_db_fragment(37)">FIT FRAGMENT oc(cf3)3</a>
+    <br>
+    <b><a ALIGN='right' href="spy.FragmentDB.call_profile()"> profile</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmesdfnDB_4; help_ext=FragedfntDB_4;1; -->
+  <td ALIGN='left' width='100%'>
+    <b><a href="spy.FragmentDB.find_free_residue_num()">RESIDUES</a>
+    
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 

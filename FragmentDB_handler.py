@@ -4,6 +4,7 @@ Created on 09.10.2014
 @author: Daniel Kratzert
 
 '''
+import sys
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
@@ -66,7 +67,6 @@ def restraint_check(restraints, atoms, fragment_name):
   - Checks wether restraints cards are valid.
   not used atm and not ready
   '''
-  import sys
   atoms = [i[0].upper() for i in atoms]
   restraint_atoms_list = set([])
   for n, line in enumerate(restraints):
@@ -139,7 +139,7 @@ class DatabaseRequest():
   
 class FragmentTable():
   '''
-  >>> dbfile = 'dk-database_2.sqlite'
+  >>> dbfile = 'fragment-database.sqlite'
   >>> db = FragmentTable(dbfile)
   >>> print db[2]
   [(u'N1', u'7', 20.6124, 12.15, 22.3497), (u'N2', u'7', 20.9206, 10.5397, 20.3473), (u'C1', u'6', 20.425, 12.9255, 23.3244), (u'C2', u'6', 19.2147, 13.3242, 23.9359), (u'C3', u'6', 17.9873, 12.5825, 23.4736), (u'C4', u'6', 18.2353, 11.6971, 22.5007), (u'C5', u'6', 19.5035, 11.446, 21.9744), (u'C6', u'6', 19.6805, 10.5356, 20.7944), (u'C7', u'6', 18.6945, 9.6218, 20.3676), (u'C8', u'6', 18.9823, 8.7613, 19.3477), (u'C9', u'6', 20.2843, 8.7959, 18.8213), (u'C10', u'6', 21.23, 9.6533, 19.2507)]
@@ -168,7 +168,7 @@ class FragmentTable():
     Returns a database fragment if its name contains element of type int.
     E.g. db[2]
 
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> 2 in FragmentTable(dbfile)
     True
 
@@ -206,7 +206,7 @@ class FragmentTable():
     Should return the number of database entrys.
     
     # number of fragments in the database:
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> len(db)  
     70
@@ -225,7 +225,7 @@ class FragmentTable():
     Called to implement evaluation of self[fragment_id].
     print FragmentTable[fragment_id]
 
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> print(db[0])
     Traceback (most recent call last):
@@ -277,7 +277,7 @@ class FragmentTable():
     
     # have to create a copy of the db before I delete the entry:
     >>> import shutil
-    >>> shutil.copyfile('dk-database_2.sqlite', 'tst.sqlite')
+    >>> shutil.copyfile('fragment-database.sqlite', 'tst.sqlite')
     >>> dbfile = 'tst.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> del db[2]
@@ -298,14 +298,13 @@ class FragmentTable():
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
     '''
-    deleted = False
     if fragment_id < 0:
       fragment_id = self.get_all_rowids()[fragment_id]
     req = '''DELETE FROM Fragment WHERE rowid = ?'''
     try:
       fragment_id = int(fragment_id)
     except(ValueError, TypeError):
-      Print('Wrong type. Expected integer.')
+      print('Wrong type. Expected integer.')
     deleted = self.database.db_request(req, fragment_id)
     return deleted
 
@@ -314,7 +313,7 @@ class FragmentTable():
     This method is called when an iterator is required for FragmentTable.
     Returns the Id and the Name as tuple.
 
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> for num, i in enumerate(db):
     ...   print(i)
@@ -383,7 +382,7 @@ class FragmentTable():
     '''
     returns the "Name" column entry of fragment with id "fragment_id"
 
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_fragment_name(2)
     [(u"2,2'-Bipyridine, C10H8N2, bipy",)]
@@ -396,11 +395,33 @@ class FragmentTable():
     name = self.database.db_request(req_name)
     return name
 
+  def get_residue_class(self, fragment_id):
+    '''
+    returns the "class" column entry of fragment with id "fragment_id"
+
+    >>> dbfile = 'fragment-database.sqlite'
+    >>> db = FragmentTable(dbfile)    
+    >>> db.get_residue_class(2)
+    'BIP'
+    
+    :param fragment_id: id of the fragment in the database
+    :type fragment_id: int
+    '''
+    req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = {}
+               '''.format(fragment_id)
+    classname = self.database.db_request(req_class)
+    try:
+      classname = classname[0][0]
+    except(IndexError):
+      print('Could not find residue class.')
+      return
+    return str(classname) 
+
   def get_restraints(self, fragment_id):
     '''
     returns the restraints for Fragment(Id) from the database.
     
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_restraints(5)
     [(u'DFIX', u'O1 C3 1.2623'), (u'DFIX', u'O2 C3 1.2623'), (u'DFIX', u'C3 C4 1.5633'), (u'DFIX', u'O1 O2 2.2755'), (u'DFIX', u'O1 C4 2.3970'), (u'DFIX', u'O2 C4 2.3970'), (u'FLAT', u'O1 > C4'), (u'SIMU', u'O1 > C4'), (u'RIGU', u'O1 > C4')]
@@ -418,10 +439,10 @@ class FragmentTable():
     find a fragment by its name in the database. This method will output a
     selection of (default=5) best hits.
     
-    >>> dbfile = 'dk-database_2.sqlite'
+    >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(12, u'[Al{OC(CF3)3}4]- PF-Anion'), (3, u'Trifluoroethanol, OCH2CF3-'), (37, u'Nonafluoro-tert-butyl, (CF3)3CO-')]
+    [(13, u'[Al{OC(CF3)3}4]- PF-Anion'), (3, u'Trifluoroethanol, OCH2CF3-'), (37, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
@@ -585,11 +606,11 @@ if __name__ == '__main__':
   import doctest
   doctest.testmod()
   print('passed all tests!')
- # import cProfile
+  # import cProfile
   
-  #dbfile = 'F:\GitHub\DSR-db\dk-database_2.sqlite'
-  #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\dk-database_2.sqlite'
-  dbfile = 'dk-database_2.sqlite'
+  #dbfile = 'F:\GitHub\DSR-db\fragment-database.sqlite'
+  #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\fragment-database.sqlite'
+  dbfile = 'fragment-database.sqlite'
   db = FragmentTable(dbfile)
 
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
