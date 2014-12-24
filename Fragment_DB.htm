@@ -14,7 +14,7 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1;1; -->
   <td ALIGN='left' width='100%'>
-    <a>Welcome to FragmentDB</a>
+    <a>Choose a fragment and define its properties. Then fit it to the structure.</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
@@ -82,12 +82,12 @@
     <input
       type="text"
       height="$GetVar('HtmlInputHeight')"
-      width="35"
+      width="40"
       bgcolor="$GetVar('HtmlInputBgColour')"
       valign='center'
       name = "RESIDUE_CLASS"
       value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.resi_class())"
-      onchange='spy.SetParam(fragment_DB.fragment.resi_class, html.GetValue(~name~))'
+      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
   >
     </font>
   </td>
@@ -123,7 +123,7 @@
     <input
       type="text"
       height="$GetVar('HtmlInputHeight')"
-      width="35"
+      width="40"
       bgcolor="$GetVar('HtmlInputBgColour')"
       valign='center'
       name = "FRAG_OCCUPANCY"
@@ -143,12 +143,15 @@
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
+
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmenDB_4; help_ext=FragentDB_4;1; -->
   <td ALIGN='left' width='100%'>
-    <b><a ALIGN='left' href="spy.FragmentDB.fit_db_fragment(67)">FIT FRAGMENT thf</a>
+<!--
+  <b><a ALIGN='left' href="spy.FragmentDB.fit_db_fragment(67)">FIT FRAGMENT thf</a>
     <br>
     <b><a ALIGN='center' href="spy.FragmentDB.fit_db_fragment(37)">FIT FRAGMENT oc(cf3)3</a>
     <br>
+ -->
     <b><a ALIGN='right' href="spy.FragmentDB.call_profile()"> profile</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->

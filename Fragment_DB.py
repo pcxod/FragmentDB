@@ -39,6 +39,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.resi_class,True,"FragmentDB")
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
     OV.registerFunction(self.set_occu,True,"FragmentDB")
+    OV.registerFunction(self.set_resiclass,True,"FragmentDB")
 
   def set_occu(self, occ):
     '''
@@ -54,7 +55,19 @@ class FragmentDB(PT):
         print('bad value for occupancy provided')
         return
     OV.SetParam('fragment_DB.fragment.frag_occ', occ)
-    
+
+  def set_resiclass(self, resiclass):
+    '''
+    sets the residue class and ensures that is of len 4 
+    and .isalpha is the first char.
+    '''
+    if not resiclass[0].isalpha():
+      OV.SetParam('fragment_DB.fragment.resi_class', '')    
+    elif len(resiclass) > 4:
+      resiclass = resiclass[:4]
+      OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
+    else:
+      OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
     
   def list_fragments(self):
     '''
@@ -176,10 +189,6 @@ class FragmentDB(PT):
           restraintat[i:i+1] = names
     return ' '.join(restraintat)
 
-  def call_profile(self):
-    import cProfile
-    cProfile.run('self.fit_db_fragment()', 'foo.profile')
-    
   def find_free_residue_num(self):
     '''
     Determines which residue number is unused.
@@ -245,7 +254,10 @@ class FragmentDB(PT):
     if OV.IsControl('RESIDUE_CLASS'):
       olx.html.SetValue('RESIDUE_CLASS', resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
-    
+
+  def call_profile(self):
+    import cProfile
+    cProfile.run('self.fit_db_fragment()', 'foo.profile')
     
 FragmentDB_instance = FragmentDB()
 
