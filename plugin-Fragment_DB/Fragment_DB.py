@@ -40,6 +40,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
+    OV.registerFunction(self.call_profile,True,"FragmentDB")
 
   def set_occu(self, occ):
     '''
@@ -257,8 +258,14 @@ class FragmentDB(PT):
 
   def call_profile(self):
     import cProfile
-    cProfile.run('self.fit_db_fragment()', 'foo.profile')
-    
+    import pstats
+    cp = cProfile.Profile()
+    cp.runcall(self.fit_db_fragment, 17)
+    #cp.dump_stats('foo.profile')
+    pstats.Stats(cp).sort_stats('time').print_stats(30)
+    #pstats.Stats(cp).strip_dirs().sort_stats('time').print_stats(30)
+
+  
 FragmentDB_instance = FragmentDB()
 
 

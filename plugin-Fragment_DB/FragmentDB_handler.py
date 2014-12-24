@@ -89,7 +89,15 @@ def restraint_check(restraints, atoms, fragment_name):
     if not atom.upper() in atoms:
       print('Bad atom "{}" in restraints of "{}"'.format(atom, fragment_name))
 
-
+def call_profile(dbfile):
+  import cProfile
+  import pstats
+  cp = cProfile.Profile()
+  db=FragmentTable(dbfile)
+  cp.runcall(db._get_fragment, 17)
+  pstats.Stats(cp).strip_dirs().sort_stats('time').print_stats(20)
+      
+      
 class DatabaseRequest():
   def __init__(self, dbfile):
     '''
@@ -602,7 +610,6 @@ class Restraints():
 
 
 if __name__ == '__main__':
-
   import doctest
   doctest.testmod()
   print('passed all tests!')
@@ -611,6 +618,7 @@ if __name__ == '__main__':
   #dbfile = 'F:\GitHub\DSR-db\fragment-database.sqlite'
   #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\fragment-database.sqlite'
   dbfile = 'fragment-database.sqlite'
+  call_profile(dbfile)
   db = FragmentTable(dbfile)
 
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]

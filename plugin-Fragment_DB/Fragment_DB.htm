@@ -1,14 +1,11 @@
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
 
 <!-- Fragen:
-- Wie begrenze ich ein eingabefeld von type="text" auf 4 zeichen und Anfang mit .isalpha()?
 - Wie könnte man bereits benutzte residue nummern im type="spin" rot einfärben?
-- Wär vielleich sinnvoll beim free variable assignment die fvar-zuordnungen anzuzeigen (labels).
-- warum kriegt alles beim fit eine occupancy von 0.5?
 
-- wie gehe ich mit float um? kann man fehlermeldung bei 0,5 statt 0.5 vermeiden?
+- why does oxygen get 1/2 occupancy in the water structure???
+
 - kann man residue-nummern einblenden sobald der spin-knopf gedrückt wird?
-- show residue number währe auch nützlich (z.b. labels -re).
 
 -->
 
@@ -76,7 +73,7 @@
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
         onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))"
   >
-  <td width='30%' align='right'><b>%Residue Class:%</b></td>
+  <td width='30%' align='right'><b>%Residue Class (4 character):%</b></td>
   <td width='70%' align='left'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
@@ -154,6 +151,7 @@
  -->
     <b><a ALIGN='right' href="spy.FragmentDB.call_profile()"> profile</a>
   </td>
+ 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
