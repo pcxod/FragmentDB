@@ -38,8 +38,24 @@ class FragmentDB(PT):
     OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
     OV.registerFunction(self.resi_class,True,"FragmentDB")
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
+    OV.registerFunction(self.set_occu,True,"FragmentDB")
 
-
+  def set_occu(self, occ):
+    '''
+    sets the occupancy, even if you enter a comma valueinstead of point as 
+    dcimal separator.
+    '''
+    if ',' in occ:
+      occ = occ.replace(',', '.')
+    else:
+      try:
+        float(occ)
+      except(SyntaxError, NameError, ValueError):
+        print('bad value for occupancy provided')
+        return
+    OV.SetParam('fragment_DB.fragment.frag_occ', occ)
+    
+    
   def list_fragments(self):
     '''
     returns the available fragments in the database

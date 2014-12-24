@@ -5,11 +5,32 @@
 - Wie könnte man bereits benutzte residue nummern im type="spin" rot einfärben?
 - Wär vielleich sinnvoll beim free variable assignment die fvar-zuordnungen anzuzeigen (labels).
 - warum kriegt alles beim fit eine occupancy von 0.5?
+
+- wie gehe ich mit float um? kann man fehlermeldung bei 0,5 statt 0.5 vermeiden?
+- kann man residue-nummern einblenden sobald der spin-knopf gedrückt wird?
+- show residue number währe auch nützlich (z.b. labels -re).
+
 -->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1;1; -->
   <td ALIGN='left' width='100%'>
     <a>Welcome to FragmentDB</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=FragmentDB_2;1; -->
+  <td ALIGN='left' width='100%'>
+    <b>%Fragment:%</b>
+    $+
+    html.Snippet("gui/snippets/input-combo",
+    "name=LIST_FRAGMENTS",
+    "items=spy.FragmentDB.list_fragments()",
+    "value=",
+    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()",
+    "readonly=false",
+    "manage=true")
+    $-
+  
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
@@ -29,7 +50,7 @@
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.GetParam(fragment_DB.fragment.frag_part)"
-        onchange='spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))'
+        onchange='spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))>>labels -p '
       >
     </font>
   </td>
@@ -50,7 +71,7 @@
         width="50"
         height="17"
         max='99'
-        min='-99'
+        min='0'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
         onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))"
@@ -88,7 +109,7 @@
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.GetParam(fragment_DB.fragment.frag_fvar)"
-        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))'
+        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v'
       >
     </font>
   </td>
@@ -109,26 +130,15 @@
       value = "spy.GetParam(fragment_DB.fragment.frag_occ)"
       min='-4'
       max='4'
-      onchange='spy.SetParam(fragment_DB.fragment.frag_occ, html.GetValue(~name~))'
+      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))'
     >
     </font>
   </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
-
+<!--  onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.frag_occ))'-->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_3; help_ext=FragmentDB_3;1; -->
   <td ALIGN='left' width='100%'>
-    <b>%Fragment:%</b>
-    $+
-    html.Snippet("gui/snippets/input-combo",
-    "name=LIST_FRAGMENTS",
-    "items=spy.FragmentDB.list_fragments()",
-    "value=",
-    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()",
-    "readonly=false",
-    "manage=true")
-    $-
-  
     <b><a href="spy.FragmentDB.fit_db_fragment()">FIT FRAGMENT</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -142,12 +152,7 @@
     <b><a ALIGN='right' href="spy.FragmentDB.call_profile()"> profile</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmesdfnDB_4; help_ext=FragedfntDB_4;1; -->
-  <td ALIGN='left' width='100%'>
-    <b><a href="spy.FragmentDB.find_free_residue_num()">RESIDUES</a>
-    
-  </td>
-<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
 
