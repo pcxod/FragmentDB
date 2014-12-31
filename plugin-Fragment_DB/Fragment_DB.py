@@ -133,18 +133,19 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("RESI {} {}".format(resiclass, resinum))
 
-  def make_restraints(self, atoms, db, labeldict, fragId, atom_names):
+  def make_restraints(self, atoms, db, labeldict, fragId, frag_atom_names):
     '''
     applies restraints to atoms
     '''
     for num, i in enumerate(db.get_restraints(fragId)):
       # i[0] is restraint like SADI or DFIX
       # i[1] is a string of atoms like 'C1 C2'
-      restraintat = i[1]
-      if '>' in restraintat or '<' in restraintat:
-        restraintat = self.range_resolver(restraintat, atom_names)
+      restraint_atoms = i[1]
+      if '>' in restraint_atoms or '<' in restraint_atoms:
+        restraint_atoms = self.range_resolver(restraint_atoms, frag_atom_names)
       line = []
-      for at in restraintat.split():
+      for at in restraint_atoms.split():
+        # is it a potential atom:
         if at[0].isalpha():
           try:
             line.append('#c'+labeldict[at])
@@ -197,15 +198,7 @@ class FragmentDB(PT):
     or returns the last used + 1.
     '''
     import olex_core
-    residues = []
-    # get the properties of the atoms:
-    for r in olex_core.GetRefinementModel(True)['aunit']['residues']:
-      try:
-        # atoms in residue 0 have no 'number'
-        residues.append(r['number'])
-      except:
-        pass
-    residues.sort()
+    residues = self.get_residue_numbers()
     # find unused numbers in the list:
     resi = False
     try:

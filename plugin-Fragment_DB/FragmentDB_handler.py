@@ -302,10 +302,23 @@ class FragmentTable():
     >>> del db[0]
     >>> print 'after:', len(db)
     after: 69
+
+    >>> del db[3]
+    >>> print 'after:', len(db)
+    after: 68
+    
+    >>> print db[-3][1]
+    (u'O1', u'8', -1.9563, -0.0969, 0.0001)
+    
+    >>> del db[-3]
+    >>> print db[-3][1]
+    (u'C2', u'6', 0.0, 1.4155, 0.0)
     
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
     '''
+    # in case of negative id, get a list of the ids and access the id through
+    # that list: 
     if fragment_id < 0:
       fragment_id = self.get_all_rowids()[fragment_id]
     req = '''DELETE FROM Fragment WHERE rowid = ?'''
@@ -313,6 +326,7 @@ class FragmentTable():
       fragment_id = int(fragment_id)
     except(ValueError, TypeError):
       print('Wrong type. Expected integer.')
+    # actually delete the item:
     deleted = self.database.db_request(req, fragment_id)
     return deleted
 
@@ -611,14 +625,13 @@ class Restraints():
 
 if __name__ == '__main__':
   import doctest
-  doctest.testmod()
-  print('passed all tests!')
+  failed, attempted = doctest.testmod()
+  if failed == 0:
+    print('passed all tests!')
+
   # import cProfile
-  
-  #dbfile = 'F:\GitHub\DSR-db\fragment-database.sqlite'
-  #dbfile = 'C:\Users\daniel\Documents\GitHub\DSR-db\fragment-database.sqlite'
   dbfile = 'fragment-database.sqlite'
-  call_profile(dbfile)
+#  call_profile(dbfile)
   db = FragmentTable(dbfile)
 
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
@@ -642,13 +655,4 @@ if __name__ == '__main__':
   tag= 'benz'
   comment = 'asfgagr'
 
-  #del db[-1]
-  #cProfile.run("db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)", "foo.profile")
-  #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
- # if id:
-  #  print('stored', id)
-  
-  
-  print('ready')
-
-
+ 
