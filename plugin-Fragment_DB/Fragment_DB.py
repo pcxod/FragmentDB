@@ -18,7 +18,7 @@ Fragen:
   the number like with part numbers
 - fit fragment to or near selected atoms/Q-peaks (cctbx model_matches())
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
-  make them eadp.
+  make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
 - observe disagreeable restraints and warn user
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
@@ -77,7 +77,6 @@ class FragmentDB(PT):
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
     #OV.registerFunction(self.print_func,True,"FragmentDB")
-    #OV.registerFunction(self.call_profile,True,"FragmentDB")
     #self.print_func()
 
   def print_func(self):
@@ -143,9 +142,6 @@ class FragmentDB(PT):
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    #print('#'*40)
-    #print('resinum, resiclass, partnum, freevar, occupancy:', resinum, resiclass, partnum, freevar, occupancy)
-    #print('#'*40)
     atoms = []
     atom_names = []
     labeldict = OrderedDict()
@@ -174,6 +170,7 @@ class FragmentDB(PT):
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
+    return atoms
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
@@ -207,6 +204,10 @@ class FragmentDB(PT):
       # applies the restraint to atoms in line
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
+  
+
+  
+  
   def range_resolver(self, restraintat, atom_names):
     '''
     resolves the atom names of ranges like "C1 > C5"
@@ -298,18 +299,7 @@ class FragmentDB(PT):
       olx.html.SetValue('RESIDUE_CLASS', resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
 
-  def call_profile(self):
-    import cProfile
-    import pstats
-    cp = cProfile.Profile()
-    cp.runcall(self.fit_db_fragment, 17)
-    #cp.dump_stats('foo.profile')
-    pstats.Stats(cp).sort_stats('time').print_stats(30)
-    #pstats.Stats(cp).strip_dirs().sort_stats('time').print_stats(30)
 
-  
+
+
 FragmentDB_instance = FragmentDB()
-
-
-
-
