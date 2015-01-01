@@ -1,0 +1,991 @@
+spy.currentResultFilesHtmlMaker
+currentResultFilesHtmlMaker arguments [any]
+
+spy.dealWithReportImage
+dealWithReportImage arguments [any]
+
+spy.delete_history
+delete_history arguments [any]
+
+spy.diffractionMetadataHtmlMaker
+diffractionMetadataHtmlMaker arguments [any]
+
+spy.doBanner
+doBanner arguments [any]
+
+spy.doProgramSettings
+doProgramSettings arguments [any]
+
+spy.dump
+dump arguments [any]
+
+spy.EditCifInfo
+EditCifInfo arguments [any]
+
+spy.EditParams
+EditParams arguments [any]
+
+spy.ElementButtonStates
+ElementButtonStates arguments [any]
+
+spy.expand
+expand arguments [any]
+
+spy.ExtractCifInfo
+ExtractCifInfo arguments [any]
+
+spy.fade_in
+fade_in arguments [any]
+
+spy.fade_out
+fade_out arguments [any]
+
+spy.FindZOfHeaviestAtomInFormua
+FindZOfHeaviestAtomInFormua arguments [any]
+
+spy.Fobs_Fcalc_plot
+Fobs_Fcalc_plot arguments [any]
+
+spy.Fobs_over_Fcalc_plot
+Fobs_over_Fcalc_plot arguments [any]
+
+spy.formatted_date_from_timestamp
+formatted_date_from_timestamp arguments [any]
+
+spy.get_cif_item
+get_cif_item arguments [any]
+
+spy.get_news_image_from_server
+get_news_image_from_server arguments [any]
+
+spy.get_refine_ls_hydrogen_treatment
+get_refine_ls_hydrogen_treatment arguments [any]
+
+spy.get_refinement_methods
+get_refinement_methods arguments [any]
+
+spy.get_refinement_programs
+get_refinement_programs arguments [any]
+
+spy.get_solution_methods
+get_solution_methods arguments [any]
+
+spy.get_solution_programs
+get_solution_programs arguments [any]
+
+spy.get_text_from_vfs
+get_text_from_vfs arguments [any]
+
+spy.GetAvailableRefinementProgs
+GetAvailableRefinementProgs arguments [any]
+
+spy.GetAvailableSolutionProgs
+GetAvailableSolutionProgs arguments [any]
+
+spy.getCellHTML
+getCellHTML arguments [any]
+
+spy.GetCurrentSelection
+GetCurrentSelection arguments [any]
+
+spy.getFileContents
+getFileContents arguments [any]
+
+spy.GetFormulaDisplay
+GetFormulaDisplay arguments [any]
+
+spy.getGenericSwitchName
+getGenericSwitchName arguments [any]
+
+spy.getGenericSwitchNameTranslation
+getGenericSwitchNameTranslation arguments [any]
+
+spy.GetHklFileList
+GetHklFileList arguments [any]
+
+spy.getListAffiliations
+getListAffiliations arguments [any]
+
+spy.getListPeople
+getListPeople arguments [any]
+
+spy.getmap
+getmap arguments [any]
+
+spy.getObjectCount
+getObjectCount arguments [any]
+
+spy.GetOptionalHyphenString
+GetOptionalHyphenString arguments [any]
+
+spy.GetParam
+GetParam arguments [any]
+
+spy.getPersonInfo
+getPersonInfo arguments [any]
+
+spy.getPrintStyles
+getPrintStyles arguments [any]
+
+spy.getReportExtraCIFItems
+getReportExtraCIFItems arguments [any]
+
+spy.getReportImageData
+getReportImageData arguments [any]
+
+spy.getReportImageSrc
+getReportImageSrc arguments [any]
+
+spy.getReportPhilItem
+getReportPhilItem arguments [any]
+
+spy.getReportTitleSrc
+getReportTitleSrc arguments [any]
+
+spy.GetRInfo
+GetRInfo arguments [any]
+
+spy.getStyles
+getStyles arguments [any]
+
+spy.getStylesList
+getStylesList arguments [any]
+
+spy.GetTag
+GetTag arguments [any]
+
+spy.getTemplatesList
+getTemplatesList arguments [any]
+
+spy.getTip
+getTip arguments [any]
+
+spy.GetTwinLawAndBASF
+GetTwinLawAndBASF arguments [any]
+
+spy.HklStatsAnalysis
+HklStatsAnalysis arguments [any]
+
+spy.hooft_analysis
+hooft_analysis arguments [any]
+
+spy.InActionButton
+InActionButton arguments [any]
+
+spy.IsPluginInstalled
+IsPluginInstalled arguments [any]
+
+spy.isPro
+isPro arguments [any]
+
+spy.load_user_gui_phil
+load_user_gui_phil arguments [any]
+
+spy.loadHistory
+loadHistory arguments [any]
+
+spy.LoadParams
+LoadParams arguments [any]
+
+spy.LoadStructureParams
+LoadStructureParams arguments [any]
+
+spy.make_gui_edit_link
+make_gui_edit_link arguments [any]
+
+spy.make_history_bars
+make_history_bars arguments [any]
+
+spy.make_HOS
+make_HOS arguments [any]
+
+spy.make_reflection_graph
+make_reflection_graph arguments [any]
+
+spy.make_warning_html
+make_warning_html arguments [any]
+
+spy.MakeActiveGuiButton
+MakeActiveGuiButton arguments [any]
+
+spy.MakeElementButtonsFromFormula
+MakeElementButtonsFromFormula arguments [any]
+
+spy.makeFormulaForsNumInfo
+makeFormulaForsNumInfo arguments [any]
+
+spy.MakeHoverButton
+MakeHoverButton arguments [any]
+
+spy.MakeHoverButtonOff
+MakeHoverButtonOff arguments [any]
+
+spy.MakeHoverButtonOn
+MakeHoverButtonOn arguments [any]
+
+spy.makeReflectionGraphGui
+makeReflectionGraphGui arguments [any]
+
+spy.MergeCif
+MergeCif arguments [any]
+
+spy.move
+move arguments [any]
+
+spy.Normal_probability_plot
+Normal_probability_plot arguments [any]
+
+spy.olex_fs_copy
+olex_fs_copy arguments [any]
+
+spy.OlexCctbxMasks
+OlexCctbxMasks arguments [any]
+
+spy.OlexCctbxTwinLaws
+OlexCctbxTwinLaws arguments [any]
+
+spy.on_twin_image_click
+on_twin_image_click arguments [any]
+
+spy.onRefinementMethodChange
+onRefinementMethodChange arguments [any]
+
+spy.onSolutionMethodChange
+onSolutionMethodChange arguments [any]
+
+spy.PopBanner
+PopBanner arguments [any]
+
+spy.popout_history_tree
+popout_history_tree arguments [any]
+
+spy.print_top_100
+print_top_100 arguments [any]
+
+spy.progressMetadataHtmlMaker
+progressMetadataHtmlMaker arguments [any]
+
+spy.publicationMetadataHtmlMaker
+publicationMetadataHtmlMaker arguments [any]
+
+spy.QPeaksSlide
+QPeaksSlide arguments [any]
+
+spy.r1_factor_vs_resolution_plot
+r1_factor_vs_resolution_plot arguments [any]
+
+spy.referenceMetadataHtmlMaker
+referenceMetadataHtmlMaker arguments [any]
+
+spy.refineDataMaker
+refineDataMaker arguments [any]
+
+spy.register_new_odac
+register_new_odac arguments [any]
+
+spy.RemoveVariableFromUserInputList
+RemoveVariableFromUserInputList arguments [any]
+
+spy.rename_history
+rename_history arguments [any]
+
+spy.reset_file_in_OFS
+reset_file_in_OFS arguments [any]
+
+spy.reset_twin_law_img
+reset_twin_law_img arguments [any]
+
+spy.resetHistory
+resetHistory arguments [any]
+
+spy.resize_skin_logo
+resize_skin_logo arguments [any]
+
+spy.restraint_builder
+restraint_builder arguments [any]
+
+spy.revert_history
+revert_history arguments [any]
+
+spy.revert_to_original
+revert_to_original arguments [any]
+
+spy.round_to_n_digits
+round_to_n_digits arguments [any]
+
+spy.run_MakeMovie
+run_MakeMovie arguments [any]
+
+spy.runSadabs
+runSadabs arguments [any]
+
+spy.SaveCifInfo
+SaveCifInfo arguments [any]
+
+spy.saveHistory
+saveHistory arguments [any]
+
+spy.SaveOlex2Params
+SaveOlex2Params arguments [any]
+
+spy.SaveStructureParams
+SaveStructureParams arguments [any]
+
+spy.SaveUserParams
+SaveUserParams arguments [any]
+
+spy.scale_factor_vs_resolution_plot
+scale_factor_vs_resolution_plot arguments [any]
+
+spy.set_cif_item
+set_cif_item arguments [any]
+
+spy.set_refinement_program
+set_refinement_program arguments [any]
+
+spy.set_solution_program
+set_solution_program arguments [any]
+
+spy.set_source_file
+set_source_file arguments [any]
+
+spy.setAllMainToolbarTabButtons
+setAllMainToolbarTabButtons arguments [any]
+
+spy.setDiffractometerDefinitionFile
+setDiffractometerDefinitionFile arguments [any]
+
+spy.setDisplayQuality
+setDisplayQuality arguments [any]
+
+spy.SetFormulaFromInput
+SetFormulaFromInput arguments [any]
+
+spy.setMainToolbarTabButtons
+setMainToolbarTabButtons arguments [any]
+
+spy.SetMaxCycles
+SetMaxCycles arguments [any]
+
+spy.SetMaxPeaks
+SetMaxPeaks arguments [any]
+
+spy.SetParam
+SetParam arguments [any]
+
+spy.SetReportStyle
+SetReportStyle arguments [any]
+
+spy.SetReportTemplate
+SetReportTemplate arguments [any]
+
+spy.settings_tree
+settings_tree arguments [any]
+
+spy.ShowParams
+ShowParams arguments [any]
+
+spy.standardise_path
+standardise_path arguments [any]
+
+spy.stopDebugging
+stopDebugging arguments [any]
+
+spy.stopShelx
+stopShelx arguments [any]
+
+spy.StringsAreEqual
+StringsAreEqual arguments [any]
+
+spy.StringsAreNotEqual
+StringsAreNotEqual arguments [any]
+
+spy.students_t_hooft_analysis
+students_t_hooft_analysis arguments [any]
+
+spy.SwitchAllAlertsOn
+SwitchAllAlertsOn arguments [any]
+
+spy.switchButton
+switchButton arguments [any]
+
+spy.symmetry_search
+symmetry_search arguments [any]
+
+spy.SystematicAbsencesPlot
+SystematicAbsencesPlot arguments [any]
+
+spy.test_help_boxes
+test_help_boxes arguments [any]
+
+spy.txt
+txt arguments [any]
+
+spy.UisoSelectSlide
+UisoSelectSlide arguments [any]
+
+spy.weightGuiDisplay
+weightGuiDisplay arguments [any]
+
+spy.which_program
+which_program arguments [any]
+
+spy.WilsonPlot
+WilsonPlot arguments [any]
+
+spy.write_to_olex
+write_to_olex arguments [any]
+
+spy.X_Y_plot
+X_Y_plot arguments [any]
+
+spy.cif.GetCheckcifReport
+GetCheckcifReport arguments [any]
+
+spy.cif.reloadMetadata
+reloadMetadata arguments [any]
+
+spy.FragmentDB.find_free_residue_num
+find_free_residue_num arguments [any]
+
+spy.FragmentDB.fit_db_fragment
+fit_db_fragment arguments [any]
+
+spy.FragmentDB.list_fragments
+list_fragments arguments [any]
+
+spy.FragmentDB.print_func
+print_func arguments [any]
+
+spy.FragmentDB.resi_class
+resi_class arguments [any]
+
+spy.FragmentDB.set_occu
+set_occu arguments [any]
+
+spy.FragmentDB.set_resiclass
+set_resiclass arguments [any]
+
+spy.gui.About
+About arguments [any]
+
+spy.gui.do_sort
+do_sort arguments [any]
+
+spy.gui.GetFileList
+GetFileList arguments [any]
+
+spy.gui.GetFileListAsDropdownItems
+GetFileListAsDropdownItems arguments [any]
+
+spy.gui.GetFolderList
+GetFolderList arguments [any]
+
+spy.gui.GetPathParam
+GetPathParam arguments [any]
+
+spy.gui.PopTool
+PopTool arguments [any]
+
+spy.gui.SetHtmlFontSize
+SetHtmlFontSize arguments [any]
+
+spy.gui.SetHtmlFontSizeControls
+SetHtmlFontSizeControls arguments [any]
+
+spy.gui.SwitchPanel
+SwitchPanel arguments [any]
+
+spy.gui.SwitchSettings
+SwitchSettings arguments [any]
+
+spy.gui.SwitchTool
+SwitchTool arguments [any]
+
+spy.gui.UpdateWeight
+UpdateWeight arguments [any]
+
+spy.gui.db.addPerson
+addPerson arguments [any]
+
+spy.gui.db.addSite
+addSite arguments [any]
+
+spy.gui.db.deletePerson
+deletePerson arguments [any]
+
+spy.gui.db.deleteSite
+deleteSite arguments [any]
+
+spy.gui.db.getPeopleList
+getPeopleList arguments [any]
+
+spy.gui.db.getSiteList
+getSiteList arguments [any]
+
+spy.gui.db.Manage
+Manage arguments [any]
+
+spy.gui.db.setPerson
+setPerson arguments [any]
+
+spy.gui.db.setSite
+setSite arguments [any]
+
+spy.gui.db.updatePerson
+updatePerson arguments [any]
+
+spy.gui.db.updateSite
+updateSite arguments [any]
+
+spy.gui.dialog.FileOpen
+FileOpen arguments [any]
+
+spy.gui.dialog.FileSave
+FileSave arguments [any]
+
+spy.gui.home.multiple_dataset.check
+check arguments [any]
+
+spy.gui.home.multiple_dataset.generateHtml
+generateHtml arguments [any]
+
+spy.gui.images.get_action_button_html
+get_action_button_html arguments [any]
+
+spy.gui.images.GetBitmapSize
+GetBitmapSize arguments [any]
+
+spy.gui.images.GetPRImageInstructions
+GetPRImageInstructions arguments [any]
+
+spy.gui.images.GetPSImageInstructions
+GetPSImageInstructions arguments [any]
+
+spy.gui.images.make_action_button_html
+make_action_button_html arguments [any]
+
+spy.gui.images.MakeBitmapImage
+MakeBitmapImage arguments [any]
+
+spy.gui.maps.MapView
+MapView arguments [any]
+
+spy.gui.maps.MaskView
+MaskView arguments [any]
+
+spy.gui.maps.SetXgridView
+SetXgridView arguments [any]
+
+spy.gui.maps.VoidView
+VoidView arguments [any]
+
+spy.gui.metadata.add_resolved_conflict_item_to_phil
+add_resolved_conflict_item_to_phil arguments [any]
+
+spy.gui.metadata.conflicts
+conflicts arguments [any]
+
+spy.gui.metadata.resolve_all
+resolve_all arguments [any]
+
+spy.gui.metadata.sources
+sources arguments [any]
+
+spy.gui.report.advance_crystal_image
+advance_crystal_image arguments [any]
+
+spy.gui.report.get_crystal_image
+get_crystal_image arguments [any]
+
+spy.gui.report.play_crystal_images
+play_crystal_images arguments [any]
+
+spy.gui.report.publication.add_cif_to_merge_list
+add_cif_to_merge_list arguments [any]
+
+spy.gui.report.publication.AddTemplateToMergeList
+AddTemplateToMergeList arguments [any]
+
+spy.gui.report.publication.DisplayMergeList
+DisplayMergeList arguments [any]
+
+spy.gui.report.publication.EditPersonById
+EditPersonById arguments [any]
+
+spy.gui.report.publication.EditPersonByName
+EditPersonByName arguments [any]
+
+spy.gui.report.publication.OnAddNameToAuthorList
+OnAddNameToAuthorList arguments [any]
+
+spy.gui.report.publication.OnContactAuthorChange
+OnContactAuthorChange arguments [any]
+
+spy.gui.report.publication.OnPersonAffiliationChange
+OnPersonAffiliationChange arguments [any]
+
+spy.gui.report.publication.OnPersonChange
+OnPersonChange arguments [any]
+
+spy.gui.report.publication.OnPersonInfoChange
+OnPersonInfoChange arguments [any]
+
+spy.gui.report.publication.OnPublicationTemplateChange
+OnPublicationTemplateChange arguments [any]
+
+spy.gui.report.publication.remove_cif_from_merge_list
+remove_cif_from_merge_list arguments [any]
+
+spy.gui.tools.checkErrLogFile
+checkErrLogFile arguments [any]
+
+spy.gui.tools.checkPlaton
+checkPlaton arguments [any]
+
+spy.gui.tools.flash_gui_control
+flash_gui_control arguments [any]
+
+spy.gui.tools.hasDisorder
+hasDisorder arguments [any]
+
+spy.gui.tools.make_cell_dimensions_display
+make_cell_dimensions_display arguments [any]
+
+spy.gui.tools.make_disorder_quicktools
+make_disorder_quicktools arguments [any]
+
+spy.gui.tools.start_where
+start_where arguments [any]
+
+spy.gui.tools.folder_view.generateHtml
+generateHtml arguments [any]
+
+spy.gui.tools.folder_view.list
+list arguments [any]
+
+spy.gui.tools.folder_view.loadStructure
+loadStructure arguments [any]
+
+spy.history.get
+get arguments [any]
+
+spy.internal.resizeNewsImage
+resizeNewsImage arguments [any]
+
+spy.it.trim_image
+trim_image arguments [any]
+
+spy.piltools.make_element_buttons
+make_element_buttons arguments [any]
+
+spy.programs.get_known
+get_known arguments [any]
+
+spy.pt.make_new_plugin
+make_new_plugin arguments [any]
+
+spy.report.get_crystal_image
+get_crystal_image arguments [any]
+
+spy.report.get_report_title
+get_report_title arguments [any]
+
+spy.report.handleNA
+handleNA arguments [any]
+
+spy.report.makeSpecialCifCharacter
+makeSpecialCifCharacter arguments [any]
+
+spy.report.ResolvePrograms
+ResolvePrograms arguments [any]
+
+spy.skin.export_parameters
+export_parameters arguments [any]
+
+spy.threading.joinAll
+joinAll arguments [any]
+
+spy.threading.shell.run
+run arguments [any]
+
+spy.vfs.read_from_olex
+read_from_olex arguments [any]
+
+time.DF
+DF arguments [none]
+Returns default date format
+time.FormatDateTime
+FormatDateTime arguments [1 or 2]
+Formats datatime using default 26 char format or using provided string. Valid formats are y(y(yy) - year like 7, 07 or 2007; M(M(M(M - month like 7, 07, Jul, July; d(d(d(d - day like 1, 01, Wed or Wednesday; h(h - for hours, m(m - minutes, s(s - seconds like 1 or 01
+time.Now
+Now arguments [none or 1]
+Returns current date and time as a long number if no format is provided. If a format string is provided it return a formatted string. The DF() function can be used for default formatting 
+wbox.GetName
+GetName arguments [none]
+Returns object collection name
+wbox.IsGrouped
+IsGrouped arguments [none]
+Returns true if the object is in a group
+wbox.IsSelected
+IsSelected arguments [none]
+Returns true if the object is selected
+wbox.Type
+Type arguments [none or 1]
+Sets the frame type - sphere/box
+wbox.Visible
+Visible arguments [none or 1]
+Changes/returns object visibility
+xf.CurrentData
+CurrentData arguments [none or 1] states - [CIF file is expected]
+Returns current data index or changes current data block within the CIF
+xf.DataCount
+DataCount arguments [none] states - [Loaded file is expected]
+Returns number of available data sets
+xf.DataName
+DataName arguments [1] states - [CIF file is expected]
+Returns data name for given CIF block
+xf.GetFormula
+GetFormula arguments [none, 1 or 2] states - [Loaded file is expected]
+Returns a string for content of the asymmetric unit. Takes single or none parameters. If parameter equals 'html' and html formatted string is returned, for 'list' parameter a string like 'C:26,N:45' is returned. If no parameter is specified, just formula is returned
+xf.GetMu
+GetMu arguments [none] states - [Loaded file is expected]
+Returns absorption coefficient for current model.
+xf.RefinementInfo
+RefinementInfo arguments [none or 1] states - [INS file is expected]
+Sets/returns refinement information.
+xf.SaveSolution
+SaveSolution arguments [1] states - [INS file is expected]
+Saves current Q-peak model to provided file (res-file)
+xf.SetFormula
+SetFormula arguments [1] states - [INS file is expected][P4P file is expected]
+Sets formula for current file, takes a string of the following form 'C:25,N:4
+xf.analysis.AnalyseUeq
+AnalyseUeq arguments [none or 1]
+
+xf.analysis.Scale
+Scale arguments [none or 1]
+Scales the Q-peaks according to found fragments.Returns the scale or 0
+xf.analysis.Trim
+Trim arguments [none or 1]
+Trims the size of the assymetric unit according to the 18 A^3 rule.Returns true if any atoms were deleted
+xf.au.Fractionalise
+Fractionalise arguments [1 or 3]
+Returns fractional coordinates
+xf.au.GetAtomAfix
+GetAtomAfix arguments [1]
+Returns atom AFIX
+xf.au.GetAtomCount
+GetAtomCount arguments [none]
+Returns the atom count in the asymmetric unit
+xf.au.GetAtomCrd
+GetAtomCrd arguments [1]
+Returns a comma separated list of fractional coordinates for the specified atom
+xf.au.GetAtomlabel
+GetAtomlabel arguments [2]
+The takes two arguments - the atom ID and increment. The increment is used to navigate through the periodic table, so increment +1 will return next element and -1 the previous element in the periodic table
+xf.au.GetAtomName
+GetAtomName arguments [1]
+Returns atom label
+xf.au.GetAtomOccu
+GetAtomOccu arguments [1]
+Returns atom occupancy
+xf.au.GetAtomPart
+GetAtomPart arguments [1]
+Returns part of the specified atom
+xf.au.GetAtomType
+GetAtomType arguments [1]
+Returns atom type (element)
+xf.au.GetAtomU
+GetAtomU arguments [1]
+Returns a single number or six, comma separated values
+xf.au.GetAtomUiso
+GetAtomUiso arguments [1]
+Returns a single number Uiso or (U11+U22+U33)/3
+xf.au.GetCell
+GetCell arguments [none or 1]
+Returns six comma separated values for a, b, c and alpha, beta, gamma
+xf.au.GetCellSymm
+GetCellSymm arguments [none or 1]
+Returns space group of currently loaded file as name: 'C2', 'I41/amd', etc. Optionally, Hall symbol may be returned if 'hall' is provided as an argument
+xf.au.GetCellVolume
+GetCellVolume arguments [none]
+Returns volume of the unit cell
+xf.au.GetFormula
+GetFormula arguments [none]
+Returns chemical formula of the asymmetric unit
+xf.au.GetPeak
+GetPeak arguments [1]
+Returns peak intensity
+xf.au.GetVolume
+GetVolume arguments [none]
+Returns volume of the unit cell divided by the number of symmetry elements
+xf.au.GetWeight
+GetWeight arguments [none or 1]
+Returns molecular mass of the asymmetric unit
+xf.au.GetZ
+GetZ arguments [none]
+Returns current Z
+xf.au.GetZprime
+GetZprime arguments [none]
+Returns current Z divided byt the number of matrices of current spacegroup
+xf.au.IsAtomDeleted
+IsAtomDeleted arguments [1]
+Checks status of specified atom
+xf.au.IsPeak
+IsPeak arguments [1]
+Checks if specified atom is  peak
+xf.au.NewAtom
+NewAtom arguments [4 or 5]
+Adds a new atom to the asymmetric unit and return its ID, by which it can be referred. The function takes the atom name and coordinates, the optional 5th parameter specifies if the position has to be tested for an existing atoms. If -1 is returned, the atom is not created
+xf.au.NPDCount
+NPDCount arguments [none]
+Returns number of the NPD atoms
+xf.au.Orthogonalise
+Orthogonalise arguments [1 or 3]
+Returns orthogonalised coordinates
+xf.au.SetAtomCrd
+SetAtomCrd arguments [4]
+Sets atom coordinates to specified values, first parameters is the atom ID
+xf.au.SetAtomlabel
+SetAtomlabel arguments [2]
+Sets atom labels to provided value. The first parameter is the atom ID
+xf.au.SetAtomOccu
+SetAtomOccu arguments [2]
+Sets atom's occupancy; first parameter is the atom ID followed by occupancy
+xf.au.SetAtomPart
+SetAtomPart arguments [2]
+Sets part of the atom specified atom
+xf.au.SetAtomU
+SetAtomU arguments [2 or 7]
+Sets atoms Uiso/anis first paramater is the atom ID followed by 1 or six parameters
+xf.au.SetZ
+SetZ arguments [1]
+Sets current Z. Does not update content or whatsoever
+xf.au.SetZprime
+SetZprime arguments [1]
+Sets Z' for the structure
+xf.exptl.Radiation
+Radiation arguments [none or 1]
+Returns/sets experiment wavelength in angstrems
+xf.exptl.Size
+Size arguments [none or 1]
+Returns/sets crystal size. Returns/accepts strings line 0.5x0.5x0.5 (in mm)
+xf.exptl.Temperature
+Temperature arguments [none or 1]
+Returns/sets experiment temperature. Returns value in C, accepts strings like 120K, 10F. Default scale is C
+xf.latt.GetFragmentAtoms
+GetFragmentAtoms arguments [1]
+Returns a comma separated list of atoms in specified fragment
+xf.latt.GetFragmentCount
+GetFragmentCount arguments [none]
+Returns number of fragments in the lattice
+xf.latt.GetMoiety
+GetMoiety arguments [none]
+Returns molecular moiety
+xf.latt.IsGrown
+IsGrown arguments [none]
+Returns true if the structure is grow
+xf.rm.BASF
+BASF arguments [1, 2 or 3]
+Returns/sets BASF referred by index
+xf.rm.Completeness
+Completeness arguments [1]
+Calculates completeness to the given 2 theta value
+xf.rm.Exti
+Exti arguments [none, 1 or 2]
+Returns/sets EXTI
+xf.rm.FVar
+FVar arguments [1, 2 or 3]
+Returns/sets FVAR referred by index
+xf.rm.HasOccu
+HasOccu arguments [none]
+Returns true if occupancy of any of the atoms is refined or deviates from 1
+xf.rm.MaxIndex
+MaxIndex arguments [1]
+Calculates largest Miller index for the given 2 theta value
+xf.rm.OSF
+OSF arguments [none or 1]
+Returns/sets OSF
+xf.rm.UpdateCR
+UpdateCR arguments [any except none, 1 or 2]
+Updates constraint or restraint parameters (name, index, {values})
+xf.uc.CellEx
+CellEx arguments [1]
+Returns unit cell side/angle with esd
+xf.uc.MatrixCount
+MatrixCount arguments [none]
+Returns the number of matrices in the unit cell
+xf.uc.VolumeEx
+VolumeEx arguments [none]
+Returns unit cell volume with esd
+xgrid.Contours
+Contours arguments [none or 1]
+Returns/sets number of contour levels
+xgrid.Depth
+Depth arguments [none, 1 or 3]
+Returns/sets current depth
+xgrid.Extended
+Extended arguments [none, 1 or 6]
+Returns/sets extended size of the grid
+xgrid.GetMax
+GetMax arguments [none]
+Returns maximum value of the map
+xgrid.GetMin
+GetMin arguments [none]
+Returns minimum value of the map
+xgrid.GetName
+GetName arguments [none]
+Returns object collection name
+xgrid.IsGrouped
+IsGrouped arguments [none]
+Returns true if the object is in a group
+xgrid.IsSelected
+IsSelected arguments [none]
+Returns true if the object is selected
+xgrid.IsValid
+IsValid arguments [none or 1]
+Returns true if grid data is initialised
+xgrid.MaxDepth
+MaxDepth arguments [none]
+Returns maximum available depth
+xgrid.PlaneSize
+PlaneSize arguments [none or 1]
+Returns/sets current size
+xgrid.RenderMode
+RenderMode arguments [none or 1]
+Returns/sets grid rendering mode. Supported values: point, line, fill, plane, contour
+xgrid.Scale
+Scale arguments [none or 1]
+Returns/sets current scale
+xgrid.Size
+Size arguments [none or 1]
+Returns/sets current size
+xgrid.Visible
+Visible arguments [none or 1]
+Changes/returns object visibility
+xgrid.label.GetName
+GetName arguments [none]
+Returns object collection name
+xgrid.label.IsGrouped
+IsGrouped arguments [none]
+Returns true if the object is in a group
+xgrid.label.IsSelected
+IsSelected arguments [none]
+Returns true if the object is selected
+xgrid.label.Visible
+Visible arguments [none or 1]
+Changes/returns object visibility
+xgrid.legend.GetName
+GetName arguments [none]
+Returns object collection name
+xgrid.legend.IsGrouped
+IsGrouped arguments [none]
+Returns true if the object is in a group
+xgrid.legend.IsSelected
+IsSelected arguments [none]
+Returns true if the object is selected
+xgrid.legend.Visible
+Visible arguments [none or 1]
+Changes/returns object visibility
+
