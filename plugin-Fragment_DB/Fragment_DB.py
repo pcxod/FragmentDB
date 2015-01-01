@@ -2,6 +2,42 @@ from olexFunctions import OlexFunctions
 from collections import OrderedDict
 OV = OlexFunctions()
 
+'''
+Fragen:
+- how can I color already used residue numbers red in the spinner?
+
+- why does oxygen get 1/2 occupancy in the water structure??? It is only in this structure!!?!?!
+  O1    O    -0.00189  0.11240  0.00434  10.50000 -0.00100 
+  H1A   H     0.07811  0.11481  0.11168  11.00000  0.13523 
+  H1B   H    -0.04672  0.16756 -0.01119  11.00000  0.04657
+  -> Problem solved by using olx.xf.au.SetAtomOccu(id, occupancy), but now Olex2 tells me an 
+     occupancy of 2 directly after the fit, but the value in the file and after refinement is the correct 
+     value of 1.
+  
+- I would like to see the residue numbers of the atoms on changing 
+  the number like with part numbers
+- fit fragment to or near selected atoms/Q-peaks (cctbx model_matches())
+- If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
+  make them eadp.
+- observe disagreeable restraints and warn user
+- can the state of the plugin be updated after fit to initialize e.g. the residue number again?
+- How should I handle hydrogen atoms from water? They should get constraints for vibrations!
+- having to put symmetric fragments into negative part is a problem!
+- build routines to insert new fragments to db
+- a working SAME_resiclass atomlist would be great for repeating residues!
+- If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
+  (which is ok) but the restraints like SIMU N1 C1 C2 C3 C4 miss the nitrogen.
+- in mode fit: clicking two times the same atom pair makes strange things.
+- If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for this fragment 
+  and not expand to symmetry equivalent atoms like 
+  EQIV $4 -1+X,1+Y,+Z
+  DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
+- Draw formulas of the molecules and put them into the database. (Automatic gerneration seem to be 
+  highly complicated and supported only by comercial libs)
+- Is it possible to use javascript in Olex2? For JSmol for example?
+'''
+
+
 import os
 import htmlTools
 import olex
@@ -40,8 +76,20 @@ class FragmentDB(PT):
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
-    OV.registerFunction(self.call_profile,True,"FragmentDB")
+    #OV.registerFunction(self.print_func,True,"FragmentDB")
+    #OV.registerFunction(self.call_profile,True,"FragmentDB")
+    #self.print_func()
 
+  def print_func(self):
+    import olex_core
+    for i in olex_core.ExportFunctionList():
+      for y in i:
+        try:
+          print(y)
+        except:
+          pass
+          
+          
   def set_occu(self, occ):
     '''
     sets the occupancy, even if you enter a comma valueinstead of point as 
@@ -95,9 +143,9 @@ class FragmentDB(PT):
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    print('#'*40)
-    print('resinum, resiclass, partnum, freevar, occupancy:', resinum, resiclass, partnum, freevar, occupancy)
-    print('#'*40)
+    #print('#'*40)
+    #print('resinum, resiclass, partnum, freevar, occupancy:', resinum, resiclass, partnum, freevar, occupancy)
+    #print('#'*40)
     atoms = []
     atom_names = []
     labeldict = OrderedDict()
@@ -109,8 +157,9 @@ class FragmentDB(PT):
       labeldict[label.upper()] = id
       olx.xf.au.SetAtomPart(id, partnum)
       olx.xf.au.SetAtomU(id, 0.045)
+      olx.xf.au.SetAtomOccu(id, occupancy)
       name = olx.xf.au.GetAtomName(id)
-      atom_names.append(name)
+      atom_names.append(name.upper())
       print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
       atoms.append(id)
     olx.xf.EndUpdate()
@@ -121,7 +170,7 @@ class FragmentDB(PT):
     self.make_restraints(atoms, db, labeldict, fragId, atom_names)
     # select all atoms to do the fit:
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("fvar {} {}".format(freevar, occupancy))
+    OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")
@@ -170,6 +219,7 @@ class FragmentDB(PT):
     rightleft = {'>':[], '<': []}
     for rl in rightleft:
       for num, i in enumerate(restraintat):
+        i = i.upper()
         if rl == i:
           # fill the dictionary:
           rightleft[rl].append(num)
@@ -197,7 +247,6 @@ class FragmentDB(PT):
     Either finds the first unused residue in the list of residue numbers
     or returns the last used + 1.
     '''
-    import olex_core
     residues = self.get_residue_numbers()
     # find unused numbers in the list:
     resi = False
