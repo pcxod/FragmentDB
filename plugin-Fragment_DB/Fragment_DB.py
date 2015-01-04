@@ -35,6 +35,7 @@ Fragen:
 - Draw formulas of the molecules and put them into the database. (Automatic gerneration seem to be 
   highly complicated and supported only by comercial libs)
 - Is it possible to use javascript in Olex2? For JSmol for example?
+- How can I set a default value for snippets/input-combo out of the list of fragments?
 '''
 
 
@@ -110,10 +111,11 @@ class FragmentDB(PT):
     and .isalpha is the first char.
     '''
     if not resiclass[0].isalpha():
-      OV.SetParam('fragment_DB.fragment.resi_class', '')    
+      # resiclass does not startt with a char:
+      OV.SetParam('fragment_DB.fragment.resi_class', '')
+    # force 4 characters:
     elif len(resiclass) > 4:
-      resiclass = resiclass[:4]
-      OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
+      OV.SetParam('fragment_DB.fragment.resi_class', resiclass[:4])
     else:
       OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
     
@@ -286,7 +288,7 @@ class FragmentDB(PT):
   
   def resi_class(self):
     '''
-    returns the residue class from the respective database fragment.
+    sets the residue class from the respective database fragment.
     '''
     db = FragmentTable(self.dbfile)
     try:
