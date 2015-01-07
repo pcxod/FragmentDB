@@ -430,8 +430,6 @@ class FragmentTable():
     req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = {}
                '''.format(fragment_id)
     picture = self.database.db_request(req_picture)
-    #if 'no such column' in picture:
-    #  return False
     return picture
   
   def get_residue_class(self, fragment_id):
