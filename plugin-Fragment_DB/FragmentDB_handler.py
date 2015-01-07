@@ -132,7 +132,7 @@ class DatabaseRequest():
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
-      print(e)
+      #print(e)
       return False
     rows = self.cur.fetchall()
     if not rows:
@@ -187,7 +187,6 @@ class FragmentTable():
 
     >>> 'benzene' in FragmentTable(dbfile)
     Wrong type. Expected integer.
-    no such column: benzene
     False
 
     >>> '2' in FragmentTable(dbfile)
@@ -416,7 +415,25 @@ class FragmentTable():
                '''.format(fragment_id)
     name = self.database.db_request(req_name)
     return name
-
+  
+  def get_picture(self, fragment_id):
+    '''
+    returns a picture of the fragment if one exist in the database. Otherwise 
+    it returns False.
+    
+    >>> dbfile = 'fragment-database.sqlite'
+    >>> db = FragmentTable(dbfile)    
+    >>> db.get_picture(2)
+    False
+    
+    '''
+    req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = {}
+               '''.format(fragment_id)
+    picture = self.database.db_request(req_picture)
+    #if 'no such column' in picture:
+    #  return False
+    return picture
+  
   def get_residue_class(self, fragment_id):
     '''
     returns the "class" column entry of fragment with id "fragment_id"
@@ -633,6 +650,7 @@ if __name__ == '__main__':
   dbfile = 'fragment-database.sqlite'
 #  call_profile(dbfile)
   db = FragmentTable(dbfile)
+  db.get_picture(2)
 
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
   #atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
