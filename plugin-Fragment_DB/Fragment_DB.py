@@ -212,17 +212,17 @@ class FragmentDB(PT):
     '''
     returns a picture of the fragment from the database
     '''
+    from PIL import Image
+    from StringIO import StringIO
     import OlexVFS
     fragId = olx.GetVar('fragment_ID')
-    if not fragId:
-      print('noid ##############')
-      return
     print('sdfgsdgsgh####')
     db = FragmentTable(self.dbfile)
-    print(fragId, 'idididididid')
-    pic = db.get_picture(fragId)
+    print(fragId, 'idididididid', db)
+    pic = db.get_picture(fragId)[0][0]
     print(pic, '#+#+#+#+')
-    OlexVFS.save_image_to_olex(pic, 'pic.png', 0)
+    im = Image.read(pic)
+    OlexVFS.save_image_to_olex(im, 'pic.png', 0)
     olx.html.SetImage('MOLEPIC', 'pic.png')
     '''
     where im is a PIL image object

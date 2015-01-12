@@ -109,6 +109,7 @@ class DatabaseRequest():
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
+    self.con.text_factory = bytes
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
@@ -132,7 +133,7 @@ class DatabaseRequest():
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
-      #print(e)
+      print(e)
       return False
     rows = self.cur.fetchall()
     if not rows:
