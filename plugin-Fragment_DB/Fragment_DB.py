@@ -77,6 +77,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
+    OV.registerFunction(self.get_fragment_picture,True,"FragmentDB")
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -207,8 +208,26 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-
-  
+  def get_fragment_picture(self, fragId=None):
+    '''
+    returns a picture of the fragment from the database
+    '''
+    if not fragId:
+      return
+    print('sdfgsdgsgh####')
+    db = FragmentTable(self.dbfile)
+    pic = db.get_picture(fragId)
+    olx.fs.Dump(pic, "pic.png")
+    olx.html.SetImage('MOLEPIC', 'pic.png')
+    #OlexVFS.save_image_to_olex(im, item, 0)
+    '''
+    where im is a PIL image object
+    (i think....)
+    und die 0 is die persistance
+    0 - none
+    1 this session
+    2 persistent even after restart
+    '''
   
   def range_resolver(self, restraintat, atom_names):
     '''
