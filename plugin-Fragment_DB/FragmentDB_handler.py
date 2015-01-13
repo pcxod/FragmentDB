@@ -108,8 +108,8 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
-    #self.con.text_factory = str
-    self.con.text_factory = bytes
+    self.con.text_factory = str
+    #self.con.text_factory = bytes
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
@@ -133,7 +133,7 @@ class DatabaseRequest():
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
-      print(e)
+      #print(e)
       return False
     rows = self.cur.fetchall()
     if not rows:
@@ -422,15 +422,13 @@ class FragmentTable():
     returns a picture of the fragment if one exist in the database. Otherwise 
     it returns False.
     
-    >>> dbfile = 'fragment-database.sqlite'
-    >>> db = FragmentTable(dbfile)    
-    >>> db.get_picture(2)
-    False
-    
+    dbfile = 'fragment-database.sqlite'
+    db = FragmentTable(dbfile)    
+    pic = db.get_picture(2)
     '''
     req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = {}
                '''.format(fragment_id)
-    picture = self.database.db_request(req_picture)
+    picture = self.database.db_request(req_picture)[0][0]
     return picture
   
   def get_residue_class(self, fragment_id):

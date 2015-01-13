@@ -214,20 +214,22 @@ class FragmentDB(PT):
     returns a picture of the fragment from the database
     '''
     from PIL import Image, ImageFile
-    from StringIO import StringIO
+    #from StringIO import StringIO
     import OlexVFS
     fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     print(fragId, 'idididididid', db)
-    pic = db.get_picture(fragId)[0][0]
+    pic = db.get_picture(fragId)
+    #f = open('c:\\Temp\\pic.png', 'wb')
+    #f.write(pic)
     p = ImageFile.Parser()
     p.feed(pic)
     im = p.close()
-    OlexVFS.save_image_to_olex(im, 'pic.png', 1)
+    print(im)
+    OlexVFS.save_image_to_olex(im, 'pic.png', 0)
     olx.html.SetImage('MOLEPIC', 'pic.png')
     '''
     where im is a PIL image object
-    (i think....)
     und die 0 is die persistance
     0 - none
     1 this session
