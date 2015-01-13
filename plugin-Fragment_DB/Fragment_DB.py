@@ -43,6 +43,7 @@ import os
 import htmlTools
 import olex
 import olx
+import OlexVFS
 from FragmentDB_handler import FragmentTable
 
 
@@ -213,12 +214,14 @@ class FragmentDB(PT):
     returns a picture of the fragment from the database
     '''
     if not fragId:
+      print('no fragid')
       return
     print('sdfgsdgsgh####')
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
-    olx.fs.Dump(pic, "pic.png")
+    OlexVFS.save_image_to_olex('pic.png', 'MOLEPIC', 0)
     olx.html.SetImage('MOLEPIC', 'pic.png')
+    
     #OlexVFS.save_image_to_olex(im, item, 0)
     '''
     where im is a PIL image object
