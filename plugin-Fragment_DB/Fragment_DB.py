@@ -225,6 +225,8 @@ class FragmentDB(PT):
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
     ratio = float(max_size)/float(max(im.size))
+    if float(150)/float(max(im.size)) > 0.6:
+      ratio = 0.6
     # resize equally to fit in max_size 
     im = im.resize((int(img_w*ratio), int(img_h*ratio)), Image.ANTIALIAS)
     # empty image of max_size
