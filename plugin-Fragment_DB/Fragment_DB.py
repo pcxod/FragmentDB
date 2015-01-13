@@ -23,7 +23,7 @@ Fragen:
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 - having to put symmetric fragments into negative part is a problem!
-- build routines to insert new fragments to db
+- build routines to insert new fragments to db for users
 - a working SAME_resiclass atomlist would be great for repeating residues!
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
   (which is ok) but the restraints like SIMU N1 C1 C2 C3 C4 miss the nitrogen.
@@ -32,10 +32,10 @@ Fragen:
   and not expand to symmetry equivalent atoms like 
   EQIV $4 -1+X,1+Y,+Z
   DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
-- Draw formulas of the molecules and put them into the database. (Automatic gerneration seem to be 
-  highly complicated and supported only by comercial libs)
 - Is it possible to use javascript in Olex2? For JSmol for example?
 - How can I set a default value for snippets/input-combo out of the list of fragments?
+
+- das bild in ein <a href="function"> BILD</a> einbinden
 '''
 
 
