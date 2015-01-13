@@ -108,7 +108,7 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
-    self.con.text_factory = str
+    #self.con.text_factory = str
     #self.con.text_factory = bytes
     with self.con:
       # set the database cursor

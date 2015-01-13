@@ -16,11 +16,12 @@
     "name=LIST_FRAGMENTS",
     "items=spy.FragmentDB.list_fragments()",
     "value=",
-    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()>>spy.FragmentDB.get_fragment_picture()",
+    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()
+        >>spy.FragmentDB.set_fragment_picture(150)",
     "readonly=false",
     "manage=true")
     $-
-    <zimg name="MOLEPIC" border="0" src="blank.png" height=100 width=100>
+    <zimg name="MOLEPIC" border="0" src="blank.png" height=150 width=150>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 

@@ -70,6 +70,7 @@ class FragmentDB(PT):
     self.deal_with_phil(operation='read')
     self.print_version_date()
     self.setup_gui()
+    self.params = OV.GuiParams()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
     OV.registerFunction(self.list_fragments,True,"FragmentDB")
@@ -78,7 +79,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
-    OV.registerFunction(self.get_fragment_picture,True,"FragmentDB")
+    OV.registerFunction(self.set_fragment_picture,True,"FragmentDB")
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -209,22 +210,34 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-  def get_fragment_picture(self):
+  def set_fragment_picture(self, max_size=150):
     '''
-    returns a picture of the fragment from the database
+    displays a picture of the fragment from the database
     '''
     from PIL import Image, ImageFile
     import OlexVFS
     fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
-    #f = open('c:\\Temp\\pic.png', 'wb')
-    #f.write(pic)
     p = ImageFile.Parser()
     p.feed(pic)
     im = p.close()
-    #im = im.convert(mode="L")
-    OlexVFS.save_image_to_olex(im, 'pic.png', 0)
+    im = im.convert(mode="RGBA")
+    img_w, img_h = im.size
+    ratio = float(max_size)/float(max(im.size))
+    # resize equally to fit in max_size 
+    im = im.resize((int(img_w*ratio), int(img_h*ratio)), Image.ANTIALIAS)
+    # empty image of max_size
+    IM = Image.new('RGBA', (150,150), self.params.html.table_bg_colour.rgb)
+    bg_w, bg_h = IM.size
+    img_w, img_h = im.size
+    # offset for image placement
+    offset = ((bg_w - img_w) / 2, (bg_h - img_h) / 2)
+    # place image in center of background image:
+    IM.paste(im, offset)
+    # save it
+    OlexVFS.save_image_to_olex(IM, 'pic.png', 0)
+    # display it
     olx.html.SetImage('MOLEPIC', 'pic.png')
   
   def range_resolver(self, restraintat, atom_names):
