@@ -109,6 +109,7 @@ class DatabaseRequest():
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
+    self.con.text_factory = bytes
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
@@ -132,7 +133,7 @@ class DatabaseRequest():
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
-      #print(e)
+      print(e)
       return False
     rows = self.cur.fetchall()
     if not rows:
@@ -155,12 +156,12 @@ class FragmentTable():
   >>> for num, i in enumerate(db):
   ...   print(i)
   ...   if num >= 5: break
-  (64, u'(1-methyl-1H-imidazol-2-yl)methanol, C5H8N2O')
-  (59, u'1,2-Dichlorobenzene, C6H4Cl2')
-  (55, u'1,2-Difluorobenzene, C6H4F2')
-  (56, u'1,2-Dimethoxyethane, coordinated to Na, C4H10O2, DME')
-  (22, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
-  (26, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
+  (63, u'(1-methyl-1H-imidazol-2-yl)methanol, C5H8N2O')
+  (58, u'1,2-Dichlorobenzene, C6H4Cl2')
+  (54, u'1,2-Difluorobenzene, C6H4F2')
+  (55, u'1,2-Dimethoxyethane, coordinated to Na, C4H10O2, DME')
+  (21, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
+  (25, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
 
   '''
   def __init__(self, dbfile):
@@ -216,7 +217,7 @@ class FragmentTable():
     >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> len(db)  
-    70
+    69
     
     :rtype: int
     '''
@@ -294,17 +295,17 @@ class FragmentTable():
     IndexError: Database fragment not found.
     
     >>> print 'before:', len(db)
-    before: 69
+    before: 68
     
     # del db[0] deletes nothing:
     
     >>> del db[0]
     >>> print 'after:', len(db)
-    after: 69
+    after: 68
 
     >>> del db[3]
     >>> print 'after:', len(db)
-    after: 68
+    after: 67
     
     >>> print db[-3][1]
     (u'O1', u'8', -1.9563, -0.0969, 0.0001)
@@ -340,9 +341,9 @@ class FragmentTable():
     ...   print(i)
     ...   if num > 1:
     ...     break
-    (64, u'(1-methyl-1H-imidazol-2-yl)methanol, C5H8N2O')
-    (59, u'1,2-Dichlorobenzene, C6H4Cl2')
-    (55, u'1,2-Difluorobenzene, C6H4F2')
+    (63, u'(1-methyl-1H-imidazol-2-yl)methanol, C5H8N2O')
+    (58, u'1,2-Dichlorobenzene, C6H4Cl2')
+    (54, u'1,2-Difluorobenzene, C6H4F2')
     '''
     all_fragments = self.get_all_fragment_names()
     return iter(all_fragments)
@@ -479,7 +480,7 @@ class FragmentTable():
     >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(13, u'[Al{OC(CF3)3}4]- PF-Anion'), (3, u'Trifluoroethanol, OCH2CF3-'), (37, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-')]
+    [(3, u'Trifluoroethanol, OCH2CF3-'), (36, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (49, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
