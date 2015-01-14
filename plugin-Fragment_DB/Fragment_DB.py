@@ -220,6 +220,13 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
+    import sys
+    if sys.byteorder == 'big':
+      print('big endian')
+    else:
+      print('little endian')
+    with open('test.png', 'wb') as f:
+      f.write(pic)
     p = ImageFile.Parser()
     try:
       p.feed(pic)
