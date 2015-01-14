@@ -221,7 +221,11 @@ class FragmentDB(PT):
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
     p = ImageFile.Parser()
-    p.feed(pic)
+    try:
+      p.feed(pic)
+    except UnboundLocalError as e:
+      print(e)
+      print('got following data:', pic, type(pic))  
     im = p.close()
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
