@@ -14,8 +14,8 @@ Fragen:
      occupancy of 2 directly after the fit, but the value in the file and after refinement is the correct 
      value of 1.
   
-- I would like to see the residue numbers of the atoms on changing 
-  the number like with part numbers
+- I would like to see the residue numbers of the atoms on changing the number 
+  like with part numbers
 - fit fragment to or near selected atoms/Q-peaks (cctbx model_matches())
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
   make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
@@ -212,8 +212,9 @@ class FragmentDB(PT):
   
   def set_fragment_picture(self, max_size=150):
     '''
-    displays a picture of the fragment from the database
+    displays a picture of the fragment from the database in Olex2
     '''
+    max_size = int(max_size)
     from PIL import Image, ImageFile
     import OlexVFS
     fragId = olx.GetVar('fragment_ID')
@@ -225,12 +226,13 @@ class FragmentDB(PT):
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
     ratio = float(max_size)/float(max(im.size))
-    if float(150)/float(max(im.size)) > 0.6:
+    # just an empirical value:
+    if float(max_size)/float(max(im.size)) > 0.6:
       ratio = 0.6
     # resize equally to fit in max_size 
     im = im.resize((int(img_w*ratio), int(img_h*ratio)), Image.ANTIALIAS)
     # empty image of max_size
-    IM = Image.new('RGBA', (150,150), self.params.html.table_bg_colour.rgb)
+    IM = Image.new('RGBA', (max_size,max_size), self.params.html.table_bg_colour.rgb)
     bg_w, bg_h = IM.size
     img_w, img_h = im.size
     # offset for image placement
