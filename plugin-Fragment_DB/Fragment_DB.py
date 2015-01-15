@@ -3,7 +3,9 @@ from collections import OrderedDict
 OV = OlexFunctions()
 
 '''
-Fragen:
+
+Fragen und Ideen:
+
 - how can I color already used residue numbers red in the spinner?
 
 - why does oxygen get 1/2 occupancy in the water structure??? It is only in this structure!!?!?!
@@ -36,6 +38,10 @@ Fragen:
 - How can I set a default value for snippets/input-combo out of the list of fragments?
 
 - das bild in ein <a href="function"> BILD</a> einbinden
+
+- maybe first apply relative restraints and then analyze the residuals. If they are bad try automatic 
+  generated direct restraints. 
+  
 '''
 
 
@@ -216,24 +222,12 @@ class FragmentDB(PT):
     '''
     max_size = int(max_size)
     from PIL import Image, ImageFile
+    import StringIO
     import OlexVFS
     fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
-    import sys
-    if sys.byteorder == 'big':
-      print('big endian')
-    else:
-      print('little endian')
-    with open('test.png', 'wb') as f:
-      f.write(pic)
-    p = ImageFile.Parser()
-    try:
-      p.feed(pic)
-    except UnboundLocalError as e:
-      print(e)
-      print('got following data:', pic, type(pic))  
-    im = p.close()
+    im = Image.open(StringIO.StringIO(pic))
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
     ratio = float(max_size)/float(max(im.size))
