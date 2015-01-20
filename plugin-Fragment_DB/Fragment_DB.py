@@ -163,6 +163,7 @@ class FragmentDB(PT):
       id = olx.xf.au.NewAtom(label, x, y, z, False)
       labeldict[label.upper()] = id
       olx.xf.au.SetAtomPart(id, partnum)
+      # if label is H... then SetAtomU == -1.3
       olx.xf.au.SetAtomU(id, 0.045)
       olx.xf.au.SetAtomOccu(id, occupancy)
       name = olx.xf.au.GetAtomName(id)
