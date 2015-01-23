@@ -7,15 +7,9 @@ OV = OlexFunctions()
 Fragen und Ideen:
 
 - how can I color already used residue numbers red in the spinner?
-
-- why does oxygen get 1/2 occupancy in the water structure??? It is only in this structure!!?!?!
-  O1    O    -0.00189  0.11240  0.00434  10.50000 -0.00100 
-  H1A   H     0.07811  0.11481  0.11168  11.00000  0.13523 
-  H1B   H    -0.04672  0.16756 -0.01119  11.00000  0.04657
-  -> Problem solved by using olx.xf.au.SetAtomOccu(id, occupancy), but now Olex2 tells me an 
-     occupancy of 2 directly after the fit, but the value in the file and after refinement is the correct 
-     value of 1.
-  
+- Problem solved by using olx.xf.au.SetAtomOccu(id, occupancy), but now Olex2 tells me an 
+  occupancy of 2 directly after the fit, but the value in the file and after refinement is the correct 
+  value of 1.
 - I would like to see the residue numbers of the atoms on changing the number 
   like with part numbers
 - fit fragment to or near selected atoms/Q-peaks (cctbx model_matches())
