@@ -9,7 +9,7 @@
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=FragmentDB_2;1; -->
-  <td ALIGN='center' width='100%'>
+  <td ALIGN='left' width='100%'>
     <b>%Fragment:%</b>
     $+
     html.Snippet("gui/snippets/input-combo",
@@ -129,22 +129,13 @@
 <!--  onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.frag_occ))'-->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_3; help_ext=FragmentDB_3;1; -->
-  <td ALIGN='left' width='100%'>
-    <b><a href="spy.FragmentDB.fit_db_fragment()">FIT FRAGMENT</a>
+
+  <td width='10%' align='left'>
+    $spy.MakeHoverButton('small-Go!@bitmap','spy.FragmentDB.fit_db_fragment()')
   </td>
+
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmenDB_4; help_ext=FragentDB_4;1; -->
-<!--
-  <td ALIGN='left' width='100%'>
-  <b><a ALIGN='left' href="spy.FragmentDB.fit_db_fragment(67)">FIT FRAGMENT thf</a>
-    <br>
-    <b><a ALIGN='center' href="spy.FragmentDB.fit_db_fragment(37)">FIT FRAGMENT oc(cf3)3</a>
-    <br>
-  </td>
---> 
-<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
