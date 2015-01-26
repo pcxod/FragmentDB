@@ -9,6 +9,7 @@ Fragen und Ideen:
 - add search field which decreases the options in the input combobox.
 - possibility to add sump to the free variable
 - Checkbox for "use DFIX"
+- Make GUI more compact.
 - how can I color already used residue numbers red in the spinner?
 - Problem solved by using olx.xf.au.SetAtomOccu(id, occupancy), but now Olex2 tells me an 
   occupancy of 2 directly after the fit, but the value in the file and after refinement is the correct 
