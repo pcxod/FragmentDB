@@ -34,7 +34,7 @@ Fragen und Ideen:
   DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
 - Is it possible to use javascript in Olex2? For JSmol for example?
 - How can I set a default value for snippets/input-combo out of the list of fragments?
-
+- On MAC systems the drop down selector can not be toggeled with the arrow keys.
 - das bild in ein <a href="function"> BILD</a> einbinden
 
 - maybe first apply relative restraints and then analyze the residuals. If they are bad try automatic 
@@ -87,8 +87,13 @@ class FragmentDB(PT):
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
+
+
   def print_func(self):
     import olex_core
+    #l = olex_core.ExportFunctionList()
+    #for i in l:
+    #  print(i)
     for i in olex_core.ExportFunctionList():
       for y in i:
         try:
@@ -99,8 +104,8 @@ class FragmentDB(PT):
           
   def set_occu(self, occ):
     '''
-    sets the occupancy, even if you enter a comma valueinstead of point as 
-    dcimal separator.
+    sets the occupancy, even if you enter a comma value instead of point as 
+    decimal separator.
     '''
     if ',' in occ:
       occ = occ.replace(',', '.')
@@ -114,8 +119,8 @@ class FragmentDB(PT):
 
   def set_resiclass(self, resiclass):
     '''
-    sets the residue class and ensures that is of len 4 
-    and .isalpha is the first char.
+    sets the residue class and ensures that it is of len(4) 
+    and .isalpha is the first character.
     '''
     if not resiclass[0].isalpha():
       # resiclass does not startt with a char:
@@ -154,6 +159,7 @@ class FragmentDB(PT):
     atoms = []
     atom_names = []
     labeldict = OrderedDict()
+    #OV.GetCurrentSelection()
     # adding atoms to structure:
     for i in db[fragId]:
       label = str(i[0])
@@ -175,8 +181,9 @@ class FragmentDB(PT):
     # Placing restraints:
     self.make_restraints(atoms, db, labeldict, fragId, atom_names)
     # select all atoms to do the fit:
-    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("fvar {}".format(freevar))
+    if freevar != 1:
+      OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+      OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("mode fit")

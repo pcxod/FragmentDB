@@ -60,23 +60,27 @@ def dice_coefficient(a, b):
   return round(dice_coeff, 6)
 
 
-def restraint_check(restraints, atoms, fragment_name):
+def check_restraints_consistency(restraints, atoms, fragment_name):
   '''
-  - Checks if the Atomnames in the restraints are also in
-    the atom list of the respective dbentry.
-  - Checks wether restraints cards are valid.
-  not used atm and not ready
+  - Checks if the Atomnames in the restraints of the dbhead are also in
+    the list of the atoms of the respective dbentry.
+  - Checks wether restraints cards are vaid.
   '''
+  status = True
   atoms = [i[0].upper() for i in atoms]
   restraint_atoms_list = set([])
   for n, line in enumerate(restraints):
     if not line:
-        continue
-    if line[:4].upper() not in SHX_CARDS:  # only the first 4 characters, because SADI_TOL would be bad
+      continue
+    line = line.upper()
+    line2 = line.split()
+    # only the first 4 characters, because SADI_TOL would be bad:
+    if line2[0] not in SHX_CARDS:  
+      status = False
       print('Bad line in header of database entry "{}" found!'.format(n, fragment_name))
-      print(' '.join(line))
-      sys.exit(False)
-    if line[:4].upper() in RESTRAINT_CARDS:
+      print(line)
+      sys.exit(status)
+    if line[:4] in RESTRAINT_CARDS:
       line = line[5:].split()
       for i in line:
         if i in ('>', '<'):
@@ -86,8 +90,14 @@ def restraint_check(restraints, atoms, fragment_name):
         except(ValueError):
           restraint_atoms_list.add(i)
   for atom in restraint_atoms_list:
-    if not atom.upper() in atoms:
-      print('Bad atom "{}" in restraints of "{}"'.format(atom, fragment_name))
+    atom = atom.upper()
+    if not atom in atoms:
+      status = False
+      print('\nBad atom "{}" in restraints of "{}".'.format(atom, fragment_name))
+  if not status:
+    print('Check database entry.\n')
+  return status
+
 
 def call_profile(dbfile):
   import cProfile
