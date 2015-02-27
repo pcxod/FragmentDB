@@ -11,6 +11,6 @@ xcopy /Y %GIT%\Fragment_DB.phil %FDBDIR%
 xcopy /Y %GIT%\Fragment_DB.py %FDBDIR%
 xcopy /Y %GIT%\fragment-database.sqlite %FDBDIR%
 xcopy /Y %GIT%\FragmentDB_handler.py %FDBDIR%
-
+xcopy /Y %GIT%\inputfrag.htm %FDBDIR% 
 
 del %FDBDIR%\*.pyc

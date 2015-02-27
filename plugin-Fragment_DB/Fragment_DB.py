@@ -84,6 +84,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
     OV.registerFunction(self.set_fragment_picture,True,"FragmentDB")
+    OV.registerFunction(self.InputFragment(),True,"FragmentDB")
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -346,7 +347,20 @@ class FragmentDB(PT):
       olx.html.SetValue('RESIDUE_CLASS', resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
 
-
+  def InputFragment(self):
+    '''
+    opens a new window to input/update a database fragment
+    '''
+    pop_name = "Inputfrag"
+    w, h = 650, 700
+    x, y = gui.GetBoxPosition(w, h)
+    path = "%s/inputfrag.htm" % (self.p_path)
+    olx.Popup(pop_name, self.p_path, s=True, b="tc", t="Manage users and sites",
+           w=w, h=h, x=x, y=y)
+    self.setSite(None)
+    self.setPerson(None)
+    self.setMessage()
+    res = olx.html.ShowModal(pop_name)
 
 
 FragmentDB_instance = FragmentDB()
