@@ -355,9 +355,14 @@ class FragmentDB(PT):
     opens a new window to input/update a database fragment
     '''
     pop_name = "Inputfrag"
-    width, height = 200, 200
+    screen_height = int(olx.GetWindowSize('gl').split(',')[3])
+    screen_width = int(olx.GetWindowSize('gl').split(',')[2])
+    box_x = int(screen_width*0.1)
+    box_y = int(screen_height*0.1)
+    width, height = 800, 450
     path = "%s/inputfrag.htm" % (self.p_path)
-    olx.Popup(pop_name, path,  b="tc", t="Create/Edit Fragments", w=width, h=height)
+    olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
+              x=box_x, y=box_y)
     #if res == '1':
     #  affiliation.name = olx.html.GetValue('Affiliation.AFFILIATION_NAME')
 
