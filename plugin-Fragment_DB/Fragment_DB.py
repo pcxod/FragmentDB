@@ -78,14 +78,15 @@ class FragmentDB(PT):
     self.params = OV.GuiParams()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
-    OV.registerFunction(self.list_fragments,True,"FragmentDB")
-    OV.registerFunction(self.fit_db_fragment,True,"FragmentDB")
-    OV.registerFunction(self.resi_class,True,"FragmentDB")
-    OV.registerFunction(self.find_free_residue_num,True,"FragmentDB")
-    OV.registerFunction(self.set_occu,True,"FragmentDB")
-    OV.registerFunction(self.set_resiclass,True,"FragmentDB")
-    OV.registerFunction(self.set_fragment_picture,True,"FragmentDB")
-    OV.registerFunction(self.input_fragment(),True,"FragmentDB")
+    OV.registerFunction(self.list_fragments,False,"FragmentDB")
+    OV.registerFunction(self.fit_db_fragment,False,"FragmentDB")
+    OV.registerFunction(self.resi_class,False,"FragmentDB")
+    OV.registerFunction(self.find_free_residue_num,False,"FragmentDB")
+    OV.registerFunction(self.set_occu,False,"FragmentDB")
+    OV.registerFunction(self.set_resiclass,False,"FragmentDB")
+    OV.registerFunction(self.set_fragment_picture,False,"FragmentDB")
+    OV.registerFunction(self.input_fragment,False,"FragmentDB")
+    
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -348,18 +349,18 @@ class FragmentDB(PT):
       olx.html.SetValue('RESIDUE_CLASS', resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
 
+
   def input_fragment(self):
     '''
     opens a new window to input/update a database fragment
     '''
     pop_name = "Inputfrag"
+    width, height = 200, 200
     path = "%s/inputfrag.htm" % (self.p_path)
-    txt=open(path, 'r').read()
-    OV.write_to_olex("inputfrag.htm", txt)
-    olx.Popup(pop_name, "inputfrag.htm", t="Create/Edit Fragments")
-    #res = olx.html.ShowModal(pop_name)
+    olx.Popup(pop_name, path,  b="tc", t="Create/Edit Fragments", w=width, h=height)
     #if res == '1':
     #  affiliation.name = olx.html.GetValue('Affiliation.AFFILIATION_NAME')
+
 
 
 
