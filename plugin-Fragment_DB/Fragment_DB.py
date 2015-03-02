@@ -85,7 +85,7 @@ class FragmentDB(PT):
     OV.registerFunction(self.set_occu,True,"FragmentDB")
     OV.registerFunction(self.set_resiclass,True,"FragmentDB")
     OV.registerFunction(self.set_fragment_picture,True,"FragmentDB")
-  #  OV.registerFunction(self.input_fragment(),True,"FragmentDB")
+    OV.registerFunction(self.input_fragment(),True,"FragmentDB")
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -356,7 +356,7 @@ class FragmentDB(PT):
     path = "%s/inputfrag.htm" % (self.p_path)
     txt=open(path, 'r').read()
     OV.write_to_olex("inputfrag.htm", txt)
-    olx.Popup(pop_name, "inputfrag.htm", s=True, t="Create/Edit Fragments")
+    olx.Popup(pop_name, "inputfrag.htm", t="Create/Edit Fragments")
     #res = olx.html.ShowModal(pop_name)
     #if res == '1':
     #  affiliation.name = olx.html.GetValue('Affiliation.AFFILIATION_NAME')
