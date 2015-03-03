@@ -1,53 +1,63 @@
 <html>
 <body>
-  <table border="0" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-      <td align="left"><font color="red"> <input
-          type="label" name="message" width="100%" />
-      </font></td>
-    </tr>
-  </table>
+  
   <table border="0" cellpadding="0" cellspacing="0">
     <tr>
       <td>
+
+
         <table width="100%"> 
           <tr>
+          <!-- Left boxes and buttons -->
             <td width="70%"><b>Create and edit molecular fragments:</b></td>
+
                 <tr>
                   <td>
                     <table>
                       <tr>
-                        <td width='40%'>New picture:</td>
-                        <td width='60%'><input type="text"
+                        <td width='20%'>New picture:</td>
+                        <td width='80%'><input type="button"
                           bgcolor="$GetVar(HtmlInputBgColour)"
+                          value="Fragment Picture"
+                          onclick="spy.FragmentDB.set_picture()"
                           name="picture" width="100%" height="20"></td>
                       </tr>
 
                       <tr>
-                        <td width='40%'>Chemdraw style file:</td>
-                        <td width='60%'><input type="text"
+                        <!--<td width='40%'>Chemdraw style file:</td>-->
+                        <td> </td>
+                        <td width='80%'><input type="button"
                           bgcolor="$GetVar(HtmlInputBgColour)"
-                          name="chemdraw_style" width="100%" height="20"></td>
+                          value="Get chemdrawstyle"
+                          onclick="spy.FragmentDB.get_chemdrawstyle()"
+                          name="chemdraw_style" width="100%" height="20">
+                        </td>
+                      </tr>
+
+                      <tr height='50%'>
+                        <td width='20%'>restraints:</td>
+                        <td width='80%'><input type="text"
+                          bgcolor="$GetVar(HtmlInputBgColour)"
+                          multiline="True"
+                          name="restraints" width="100%"
+                          items="SADI C1 C2 C3 C4; RIGU C1 > C5; DFIX 1.234 C3 C4">
+                        </td>
                       </tr>
 
                       <tr>
-                        <td width='40%'>restraints:</td>
-                        <td width='60%'><input type="text"
-                          bgcolor="$GetVar(HtmlInputBgColour)"
-                          name="restraints" width="100%" height="20"></td>
-                      </tr>
-
-                      <tr>
-                        <td width='40%'>City:</td>
-                        <td width='60%'><input type="text"
+                        <td width='20%'>Atoms:</td>
+                        <td width='80%'><input type="text"
                           bgcolor="$GetVar(HtmlInputBgColour)"
                           name="residue" width="100%" height="20"></td>
                       </tr>
                     </table>
                   </td>
                 </tr>
+                
+
                 <tr>
                   <td>
+                    
                     <table>
                       <tr>
                         <td><input type="button" name="UpdateFragment"
@@ -61,20 +71,32 @@
                           onclick="spy.FragmentDB.delete_fragment()" /></td>
                       </tr>
                     </table>
+                  
+                  
                   </td>
                 </tr>
-              </table>
+              
             </td>
+          
+          <td>
+          Balh blub
+          Hir koennte das Bild der struktur rein (mit zimg?)
+          </td>
+          
           </tr>
         </table>
+      
+      </td>
+    </tr>
+  </table>  
 
-
-  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <table border="0" cellpadding="0" cellspacing="10" width="100%">
     <tr>
-      <td align="center"><input type="button" value="OK"
+      <td align="left"><input type="button" value="OK"
         onclick="html.EndModal('~popup_name~', 0)"></td>
     </tr>
   </table>
+
 
 </body>
 </html>
