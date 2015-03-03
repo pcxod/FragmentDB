@@ -342,7 +342,6 @@ class FragmentDB(PT):
     try:
       fragId = olx.GetVar('fragment_ID')
     except(RuntimeError):
-      #print('could not get fragments ID!')
       return
     resiclass = db.get_residue_class(fragId)
     if OV.IsControl('RESIDUE_CLASS'):
