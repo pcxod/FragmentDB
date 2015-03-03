@@ -14,49 +14,71 @@
 
                 <tr>
                   <td>
+                    
                     <table>
                       <tr>
-                        <td width='20%'>New picture:</td>
-                        <td width='80%'><input type="button"
+                        
+                        <td width='20%'>
+                        </td>
+                        
+                        <td width='80%'>
+                        <input type="button"
                           bgcolor="$GetVar(HtmlInputBgColour)"
-                          value="Fragment Picture"
+                          value="Picture"
                           onclick="spy.FragmentDB.set_picture()"
-                          name="picture" width="100%" height="20"></td>
+                          name="picture" 
+                          width='50%'
+                          height="20">
+                        <input type="button"
+                          bgcolor="$GetVar(HtmlInputBgColour)"
+                          value="Drawstyle"
+                          onclick="spy.FragmentDB.get_chemdrawstyle()"
+                          name="chemdraw_style" 
+                          width='50%'
+                          height="20">
+                        </td>
+                      
                       </tr>
 
                       <tr>
                         <!--<td width='40%'>Chemdraw style file:</td>-->
                         <td> </td>
-                        <td width='80%'><input type="button"
-                          bgcolor="$GetVar(HtmlInputBgColour)"
-                          value="Get chemdrawstyle"
-                          onclick="spy.FragmentDB.get_chemdrawstyle()"
-                          name="chemdraw_style" width="100%" height="20">
-                        </td>
+                        
                       </tr>
-
-                      <tr height='50%'>
-                        <td width='20%'>restraints:</td>
-                        <td width='80%'><input type="text"
-                          bgcolor="$GetVar(HtmlInputBgColour)"
-                          multiline="True"
-                          name="restraints" width="100%"
-                          items="SADI C1 C2 C3 C4; RIGU C1 > C5; DFIX 1.234 C3 C4">
-                        </td>
-                      </tr>
-
+                      
                       <tr>
                         <td width='20%'>Atoms:
                         </td>
-                        <td width='80%'><input type="text"
+                        <td width='80%'>
+                        <input type="text"
                           bgcolor="$GetVar(HtmlInputBgColour)"
-                          name="residue" width="100%" height="20">
+                          name="atoms" 
+                          width="100%" 
+                          height="100"
+                          onleave="spy.FragmentDB.set_frag_text()"
+                          multiline="True"
+                        >
                         </td>
                       </tr>
+                                            
+                      <tr>
+                        <td width='20%'>restraints:</td>
+                        <td width='80%'>
+                        <input type="text"
+                          bgcolor="$GetVar(HtmlInputBgColour)"
+                          name="restraints" 
+                          width="100%"
+                          multiline="True"
+                          height="100"
+                          items="SADI C1 C2 C3 C4; RIGU C1 > C5; DFIX 1.234 C3 C4"
+                        >
+                        </td>
+                      </tr>
+
                     </table>
                   </td>
                 </tr>
-                
+<!--                          onchange="spy.FragmentDB.validate_input()" -->                
 
                 <tr>
                   <td>
