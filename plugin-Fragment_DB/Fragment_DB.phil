@@ -35,4 +35,21 @@ fragment_DB{
       .help = Defines the free variable for the occupancy of a fragment.
     }
   
+  new_fragment{
+    
+    frag_atoms = ""
+      .type = str
+      .help = Insert atoms here like "C1 1 0.3412 1.231 0.9876"
+  
+    frag_resiclass = ""
+      .type = str
+      .help = Insert residue class here. Up to four characters and numbers beginning with a character.
+    
+    frag_restraints = ""
+      .type = str
+      .help = Enter restraints here.
+       
+  } 
+
+
 }

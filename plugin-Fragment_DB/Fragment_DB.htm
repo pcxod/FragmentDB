@@ -3,33 +3,47 @@
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1;1; -->
-  <td ALIGN='left' width='100%'>
+  <td halign='left' width='100%'>
     <a>Choose a fragment and define its properties. Then fit it to the structure.</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=FragmentDB_2;1; -->
-  <td ALIGN='left' width='100%'>
-    <b>%Fragment:%</b>
+  <td halign='left' width='15%'>
+    <b>%Fragment:%</b> 
+  </td>
+  <td>
     $+
     html.Snippet("gui/snippets/input-combo",
     "name=LIST_FRAGMENTS",
     "items=spy.FragmentDB.list_fragments()",
     "value=",
+    "width=80%",
     "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()
         >>spy.FragmentDB.set_fragment_picture(100)",
     "readonly=false",
     "manage=true")
     $-
-    <zimg name="MOLEPIC" border="0" src="blank.png" height=100 width=100>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1a; help_ext=FragmentDB_1a;1; -->
+  <td width="100%" valign="center" valign="center" >
+  <zimg name="MOLEPIC" 
+        border="2" 
+        src="blank.png" 
+        height=100 
+        width=100 
+        valign="center" 
+        halign="center"
+  >
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
-
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Frag-FVAR-1;1 -->
-  <td width='25%'><b>%Fragment into Part:%</b></td>
-  <td align='left' width='10%'>
+  <td width='20%'><b>%Fragment into Part:%</b></td>
+  <td align='left' width='15%'>
     <font size="$GetVar('HtmlFontSizeControls')">
       <input
         type="spin"
@@ -46,7 +60,7 @@
   </td>
 
   <td width='25%' align="right"><b>%Assign free variable:%</b></td>
-  <td align='left' width='20%'>
+  <td align='left' width='15%'>
     <font size="$GetVar('HtmlFontSizeControls')">
       <input
         type="spin"
@@ -63,14 +77,13 @@
   </td>
 
   <td width='15%'><b>%Occupancy:%</b></td>
-  <td align='right' width='20%'>
+  <td align='right' width='10%'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
       height="$GetVar('HtmlInputHeight')"
       width="40"
       bgcolor="$GetVar('HtmlInputBgColour')"
-      valign='center'
       name = "FRAG_OCCUPANCY"
       value = "spy.GetParam(fragment_DB.fragment.frag_occ)"
       min='-4'
@@ -108,7 +121,6 @@
       height="$GetVar('HtmlInputHeight')"
       width="40"
       bgcolor="$GetVar('HtmlInputBgColour')"
-      valign='center'
       name = "RESIDUE_CLASS"
       value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.resi_class())"
       onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
@@ -119,22 +131,16 @@
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 
-<!--  onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.frag_occ))'-->
-
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_3; help_ext=FragmentDB_3;1; -->
-
   <td width='10%' align='left'>
     $spy.MakeHoverButton('small-Go!@bitmap','spy.FragmentDB.fit_db_fragment()')
   </td>
-
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_4; help_ext=FragmentDB_4;1; -->
-
   <td width='20%' align='left'>
     <a href="spy.FragmentDB.input_fragment()" type="button" target="Input new fragment">Input new</a>
   </td>
-
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 

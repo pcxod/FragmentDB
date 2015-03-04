@@ -40,6 +40,10 @@ Fragen und Ideen:
 - maybe first apply relative restraints and then analyze the residuals. If they are bad try automatic 
   generated direct restraints. 
   
+- which format should the atoms in the "insert atoms" windows have?
+  Name   element  x  y  z
+  C1     6        1  2  3
+
 '''
 
 
@@ -78,14 +82,6 @@ class FragmentDB(PT):
     self.params = OV.GuiParams()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
-    OV.registerFunction(self.list_fragments,False,"FragmentDB")
-    OV.registerFunction(self.fit_db_fragment,False,"FragmentDB")
-    OV.registerFunction(self.resi_class,False,"FragmentDB")
-    OV.registerFunction(self.find_free_residue_num,False,"FragmentDB")
-    OV.registerFunction(self.set_occu,False,"FragmentDB")
-    OV.registerFunction(self.set_resiclass,False,"FragmentDB")
-    OV.registerFunction(self.set_fragment_picture,False,"FragmentDB")
-    OV.registerFunction(self.input_fragment,False,"FragmentDB")
     
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
@@ -344,6 +340,7 @@ class FragmentDB(PT):
     except(RuntimeError):
       return
     resiclass = db.get_residue_class(fragId)
+    # set the class in the text field of the gui:
     if OV.IsControl('RESIDUE_CLASS'):
       olx.html.SetValue('RESIDUE_CLASS', resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
@@ -358,7 +355,7 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 430, 550
+    width, height = 530, 550
     path = "%s/inputfrag.htm" % (self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
@@ -366,6 +363,28 @@ class FragmentDB(PT):
     #  affiliation.name = olx.html.GetValue('Affiliation.AFFILIATION_NAME')
 
 
+  def set_frag_atoms(self):
+    '''
+    handles the fragment atoms of a new/edited fragment
+    '''
+    atline = []
+    atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
+    try:
+      atoms = atoms.split()
+    except AttributeError:
+      atoms = None
+    #for i in atoms:
+    
+    print(atoms)  
+     
 
-
-FragmentDB_instance = FragmentDB()
+fdb = FragmentDB()
+OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
+OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.resi_class,False,"FragmentDB")
+OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
+OV.registerFunction(fdb.set_occu,False,"FragmentDB")
+OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
+OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
+OV.registerFunction(fdb.input_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
