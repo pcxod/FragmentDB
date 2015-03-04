@@ -1,7 +1,7 @@
 <html>
 <body>
   
-  <table border="0" cellpadding="0" cellspacing="0">
+  <table border="0" cellpadding="0" cellspacing="0"  width="100%">
     <tr>
       <td>
 
@@ -15,7 +15,7 @@
                 <tr>
                   <td>
                     
-                    <table>
+                    <table border="0" cellpadding="0" cellspacing="10" width="100%">
                       <tr>
                         
                         <td width='20%'>
@@ -55,10 +55,11 @@
                           name="atoms" 
                           width="100%" 
                           height="100"
-                          onleave="spy.FragmentDB.set_frag_text()"
+                          onleave="spy.FragmentDB.set_frag_atoms()"
                           multiline="True"
                         >
                         </td>
+
                       </tr>
                                             
                       <tr>
@@ -70,11 +71,28 @@
                           width="100%"
                           multiline="True"
                           height="100"
-                          items="SADI C1 C2 C3 C4; RIGU C1 > C5; DFIX 1.234 C3 C4"
                         >
                         </td>
+                     </tr>
+                      
+                      <tr>
+                      <table border="0" cellpadding="0" cellspacing="10" width="100%">
+                        <tr>
+                        <td width='20%'>residue:</td>
+                        
+                        <td>
+                        <input type="text"
+                          bgcolor="$GetVar(HtmlInputBgColour)"
+                          name="residue" 
+                          width="50%"
+                          multiline="False">
+                        </td>
+                        
+                        <td width="40%" align="left"> (4 characters)</td>
+                        </tr>
+                      </table>
                       </tr>
-
+                      
                     </table>
                   </td>
                 </tr>
@@ -82,8 +100,8 @@
 
                 <tr>
                   <td>
-                    
-                    <table>
+                  
+                    <table  border="0" cellpadding="0" cellspacing="10" width="100%">
                       <tr>
                         <td><input type="button" name="UpdateFragment"
                           value="Update"
@@ -99,13 +117,7 @@
                         </td>
                       </tr>
                     </table>
-                  
-            <td>
-              Balh blub
-              Hir koennte das Bild der struktur rein (mit zimg?)
-            </td>
-                  
-   
+
           </tr>
         </table>
       

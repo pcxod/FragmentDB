@@ -358,7 +358,7 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 600, 400
+    width, height = 430, 550
     path = "%s/inputfrag.htm" % (self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
