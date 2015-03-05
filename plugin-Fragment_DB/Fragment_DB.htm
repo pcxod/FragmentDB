@@ -123,7 +123,8 @@
       bgcolor="$GetVar('HtmlInputBgColour')"
       name = "RESIDUE_CLASS"
       value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.get_resi_class())"
-      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
+      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))
+            >>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
   >
     </font>
   </td>
@@ -138,8 +139,8 @@
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_4; help_ext=FragmentDB_4;1; -->
-  <td width='20%' align='left'>
-    <a href="spy.FragmentDB.input_fragment()" type="button" target="Input new fragment">Input new</a>
+  <td width='30%' align='left'>
+    <a href="spy.FragmentDB.open_edit_fragment_window()" type="button" target="Input/Edit fragment">Input/Edit fragment</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 

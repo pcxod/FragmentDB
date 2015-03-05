@@ -10,7 +10,8 @@ __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
 
-__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'restraint_check']
+__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'restraint_check', 
+           'SHX_CARDS', 'RESTRAINT_CARDS']
 
 
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
@@ -365,7 +366,16 @@ class FragmentTable():
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
     if self.database.db_request(req):
       return True
-
+  
+  def has_exact_name(self, name):
+    '''
+    Returns True if a partial name is found in the DB.
+    '''
+    req = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
+    if self.database.db_request(req):
+      return True
+  
+  
   def has_index(self, Id):
     '''
     Returns True if db has index Id

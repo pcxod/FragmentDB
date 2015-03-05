@@ -55,7 +55,7 @@ import olex
 import gui
 import olx
 import OlexVFS
-from FragmentDB_handler import FragmentTable
+from FragmentDB_handler import FragmentTable, SHX_CARDS
 
 
 instance_path = OV.DataDir()
@@ -83,6 +83,11 @@ class FragmentDB(PT):
     self.setup_gui()
     self.params = OV.GuiParams()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
+    # for edited fragments:
+    self.atlines = []
+    self.fragname = ""
+    self.restraints = []
+    self.resiclass = ''
     #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
     
     #OV.registerFunction(self.print_func,True,"FragmentDB")
@@ -348,7 +353,7 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
 
 
-  def input_fragment(self):
+  def open_edit_fragment_window(self):
     '''
     opens a new window to input/update a database fragment
     '''
@@ -369,23 +374,97 @@ class FragmentDB(PT):
     '''
     handles the fragment atoms of a new/edited fragment
     '''
-    import re
-    atlines = []
+    self.atlines = []
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split()
     except AttributeError:
       atoms = None
+      return
     try:
       for i in range(0, len(atoms), 5):
           atomline = atoms[i:i+5]
           if len(atomline) < 5:
             continue
-          atlines.append(atomline)
+          self.atlines.append(' '.join(atomline))
     except TypeError:
       pass
-    print(atlines)
-     
+    if self.atlines:
+      print(self.atlines)
+
+  
+  
+  def set_frag_name(self):
+    '''
+    handles the name of a new/edited fragment
+    '''
+    self.fragname = ""
+    self.fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    print(self.fragname)
+  
+  
+  def set_frag_restraints(self):
+    '''
+    handles the restraints of a new/edited fragment
+    '''
+    self.restraints = []
+    restr = OV.GetParam('fragment_DB.new_fragment.frag_restraints')
+    if restr:
+      line = restr.split()
+    else:
+      return
+    for n, i in enumerate(line):
+      if i[:4] in SHX_CARDS:
+        line[n] = '\n'+line[n]
+    self.restraints = ' '.join(line).strip().split('\n')
+    print(self.restraints)
+  
+  def set_frag_resiclass(self):
+    '''
+    '''
+    self.resiclass = ""
+    resi_class = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
+    if resi_class:
+      self.resiclass = resi_class
+      OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resi_class)
+    
+      #if not self.resiclass[0].isalpha():
+      #  # resiclass does not startt with a char:
+      #  OV.SetParam('fragment_DB.new_fragment.frag_resiclass', '')
+      #  if OV.IsControl('residue'):
+      #    olx.html.SetValue('residue', '')
+      #  return
+    print(self.resiclass)
+    
+  
+  def check_name(self, name):
+    '''
+    check if name is already present in the db
+    Acetone, C3H6O
+    '''
+    db = FragmentTable(self.dbfile)
+    if db.has_exact_name(name):
+      print('schon drin')
+    
+  def check_residue(self, residue):
+    '''
+    check if residue class is already in the db
+    '''
+    pass
+  
+  
+  def update_fragment(self):
+    '''
+    updates the database information of a fragment
+    '''
+    pass
+  
+  def add_new_fragment(self):
+    '''
+    add a new fragment to the database
+    '''
+    # check if the given name already exist in the database
+  
 
 fdb = FragmentDB()
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
@@ -395,5 +474,10 @@ OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
-OV.registerFunction(fdb.input_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_resiclass,False,"FragmentDB")
+OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
+

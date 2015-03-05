@@ -36,6 +36,10 @@ fragment_DB{
     }
   
   new_fragment{
+  
+    frag_name = ""
+        .type = str
+        .help = The name of the fragment.
     
     frag_atoms = ""
       .type = str
