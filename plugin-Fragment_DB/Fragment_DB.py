@@ -43,6 +43,8 @@ Fragen und Ideen:
 - which format should the atoms in the "insert atoms" windows have?
   Name   element  x  y  z
   C1     6        1  2  3
+- what should we do about duplicated atom labels? should we do anything? seem to work fine.
+- how can I set a fragment as default upon startup and activate it's picture? 
 
 '''
 
@@ -156,7 +158,6 @@ class FragmentDB(PT):
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     atoms = []
-    atom_names = []
     labeldict = OrderedDict()
     #OV.GetCurrentSelection()
     # adding atoms to structure:
@@ -164,13 +165,12 @@ class FragmentDB(PT):
       label = str(i[0])
       x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
       id = olx.xf.au.NewAtom(label, x, y, z, False)
-      labeldict[label.upper()] = id
       olx.xf.au.SetAtomPart(id, partnum)
       # if label is H... then SetAtomU == -1.3
       olx.xf.au.SetAtomU(id, 0.045)
       olx.xf.au.SetAtomOccu(id, occupancy)
       name = olx.xf.au.GetAtomName(id)
-      atom_names.append(name.upper())
+      labeldict[name.upper()] = id
       print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
       atoms.append(id)
     olx.xf.EndUpdate()
@@ -178,7 +178,7 @@ class FragmentDB(PT):
     if resiclass and resinum:
       self.make_residue(atoms, resiclass, resinum)
     # Placing restraints:
-    self.make_restraints(atoms, db, labeldict, fragId, atom_names)
+    self.make_restraints(db, labeldict, fragId)
     # select all atoms to do the fit:
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
@@ -195,7 +195,7 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("RESI {} {}".format(resiclass, resinum))
 
-  def make_restraints(self, atoms, db, labeldict, fragId, frag_atom_names):
+  def make_restraints(self, db, labeldict, fragId):
     '''
     applies restraints to atoms
     '''
@@ -204,7 +204,7 @@ class FragmentDB(PT):
       # i[1] is a string of atoms like 'C1 C2'
       restraint_atoms = i[1]
       if '>' in restraint_atoms or '<' in restraint_atoms:
-        restraint_atoms = self.range_resolver(restraint_atoms, frag_atom_names)
+        restraint_atoms = self.range_resolver(restraint_atoms, labeldict.keys())
       line = []
       for at in restraint_atoms.split():
         # is it a potential atom:
@@ -221,7 +221,7 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-  def set_fragment_picture(self, max_size=150):
+  def set_fragment_picture(self, name, max_size=150):
     '''
     displays a picture of the fragment from the database in Olex2
     '''
@@ -229,6 +229,7 @@ class FragmentDB(PT):
     from PIL import Image, ImageFile
     import StringIO
     import OlexVFS
+    import random
     fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
@@ -250,9 +251,10 @@ class FragmentDB(PT):
     # place image in center of background image:
     IM.paste(im, offset)
     # save it
-    OlexVFS.save_image_to_olex(IM, 'pic.png', 0)
-    # display it
-    olx.html.SetImage('MOLEPIC', 'pic.png')
+    randnum = random.randint(0, 999) 
+    OlexVFS.save_image_to_olex(IM, 'pic_{0}.png'.format(randnum), 0)
+    # display it.
+    olx.html.SetImage(name, 'pic_{0}.png'.format(randnum))
   
   def range_resolver(self, restraintat, atom_names):
     '''
@@ -330,7 +332,7 @@ class FragmentDB(PT):
     residues.sort()
     return residues
   
-  def resi_class(self):
+  def get_resi_class(self):
     '''
     sets the residue class from the respective database fragment.
     '''
@@ -355,7 +357,7 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 530, 550
+    width, height = 530, 680
     path = "%s/inputfrag.htm" % (self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
@@ -367,21 +369,28 @@ class FragmentDB(PT):
     '''
     handles the fragment atoms of a new/edited fragment
     '''
-    atline = []
+    import re
+    atlines = []
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split()
     except AttributeError:
       atoms = None
-    #for i in atoms:
-    
-    print(atoms)  
+    try:
+      for i in range(0, len(atoms), 5):
+          atomline = atoms[i:i+5]
+          if len(atomline) < 5:
+            continue
+          atlines.append(atomline)
+    except TypeError:
+      pass
+    print(atlines)
      
 
 fdb = FragmentDB()
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.resi_class,False,"FragmentDB")
+OV.registerFunction(fdb.get_resi_class,False,"FragmentDB")
 OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")

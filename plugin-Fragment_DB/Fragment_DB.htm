@@ -19,8 +19,8 @@
     "items=spy.FragmentDB.list_fragments()",
     "value=",
     "width=80%",
-    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()
-        >>spy.FragmentDB.set_fragment_picture(100)",
+    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.get_resi_class()
+        >>spy.FragmentDB.set_fragment_picture(FDBMOLEPIC, 100)",
     "readonly=false",
     "manage=true")
     $-
@@ -29,7 +29,7 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1a; help_ext=FragmentDB_1a;1; -->
   <td width="100%" valign="center" valign="center" >
-  <zimg name="MOLEPIC" 
+  <zimg name="FDBMOLEPIC" 
         border="2" 
         src="blank.png" 
         height=100 
@@ -122,7 +122,7 @@
       width="40"
       bgcolor="$GetVar('HtmlInputBgColour')"
       name = "RESIDUE_CLASS"
-      value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.resi_class())"
+      value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.get_resi_class())"
       onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
   >
     </font>
