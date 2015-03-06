@@ -47,7 +47,9 @@
               "width=100%",
               "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>
                     spy.FragmentDB.get_resi_class()
-                  >>spy.FragmentDB.set_fragment_picture(FDBMOLEPIC, 100)",
+                  >>spy.FragmentDB.set_fragment_picture(FDBMOLEPIC, 100)
+                  >>spy.FragmentDB.get_atoms()
+                  ",
               "readonly=false",
               "manage=true")
               $-
@@ -61,25 +63,35 @@
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="set_name" 
               width="100%" 
-              onleave='spy.SetParam(fragment_DB.new_fragment.frag_name, 
-              html.GetValue(~name~))>>spy.FragmentDB.set_frag_name()'
+              onchange='spy.SetParam(fragment_DB.new_fragment.frag_name, html.GetValue(~name~))'
               multiline="False"
             >
             </td>
           </tr>
           
-
+          <tr>
+            <td width='20%'> Unit cell (a b c alpha beta gamma): </td>
+            <td width='80%'>
+            <input type="text"
+              bgcolor="$GetVar(HtmlInputBgColour)"
+              name="set_cell" 
+              width="100%" 
+              onchange='spy.SetParam(fragment_DB.new_fragment.frag_cell, html.GetValue(~name~))'
+              multiline="False"
+            >
+            </td>
+          </tr>
           
           <tr>
             <td width='20%'>Atoms: </td>
             <td width='80%'>
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
-              name="set_atoms" 
+              name="SET_ATOM" 
+              value="spy.GetParam('fragment_DB.new_fragment.frag_atoms')"
               width="100%" 
               height="160"
-              onleave='spy.SetParam(fragment_DB.new_fragment.frag_atoms, 
-              html.GetValue(~name~))>>spy.FragmentDB.set_frag_atoms()'
+              onchange="spy.SetParam('fragment_DB.new_fragment.frag_atoms', html.GetValue('~name~'))"
               multiline="True"
             >
             </td>
@@ -93,8 +105,7 @@
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="restraints" 
               width="100%"
-              onleave='spy.SetParam(fragment_DB.new_fragment.frag_restraints, 
-              html.GetValue(~name~))>>spy.FragmentDB.set_frag_restraints()'
+              onchange='spy.SetParam(fragment_DB.new_fragment.frag_restraints, html.GetValue(~name~))'
               multiline="True"
               height="120"
             >
@@ -111,9 +122,7 @@
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="residue" 
               width="50%"
-              onleave='spy.SetParam(fragment_DB.new_fragment.frag_resiclass, 
-              html.GetValue(~name~))
-              >>html.SetValue(~name~, spy.GetParam(fragment_DB.new_fragment.frag_resiclass))'
+              onchange='spy.SetParam(fragment_DB.new_fragment.frag_resiclass, html.GetValue(~name~))'
               multiline="False">
             </td>
             
@@ -134,6 +143,7 @@
                 <td><input type="button" name="UpdateFragment"
                   value="Update"
                   onclick="spy.FragmentDB.set_frag_name()>>
+                           spy.FragmentDB.set_frag_cell()>>
                            spy.FragmentDB.set_frag_atoms()>>
                            spy.FragmentDB.set_frag_restraints()>>
                            spy.FragmentDB.set_frag_resiclass()>>
@@ -143,10 +153,11 @@
                 <td><input type="button" name="AddFrag"
                   value="Add as New"
                   onclick="spy.FragmentDB.set_frag_name()>>
+                           spy.FragmentDB.set_frag_cell()>>
                            spy.FragmentDB.set_frag_atoms()>>
                            spy.FragmentDB.set_frag_restraints()>>
                            spy.FragmentDB.set_frag_resiclass()>>
-                           spy.FragmentDB.add_fragment()" />
+                           spy.FragmentDB.add_new_fragment()" />
                 </td>
                 <td><input type="button" name="DeleteFragment"
                   value="Delete"

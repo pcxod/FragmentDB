@@ -45,7 +45,7 @@ Fragen und Ideen:
   C1     6        1  2  3
 - what should we do about duplicated atom labels? should we do anything? seem to work fine.
 - how can I set a fragment as default upon startup and activate it's picture? 
-
+- Olex2 should not delete any atom while fragment fit/AddAtom()
 '''
 
 
@@ -88,8 +88,8 @@ class FragmentDB(PT):
     self.fragname = ""
     self.restraints = []
     self.resiclass = ''
-    #self.db = FragmentTable(self.dbfile) # why is it so slow to make the db instance here?
-    
+    self.frag_cell = ''
+   
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -145,6 +145,7 @@ class FragmentDB(PT):
     db = FragmentTable(self.dbfile)
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
     return items
+
 
   def fit_db_fragment(self, fragId=None):
     '''
@@ -238,6 +239,9 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     pic = db.get_picture(fragId)
+    if not pic:
+      print('No fragment picture found.')
+      return
     im = Image.open(StringIO.StringIO(pic))
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
@@ -389,8 +393,6 @@ class FragmentDB(PT):
           self.atlines.append(' '.join(atomline))
     except TypeError:
       pass
-    if self.atlines:
-      print(self.atlines)
 
   
   
@@ -400,7 +402,7 @@ class FragmentDB(PT):
     '''
     self.fragname = ""
     self.fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    print(self.fragname)
+    
   
   
   def set_frag_restraints(self):
@@ -417,12 +419,12 @@ class FragmentDB(PT):
       if i[:4] in SHX_CARDS:
         line[n] = '\n'+line[n]
     self.restraints = ' '.join(line).strip().split('\n')
-    print(self.restraints)
+
   
   def set_frag_resiclass(self):
     '''
+    set the residue class of a new fragment
     '''
-    self.resiclass = ""
     resi_class = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
     if resi_class:
       self.resiclass = resi_class
@@ -434,7 +436,40 @@ class FragmentDB(PT):
       #  if OV.IsControl('residue'):
       #    olx.html.SetValue('residue', '')
       #  return
-    print(self.resiclass)
+
+    
+  def frac_to_cart(self, frac_coord, cell):
+    '''
+    Converts fractional coordinates to cartesian coodinates
+    :param frac_coord: [float, float, float]
+    :param cell:       [float, float, float, float, float, float]
+    '''
+    from math import cos, sin, sqrt, radians
+    a, b, c, alpha, beta, gamma = cell
+    x, y, z = frac_coord
+    alpha = radians(alpha)
+    beta  = radians(beta)
+    gamma = radians(gamma)
+    cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
+    sinastar = sqrt(1-cosastar**2)
+    Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
+    Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
+    Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
+    return (Xc, Yc, Zc)
+  
+  def set_frag_cell(self):
+    '''
+    set the unit cell of a new fragment to convert its coordinates to cartesian
+    '''
+    self.frag_cell = ''
+    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    if frag_cell:
+      try:
+        cell = [float(i) for i in frag_cell.split()]
+      except ValueError, TypeError:
+        print('Bad unit cell given!')
+    self.frag_cell = cell
+    #print(self.frag_cell)
     
   
   def check_name(self, name):
@@ -444,7 +479,8 @@ class FragmentDB(PT):
     '''
     db = FragmentTable(self.dbfile)
     if db.has_exact_name(name):
-      print('schon drin')
+      return True
+    return False
     
   def check_residue(self, residue):
     '''
@@ -457,22 +493,71 @@ class FragmentDB(PT):
     '''
     updates the database information of a fragment
     '''
-    pass
-  
+    # store fragment with the id of the original 
+    # store every field that changed 
+    db = FragmentTable(self.dbfile)
+
+
+  def get_atoms(self):
+    '''
+    get the atoms from a fragment to display in the edit window
+    '''
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      return
+    db = FragmentTable(self.dbfile)
+    atoms_list = db[fragId]
+    atoms_list = [[str(i) for i in y] for y in atoms_list]
+    at = ' \n'.join([' '.join(i) for i in atoms_list])
+    print(at)
+    if OV.IsControl('SET_ATOM'):
+      print('yesyes')
+      olx.html.SetValue('SET_ATOM', at)
+    OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
+
+    
+      
   def add_new_fragment(self):
     '''
     add a new fragment to the database
     '''
     # check if the given name already exist in the database
-  
+    # store fragment with a new number
+    db = FragmentTable(self.dbfile)
+    coords = []
+    if self.check_name(self.fragname):
+      print('Name is alredy present in the database! Please choose a different name.')
+      return
+    for line in self.atlines:
+      line = line.split()
+      frac_coord = [ float(i) for i in line[2:5] ]
+      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      line[2:5] = coord
+      coords.append(line)
+    print('Adding fragment "{0}" to the database.'.format(self.fragname))
+    print('Atoms:', coords)
+    print('Restraints:', self.restraints)
+    print('Residue:', self.resiclass)
+    id = db.store_fragment(self.fragname, coords, self.resiclass, 
+                           self.restraints)
+    
+    
+    
 
 fdb = FragmentDB()
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.get_resi_class,False,"FragmentDB")
 OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
+OV.registerFunction(fdb.get_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
+OV.registerFunction(fdb.add_new_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.check_residue,False,"FragmentDB")
+OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.check_name,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")

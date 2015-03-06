@@ -526,7 +526,7 @@ class FragmentTable():
     selected_results = [search_results[i] for i in sorted(search_results)[0:selection]]
     return selected_results
 
-  def store_fragment(self, fragment_name, atoms, restraints=None, tag=None,
+  def store_fragment(self, fragment_name, atoms, resiclass=None, restraints=None, tag=None,
                      reference=None, comment=None):
     '''
     Store a complete new fragment into the database. Minimal requirement is a
@@ -549,7 +549,7 @@ class FragmentTable():
     '''
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
-    FragmentId = self._fill_fragment_table(fragment_name, tag, reference, comment)
+    FragmentId = self._fill_fragment_table(fragment_name, tag, resiclass, reference, comment)
     if not FragmentId:
       raise Exception('No Id obtained during fragment storage.')
     # then stores atoms with the previously obtained FragmentId
@@ -560,7 +560,7 @@ class FragmentTable():
     return FragmentId
 
 
-  def _fill_fragment_table(self, fragment_name, tag=None, reference=None, comment=None):
+  def _fill_fragment_table(self, fragment_name, resiclass=None, tag=None, reference=None, comment=None):
     '''
     Fills a fragment into the database.
     :param fragment_name: Nam eof the Fragment
@@ -571,8 +571,8 @@ class FragmentTable():
     :type comment: str
     :rtype list: last_rowid
     '''
-    table = (tag, fragment_name, reference, comment)
-    req = '''INSERT INTO Fragment (tag, name, reference, comment) VALUES(?, ?, ?, ?)'''
+    table = (tag, resiclass, fragment_name, reference, comment)
+    req = '''INSERT INTO Fragment (tag, class, name, reference, comment) VALUES(?, ?, ?, ?, ?)'''
     return self.database.db_request(req, table)
 
 
@@ -589,8 +589,11 @@ class FragmentTable():
     '''
     # test wether atom_table is a list or list of list, because we want no string
     # in a list here.
+    if not atom_table or not FragmentId:
+      print('No atoms supplied! Doing nothing')
+      return
     if not isinstance(atom_table[0], (list, tuple)):
-      if isinstance(atom_table[0], str):
+      if isinstance(atom_table[0], (str, unicode)):
         atom_table = [i.split() for i in atom_table]
       else:
         raise Exception('wrong data type "{}" for atom list.'.format(type(atom_table[0])))
@@ -626,7 +629,7 @@ class FragmentTable():
     if isinstance(restraints_list[0], (list, tuple)):
       # convert to list of stings
       restraints_list = [' '.join(['{}'.format(a) for a in i]) for i in restraints_list]
-    if isinstance(restraints_list[0], str):
+    if isinstance(restraints_list[0], (str, unicode)):
       pass
     else:
       raise Exception('wrong data type "{}" for restraint list.'.format(
@@ -689,5 +692,10 @@ if __name__ == '__main__':
   fragment_name=table[1]
   tag= 'benz'
   comment = 'asfgagr'
+  
+  id = False
+  #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
+  if id:
+    print('stored', id)
 
  
