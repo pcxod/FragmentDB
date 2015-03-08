@@ -46,6 +46,7 @@ Fragen und Ideen:
 - what should we do about duplicated atom labels? should we do anything? seem to work fine.
 - how can I set a fragment as default upon startup and activate it's picture? 
 - Olex2 should not delete any atom while fragment fit/AddAtom()
+- I might insert new atoms just by selected atoms? with a button "from selection"?
 '''
 
 
@@ -496,9 +497,10 @@ class FragmentDB(PT):
     # store fragment with the id of the original 
     # store every field that changed 
     db = FragmentTable(self.dbfile)
+   
 
 
-  def get_atoms(self):
+  def get_frag_for_gui(self):
     '''
     get the atoms from a fragment to display in the edit window
     '''
@@ -515,7 +517,13 @@ class FragmentDB(PT):
       print('yesyes')
       olx.html.SetValue('SET_ATOM', at)
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
+    olx.html.UpdateHtml(html_name)
 
+  def display_image(self, zimg):
+    '''
+    display the zimg
+    '''
+    olx.html.SetImage(self, zimg_name, image_file)
     
       
   def add_new_fragment(self):
@@ -543,14 +551,14 @@ class FragmentDB(PT):
                            self.restraints)
     
     
-    
+# olx.html.SetEnabled(self.ctrl("UpdatePerson"), True)    
 
 fdb = FragmentDB()
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.get_resi_class,False,"FragmentDB")
 OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
-OV.registerFunction(fdb.get_atoms,False,"FragmentDB")
+OV.registerFunction(fdb.get_frag_for_gui,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
 OV.registerFunction(fdb.add_new_fragment,False,"FragmentDB")
