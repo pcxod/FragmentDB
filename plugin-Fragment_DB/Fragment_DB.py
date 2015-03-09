@@ -517,7 +517,7 @@ class FragmentDB(PT):
       print('yesyes')
       olx.html.SetValue('SET_ATOM', at)
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
-    olx.html.UpdateHtml(html_name)
+    #olx.html.UpdateHtml('SET_ATOM')
 
   def display_image(self, zimg):
     '''
