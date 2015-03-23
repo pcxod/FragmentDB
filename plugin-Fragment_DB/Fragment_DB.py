@@ -47,6 +47,7 @@ Fragen und Ideen:
 - how can I set a fragment as default upon startup and activate it's picture? 
 - Olex2 should not delete any atom while fragment fit/AddAtom()
 - I might insert new atoms just by selected atoms? with a button "from selection"?
+- I would like to replace atoms in 1 A around the fitting fragment. I should implement a replace mode.
 '''
 
 
