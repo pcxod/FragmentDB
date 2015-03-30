@@ -87,10 +87,7 @@ class FragmentDB(PT):
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     # for edited fragments:
     self.atlines = []
-    self.fragname = ""
     self.restraints = []
-    self.resiclass = ''
-    self.frag_cell = ''
    
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
@@ -262,10 +259,10 @@ class FragmentDB(PT):
     # place image in center of background image:
     IM.paste(im, offset)
     # save it
-    randnum = random.randint(0, 999) 
-    OlexVFS.save_image_to_olex(IM, 'pic_{0}.png'.format(randnum), 0)
+    #randnum = random.randint(0, 999) 
+    OlexVFS.save_image_to_olex(IM, 'pic_{0}.png'.format(fragId), 0)
     # display it.
-    olx.html.SetImage(name, 'pic_{0}.png'.format(randnum))
+    olx.html.SetImage(name, 'pic_{0}.png'.format(fragId))
   
   def range_resolver(self, restraintat, atom_names):
     '''
@@ -360,6 +357,25 @@ class FragmentDB(PT):
 
 ###############################################################################
 
+  def frac_to_cart(self, frac_coord, cell):
+    '''
+    Converts fractional coordinates to cartesian coodinates
+    :param frac_coord: [float, float, float]
+    :param cell:       [float, float, float, float, float, float]
+    '''
+    from math import cos, sin, sqrt, radians
+    a, b, c, alpha, beta, gamma = cell
+    x, y, z = frac_coord
+    alpha = radians(alpha)
+    beta  = radians(beta)
+    gamma = radians(gamma)
+    cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
+    sinastar = sqrt(1-cosastar**2)
+    Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
+    Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
+    Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
+    return (Xc, Yc, Zc)
+  
   def open_edit_fragment_window(self):
     '''
     opens a new window to input/update a database fragment
@@ -398,14 +414,26 @@ class FragmentDB(PT):
       pass
   """
   
-  """
   def set_frag_name(self):
     '''
     handles the name of a new/edited fragment
     '''
-    self.fragname = ""
-    self.fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-  """  
+    fragname = ""
+    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    if self.check_name(fragname):
+      print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
+    else:
+      OV.SetParam('fragment_DB.new_fragment.frag_name')
+    
+  def check_name(self, name):
+    '''
+    check if name is already present in the db
+    Acetone, C3H6O
+    '''
+    db = FragmentTable(self.dbfile)
+    if db.has_exact_name(name):
+      return True
+    return False
   
   """
   def set_frag_restraints(self):
@@ -442,26 +470,8 @@ class FragmentDB(PT):
       #  return
   """
     
-  def frac_to_cart(self, frac_coord, cell):
-    '''
-    Converts fractional coordinates to cartesian coodinates
-    :param frac_coord: [float, float, float]
-    :param cell:       [float, float, float, float, float, float]
-    '''
-    from math import cos, sin, sqrt, radians
-    a, b, c, alpha, beta, gamma = cell
-    x, y, z = frac_coord
-    alpha = radians(alpha)
-    beta  = radians(beta)
-    gamma = radians(gamma)
-    cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
-    sinastar = sqrt(1-cosastar**2)
-    Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
-    Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
-    Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
-    return (Xc, Yc, Zc)
 
-  """  
+
   def set_frag_cell(self):
     '''
     set the unit cell of a new fragment to convert its coordinates to cartesian
@@ -475,17 +485,9 @@ class FragmentDB(PT):
         print('Bad unit cell given!')
     self.frag_cell = cell
     #print(self.frag_cell)
-  """
+
   
-  def check_name(self, name):
-    '''
-    check if name is already present in the db
-    Acetone, C3H6O
-    '''
-    db = FragmentTable(self.dbfile)
-    if db.has_exact_name(name):
-      return True
-    return False
+
   
   """
   def check_residue(self, residue):
@@ -555,6 +557,11 @@ class FragmentDB(PT):
     olx.html.SetValue('Inputfrag.set_name', name)
     olx.html.SetValue('Inputfrag.restraints', restr)
     olx.html.SetValue('Inputfrag.residue', residue)
+    OV.SetParam('fragment_DB.new_fragment.frag_name', name)
+    OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
+    OV.SetParam('fragment_DB.new_fragment.frag_cell', cell)
+    OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
+    OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
     
 
 
@@ -572,27 +579,27 @@ class FragmentDB(PT):
     # check if the given name already exist in the database
     # store fragment with a new number
     db = FragmentTable(self.dbfile)
+    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    resiclass = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
+    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     coords = []
-    if self.check_name(self.fragname):
-      print('Name is alredy present in the database! Please choose a different name.')
-      return
     for line in self.atlines:
       line = line.split()
       frac_coord = [ float(i) for i in line[2:5] ]
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      coord = self.frac_to_cart(frac_coord, frag_cell)
       line[2:5] = coord
       coords.append(line)
-    print('Adding fragment "{0}" to the database.'.format(self.fragname))
+    print('Adding fragment "{0}" to the database.'.format(fragname))
     print('Atoms:', coords)
     print('Restraints:', self.restraints)
-    print('Residue:', self.resiclass)
-    id = db.store_fragment(self.fragname, coords, self.resiclass, 
-                           self.restraints)
+    print('Residue:', resiclass)
+    id = db.store_fragment(fragname, coords, resiclass, self.restraints)
     
     
 # olx.html.SetEnabled(self.ctrl("UpdatePerson"), True)    
 
 fdb = FragmentDB()
+OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.get_resi_class,False,"FragmentDB")
@@ -601,15 +608,18 @@ OV.registerFunction(fdb.get_frag_for_gui,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
 OV.registerFunction(fdb.add_new_fragment,False,"FragmentDB")
-#OV.registerFunction(fdb.check_residue,False,"FragmentDB")
-#OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.check_name,False,"FragmentDB")
-#OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
-OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
+
+OV.registerFunction(fdb.check_name,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
+
+#OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
+#OV.registerFunction(fdb.check_residue,False,"FragmentDB")
+
+
 #OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
-#OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
 #OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
 #OV.registerFunction(fdb.set_frag_resiclass,False,"FragmentDB")
 #OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
+
 
