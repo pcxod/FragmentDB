@@ -47,12 +47,26 @@
               "width=100%",
               "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>
                     spy.FragmentDB.get_resi_class()
-                  >>spy.FragmentDB.set_fragment_picture(FDBMOLEPIC, 100)
                   >>spy.FragmentDB.get_frag_for_gui()
+                  >>spy.FragmentDB.set_fragment_picture('Inputfrag.MOLEPIC2', 100)
                   ",
               "readonly=false",
               "manage=true")
               $-
+            </td>
+          </tr>
+          
+          <tr>
+            <td>
+            </td>
+            <td width="100%" align="center" >
+            <zimg name="MOLEPIC2" 
+            border="2" 
+            src="blank.png" 
+            height=100 
+            width=100 
+            align="center"
+            > </zimg>
             </td>
           </tr>
           
@@ -70,7 +84,7 @@
           </tr>
           
           <tr>
-            <td width='20%'> Unit cell (a b c alpha beta gamma): </td>
+            <td width='20%'> Unit cell: </td>
             <td width='80%'>
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
