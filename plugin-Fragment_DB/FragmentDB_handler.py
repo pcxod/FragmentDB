@@ -167,9 +167,9 @@ class FragmentTable():
   >>> for num, i in enumerate(db):
   ...   print(i)
   ...   if num >= 5: break
-  (53, u'1,2-Dichlorobenzene, C6H4Cl2')
+  (54, u'1,2-Dichlorobenzene, C6H4Cl2')
   (5, u'1,2-Difluorobenzene, C6H4F2')
-  (47, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
+  (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
   (18, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
   (22, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
   (2, u"2,2'-Bipyridine, C10H8N2, bipy")
@@ -228,7 +228,7 @@ class FragmentTable():
     >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> len(db)  
-    62
+    65
     
     :rtype: int
     '''
@@ -306,24 +306,24 @@ class FragmentTable():
     IndexError: Database fragment not found.
     
     >>> print 'before:', len(db)
-    before: 61
+    before: 64
     
     # del db[0] deletes nothing:
     
     >>> del db[0]
     >>> print 'after:', len(db)
-    after: 61
+    after: 64
 
     >>> del db[3]
     >>> print 'after:', len(db)
-    after: 60
+    after: 63
     
     >>> print db[-3][1]
-    (u'C1', u'6', -0.0015, 0.2681, 0.0635)
+    (u'F1', u'9', 0.819, 0.819, 0.819)
     
     >>> del db[-3]
     >>> print db[-3][1]
-    (u'Cl2', u'17', 6.0049, 6.1297, 4.5093)
+    (u'C2', u'6', 1.9035, 2.482, 2.4282)
     
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
@@ -352,9 +352,9 @@ class FragmentTable():
     ...   print(i)
     ...   if num > 1:
     ...     break
-    (53, u'1,2-Dichlorobenzene, C6H4Cl2')
+    (54, u'1,2-Dichlorobenzene, C6H4Cl2')
     (5, u'1,2-Difluorobenzene, C6H4F2')
-    (47, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
+    (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
     '''
     all_fragments = self.get_all_fragment_names()
     return iter(all_fragments)
@@ -426,15 +426,15 @@ class FragmentTable():
 
     >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)    
-    >>> db.get_fragment_name(2)
-    [(u"2,2'-Bipyridine, C10H8N2, bipy",)]
+    >>> db.get_fragment_name(2)[0]
+    u"2,2'-Bipyridine, C10H8N2, bipy"
     
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
     req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = {}
                '''.format(fragment_id)
-    name = self.database.db_request(req_name)
+    name = self.database.db_request(req_name)[0]
     return name
   
   def get_picture(self, fragment_id):
@@ -498,7 +498,7 @@ class FragmentTable():
     >>> dbfile = 'fragment-database.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(3, u'Trifluoroethanol, OCH2CF3-'), (57, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (43, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
+    [(3, u'Trifluoroethanol, OCH2CF3-'), (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
