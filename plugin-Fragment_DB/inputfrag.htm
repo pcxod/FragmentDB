@@ -157,23 +157,14 @@
           <tr>
             <td><input type="button" name="UpdateFragment"
               value="Update"
-              onclick="spy.FragmentDB.set_frag_name()>>
-                       spy.FragmentDB.set_frag_cell()>>
-                       spy.FragmentDB.set_frag_atoms()>>
-                       spy.FragmentDB.set_frag_restraints()>>
-                       spy.FragmentDB.set_frag_resiclass()>>
-                       spy.FragmentDB.update_fragment()>>
-                       " />
+              onclick="spy.FragmentDB.update_fragment()" />
             </td>
+            
             <td><input type="button" name="AddFrag"
               value="Add as New"
-              onclick="spy.FragmentDB.set_frag_name()>>
-                       spy.FragmentDB.set_frag_cell()>>
-                       spy.FragmentDB.set_frag_atoms()>>
-                       spy.FragmentDB.set_frag_restraints()>>
-                       spy.FragmentDB.set_frag_resiclass()>>
-                       spy.FragmentDB.add_new_fragment()" />
+              onclick="spy.FragmentDB.add_new_frag()" />
             </td>
+            
             <td><input type="button" name="DeleteFragment"
               value="Delete"
               onclick="spy.FragmentDB.delete_fragment()" />

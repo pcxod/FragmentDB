@@ -88,7 +88,8 @@ class FragmentDB(PT):
     # for edited fragments:
     self.atlines = []
     self.restraints = []
-   
+    self.frag_cell = []
+    #self.db = FragmentTable(self.dbfile)
     #OV.registerFunction(self.print_func,True,"FragmentDB")
     #self.print_func()
 
@@ -349,6 +350,10 @@ class FragmentDB(PT):
       fragId = olx.GetVar('fragment_ID')
     except(RuntimeError):
       return
+    try:
+      int(fragId)
+    except ValueError:
+      return
     resiclass = db.get_residue_class(fragId)
     # set the class in the text field of the gui:
     if OV.IsControl('RESIDUE_CLASS'):
@@ -392,6 +397,44 @@ class FragmentDB(PT):
     #if res == '1':
     #  affiliation.name = olx.html.GetValue('Affiliation.AFFILIATION_NAME')
 
+  
+  def set_frag_name(self):
+    '''
+    handles the name of a new/edited fragment
+    '''
+    fragname = ""
+    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    if self.check_name(fragname):
+      print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
+      return False
+    else:
+      OV.SetParam('fragment_DB.new_fragment.frag_name', fragname)
+      return True
+    
+  def check_name(self, name):
+    '''
+    check if name is already present in the db
+    Acetone, C3H6O
+    '''
+    db = FragmentTable(self.dbfile)
+    if db.has_exact_name(name):
+      return True
+    return False
+  
+  def set_frag_cell(self):
+    '''
+    set the unit cell of a new fragment to convert its coordinates to cartesian
+    '''
+    self.frag_cell = ''
+    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    if frag_cell:
+      try:
+        cell = [float(i) for i in frag_cell.split()]
+      except ValueError, TypeError:
+        print('Bad unit cell given!')
+    self.frag_cell = cell
+
+
   """
   def set_frag_atoms(self):
     '''
@@ -413,27 +456,6 @@ class FragmentDB(PT):
     except TypeError:
       pass
   """
-  
-  def set_frag_name(self):
-    '''
-    handles the name of a new/edited fragment
-    '''
-    fragname = ""
-    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    if self.check_name(fragname):
-      print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
-    else:
-      OV.SetParam('fragment_DB.new_fragment.frag_name')
-    
-  def check_name(self, name):
-    '''
-    check if name is already present in the db
-    Acetone, C3H6O
-    '''
-    db = FragmentTable(self.dbfile)
-    if db.has_exact_name(name):
-      return True
-    return False
   
   """
   def set_frag_restraints(self):
