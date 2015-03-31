@@ -493,23 +493,6 @@ class FragmentDB(PT):
   """
     
 
-
-  def set_frag_cell(self):
-    '''
-    set the unit cell of a new fragment to convert its coordinates to cartesian
-    '''
-    self.frag_cell = ''
-    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
-    if frag_cell:
-      try:
-        cell = [float(i) for i in frag_cell.split()]
-      except ValueError, TypeError:
-        print('Bad unit cell given!')
-    self.frag_cell = cell
-    #print(self.frag_cell)
-
-  
-
   
   """
   def check_residue(self, residue):
@@ -529,16 +512,18 @@ class FragmentDB(PT):
     db = FragmentTable(self.dbfile)
   """
   
-  def get_atoms_list(self, db, fragId):
+  def prepare_atoms_list(self, db, fragId):
     '''
     prepare the atom list to display in a multiline edit field
     '''
     atoms_list = db[fragId]
+    if not atoms_list:
+      return
     atoms_list = [[str(i) for i in y] for y in atoms_list]
     at = ' \n'.join([' '.join(i) for i in atoms_list])
     return at
 
-  def get_fragname(self, db, fragId):
+  def prepare_fragname(self, db, fragId):
     '''
     prepare the fragment name to display in a multiline edit field
     '''
@@ -549,7 +534,7 @@ class FragmentDB(PT):
     return name
       
   
-  def get_restraints(self, db, fragId):
+  def prepare_restraints(self, db, fragId):
     '''
     prepare the fragment restraints to display in a multiline edit field
     ''' 
@@ -557,7 +542,34 @@ class FragmentDB(PT):
     restr_list = [[str(i) for i in y] for y in restr_list]
     restr = ' \n'.join(['  '.join(i) for i in restr_list])
     return restr
-    
+  
+  
+  def add_new_frag(self):
+    '''
+    execute this to add a new fragment
+    '''
+    state = self.set_frag_name()
+    if not state:
+      return
+    self.set_frag_cell()
+    self.set_frag_atoms()
+    self.set_frag_restraints()
+    self.set_frag_resiclass()
+    self.store_new_fragment()
+
+  
+  def update_fragment(self):
+    '''
+    execute this to update a fragment
+    '''    
+    state = self.set_frag_name()
+    if not state:
+      return
+    self.set_frag_cell()
+    self.set_frag_atoms()
+    self.set_frag_restraints()
+    self.set_frag_resiclass()
+    self.update_fragment()
   
   def get_frag_for_gui(self):
     '''
@@ -569,9 +581,11 @@ class FragmentDB(PT):
       print('Fragment not found in database.')
       return
     db = FragmentTable(self.dbfile)
-    at = self.get_atoms_list(db, fragId)
-    name = self.get_fragname(db, fragId)
-    restr = self.get_restraints(db, fragId)
+    at = self.prepare_atoms_list(db, fragId)
+    if not at:
+      return
+    name = self.prepare_fragname(db, fragId)
+    restr = self.prepare_restraints(db, fragId)
     residue = db.get_residue_class(fragId)
     cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
@@ -584,7 +598,7 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_cell', cell)
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
-    
+
 
 
   def display_image(self, zimg):
@@ -594,7 +608,7 @@ class FragmentDB(PT):
     olx.html.SetImage(self, zimg_name, image_file)
     
       
-  def add_new_fragment(self):
+  def store_new_fragment(self):
     '''
     add a new fragment to the database
     '''
@@ -608,7 +622,7 @@ class FragmentDB(PT):
     for line in self.atlines:
       line = line.split()
       frac_coord = [ float(i) for i in line[2:5] ]
-      coord = self.frac_to_cart(frac_coord, frag_cell)
+      coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
       coords.append(line)
     print('Adding fragment "{0}" to the database.'.format(fragname))
@@ -616,6 +630,8 @@ class FragmentDB(PT):
     print('Restraints:', self.restraints)
     print('Residue:', resiclass)
     id = db.store_fragment(fragname, coords, resiclass, self.restraints)
+    # now get the fragment back from the db to display the new cell:
+    self.get_frag_for_gui(id)
     
     
 # olx.html.SetEnabled(self.ctrl("UpdatePerson"), True)    
@@ -629,15 +645,15 @@ OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
 OV.registerFunction(fdb.get_frag_for_gui,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
-OV.registerFunction(fdb.add_new_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.store_new_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
 
 OV.registerFunction(fdb.check_name,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
 
-#OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
-#OV.registerFunction(fdb.check_residue,False,"FragmentDB")
-
+OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
+OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 
 #OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
 #OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
