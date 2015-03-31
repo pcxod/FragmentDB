@@ -48,6 +48,8 @@ Fragen und Ideen:
 - Olex2 should not delete any atom while fragment fit/AddAtom()
 - I might insert new atoms just by selected atoms? with a button "from selection"?
 - I would like to replace atoms in 1 A around the fitting fragment. I should implement a replace mode.
+- OV.registerFunction() should warn about initialisation of non-existent functions
+- How can I reload the db after deletion of a fragment?
 '''
 
 
@@ -86,8 +88,6 @@ class FragmentDB(PT):
     self.params = OV.GuiParams()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
     # for edited fragments:
-    self.atlines = []
-    self.restraints = []
     self.frag_cell = []
     #self.db = FragmentTable(self.dbfile)
     #OV.registerFunction(self.print_func,True,"FragmentDB")
@@ -221,6 +221,8 @@ class FragmentDB(PT):
             # in this case, an atom name in the restraint does not 
             # exist in the fragments atom list!
             print('\nBad restraint found in line {}.\n'.format(num))
+            # I must exit here!
+            return
         else:
           line.append(at)
       # applies the restraint to atoms in line
@@ -398,13 +400,13 @@ class FragmentDB(PT):
     #  affiliation.name = olx.html.GetValue('Affiliation.AFFILIATION_NAME')
 
   
-  def set_frag_name(self):
+  def set_frag_name(self, enable_check=True):
     '''
     handles the name of a new/edited fragment
     '''
     fragname = ""
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    if self.check_name(fragname):
+    if self.check_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
       return False
     else:
@@ -435,12 +437,11 @@ class FragmentDB(PT):
     self.frag_cell = cell
 
 
-  """
   def set_frag_atoms(self):
     '''
     handles the fragment atoms of a new/edited fragment
     '''
-    self.atlines = []
+    atlines = []
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split()
@@ -452,17 +453,18 @@ class FragmentDB(PT):
           atomline = atoms[i:i+5]
           if len(atomline) < 5:
             continue
-          self.atlines.append(' '.join(atomline))
+          atlines.append(' '.join(atomline))
     except TypeError:
       pass
-  """
+    return atlines
+
   
-  """
+
   def set_frag_restraints(self):
     '''
     handles the restraints of a new/edited fragment
     '''
-    self.restraints = []
+    restraints = []
     restr = OV.GetParam('fragment_DB.new_fragment.frag_restraints')
     if restr:
       line = restr.split()
@@ -471,28 +473,28 @@ class FragmentDB(PT):
     for n, i in enumerate(line):
       if i[:4] in SHX_CARDS:
         line[n] = '\n'+line[n]
-    self.restraints = ' '.join(line).strip().split('\n')
-  """
-  
-  """
+    restraints = ' '.join(line).strip().split('\n')
+    return restraints
+
+
   def set_frag_resiclass(self):
     '''
     set the residue class of a new fragment
     '''
     resi_class = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
     if resi_class:
-      self.resiclass = resi_class
       OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resi_class)
+      return resi_class
     
-      #if not self.resiclass[0].isalpha():
-      #  # resiclass does not startt with a char:
-      #  OV.SetParam('fragment_DB.new_fragment.frag_resiclass', '')
-      #  if OV.IsControl('residue'):
-      #    olx.html.SetValue('residue', '')
-      #  return
   """
-    
-
+  def check_resiclass_name(self):
+          if not self.resiclass[0].isalpha():
+        # resiclass does not startt with a char:
+        OV.SetParam('fragment_DB.new_fragment.frag_resiclass', '')
+        if OV.IsControl('residue'):
+          olx.html.SetValue('residue', '')
+  """
+  
   
   """
   def check_residue(self, residue):
@@ -501,17 +503,7 @@ class FragmentDB(PT):
     '''
     pass
   """
-  
-  """
-  def update_fragment(self):
-    '''
-    updates the database information of a fragment
-    '''
-    # store fragment with the id of the original 
-    # store every field that changed 
-    db = FragmentTable(self.dbfile)
-  """
-  
+ 
   def prepare_atoms_list(self, db, fragId):
     '''
     prepare the atom list to display in a multiline edit field
@@ -548,38 +540,37 @@ class FragmentDB(PT):
     '''
     execute this to add a new fragment
     '''
+    # add _new_frag must check the restraints vor validity!
     state = self.set_frag_name()
     if not state:
       return
     self.set_frag_cell()
-    self.set_frag_atoms()
-    self.set_frag_restraints()
+    atoms = self.set_frag_atoms()
+    restraints = self.set_frag_restraints()
     self.set_frag_resiclass()
-    self.store_new_fragment()
+    self.store_new_fragment(atoms, restraints)
 
   
   def update_fragment(self):
     '''
     execute this to update a fragment
+
+    updates the database information of a fragment
     '''    
-    state = self.set_frag_name()
+    state = self.set_frag_name(enable_check=False)
     if not state:
       return
     self.set_frag_cell()
-    self.set_frag_atoms()
-    self.set_frag_restraints()
+    atoms = self.set_frag_atoms()
+    restraints = self.set_frag_restraints()
     self.set_frag_resiclass()
-    self.update_fragment()
+    self.store_new_fragment(atoms, restraints)
   
   def get_frag_for_gui(self):
     '''
     get the fragment to display in the multiline edit field
     '''
-    try:
-      fragId = olx.GetVar('fragment_ID')
-    except(RuntimeError):
-      print('Fragment not found in database.')
-      return
+    fragId = olx.GetVar('fragment_ID')
     db = FragmentTable(self.dbfile)
     at = self.prepare_atoms_list(db, fragId)
     if not at:
@@ -608,7 +599,7 @@ class FragmentDB(PT):
     olx.html.SetImage(self, zimg_name, image_file)
     
       
-  def store_new_fragment(self):
+  def store_new_fragment(self, atlines, restraints):
     '''
     add a new fragment to the database
     '''
@@ -619,7 +610,7 @@ class FragmentDB(PT):
     resiclass = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
     frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     coords = []
-    for line in self.atlines:
+    for line in atlines:
       line = line.split()
       frac_coord = [ float(i) for i in line[2:5] ]
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
@@ -627,12 +618,20 @@ class FragmentDB(PT):
       coords.append(line)
     print('Adding fragment "{0}" to the database.'.format(fragname))
     print('Atoms:', coords)
-    print('Restraints:', self.restraints)
+    print('Restraints:', restraints)
     print('Residue:', resiclass)
-    id = db.store_fragment(fragname, coords, resiclass, self.restraints)
+    id = db.store_fragment(fragname, coords, resiclass, restraints)
     # now get the fragment back from the db to display the new cell:
-    self.get_frag_for_gui(id)
+    olx.SetVar('fragment_ID', id)
+    #self.get_frag_for_gui()
     
+  def delete_fragment(self):
+    '''
+    deletes a fragment from the database
+    '''
+    db = FragmentTable(self.dbfile)
+    fragId = olx.GetVar('fragment_ID')
+    del db[fragId]
     
 # olx.html.SetEnabled(self.ctrl("UpdatePerson"), True)    
 
@@ -655,9 +654,11 @@ OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
 OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 
-#OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
-#OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
-#OV.registerFunction(fdb.set_frag_resiclass,False,"FragmentDB")
-#OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
+OV.registerFunction(fdb.set_frag_resiclass,False,"FragmentDB")
+
+OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 
 
