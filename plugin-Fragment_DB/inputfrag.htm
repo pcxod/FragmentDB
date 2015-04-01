@@ -48,8 +48,7 @@
               "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>
                     spy.FragmentDB.get_resi_class()
                   >>spy.FragmentDB.get_frag_for_gui()
-                  >>spy.FragmentDB.set_fragment_picture('Inputfrag.MOLEPIC2', 100)
-                  ",
+                  >>spy.FragmentDB.set_fragment_picture('Inputfrag.MOLEPIC2', 100)",
               "readonly=false",
               "manage=true")
               $-
@@ -173,9 +172,11 @@
         </table>
     </tr>
     
-    <tr>
-    <td>
-    
+    <tr>  
+      <td align="left"><font color="red"> <input
+      type="label" name="message" width="100%" />
+      </font></td>
+      <!-- html.SetValue('message', "Error") -->
     </td>
     </tr>
 </table>

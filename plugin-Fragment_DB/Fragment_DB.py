@@ -54,7 +54,6 @@ Fragen und Ideen:
 
 
 import os
-import htmlTools
 import olex
 import gui
 import olx
@@ -508,7 +507,10 @@ class FragmentDB(PT):
     '''
     prepare the atom list to display in a multiline edit field
     '''
-    atoms_list = db[fragId]
+    try:
+      atoms_list = db[fragId]
+    except IndexError:
+      print('Database Fragment {} not found.'.format(fragId))
     if not atoms_list:
       return
     atoms_list = [[str(i) for i in y] for y in atoms_list]
@@ -617,10 +619,13 @@ class FragmentDB(PT):
       line[2:5] = coord
       coords.append(line)
     print('Adding fragment "{0}" to the database.'.format(fragname))
-    print('Atoms:', coords)
-    print('Restraints:', restraints)
-    print('Residue:', resiclass)
+    #print('Atoms:', coords)
+    #print('Restraints:', restraints)
+    #print('Residue:', resiclass)
     id = db.store_fragment(fragname, coords, resiclass, restraints)
+    if id:
+      olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+      olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', id)
     #self.get_frag_for_gui()
@@ -632,6 +637,10 @@ class FragmentDB(PT):
     db = FragmentTable(self.dbfile)
     fragId = olx.GetVar('fragment_ID')
     del db[fragId]
+    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
+    #reload(FragmentDB)
+                   #'Inputfrag.LIST_INPFRAGMENTS'
     
 # olx.html.SetEnabled(self.ctrl("UpdatePerson"), True)    
 

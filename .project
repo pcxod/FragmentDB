@@ -3,6 +3,8 @@
 	<name>DSR-db</name>
 	<comment></comment>
 	<projects>
+		<project>olex2-code</project>
+		<project>olex2-gui</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
