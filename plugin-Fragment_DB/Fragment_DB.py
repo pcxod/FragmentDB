@@ -49,7 +49,8 @@ Fragen und Ideen:
 - I might insert new atoms just by selected atoms? with a button "from selection"?
 - I would like to replace atoms in 1 A around the fitting fragment. I should implement a replace mode.
 - OV.registerFunction() should warn about initialisation of non-existent functions
-- How can I reload the db after deletion of a fragment?
+- check state of input/edit and only allow "add new" if at least atoms and class
+  are present
 '''
 
 
@@ -227,7 +228,7 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-  def set_fragment_picture(self, name, max_size=150):
+  def set_fragment_picture(self, name, max_size=150, control='FragmentDB'):
     '''
     displays a picture of the fragment from the database in Olex2
     '''
@@ -254,7 +255,11 @@ class FragmentDB(PT):
     # resize equally to fit in max_size 
     im = im.resize((int(img_w*ratio), int(img_h*ratio)), Image.ANTIALIAS)
     # empty image of max_size
-    IM = Image.new('RGBA', (max_size,max_size), self.params.html.table_bg_colour.rgb)
+    if control == 'FragmentDB':
+      bgcolor = self.params.html.table_bg_colour.rgb
+    else:
+      bgcolor = self.params.html.bg_colour.rgb  
+    IM = Image.new('RGBA', (max_size,max_size), bgcolor)
     bg_w, bg_h = IM.size
     img_w, img_h = im.size
     # offset for image placement
@@ -632,16 +637,14 @@ class FragmentDB(PT):
   def delete_fragment(self):
     '''
     deletes a fragment from the database
+    # Todo: reset all fields (oic, atoms, ...) after deltion
     '''
     #db = FragmentTable(self.dbfile)
     fragId = olx.GetVar('fragment_ID')
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
-    #reload(FragmentDB)
-                   #'Inputfrag.LIST_INPFRAGMENTS'
-    
-# olx.html.SetEnabled(self.ctrl("UpdatePerson"), True)    
+ 
 
 fdb = FragmentDB()
 OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")

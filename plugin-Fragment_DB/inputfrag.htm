@@ -1,3 +1,4 @@
+
 <html>
 <body>
 
@@ -18,7 +19,7 @@
             <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
               value="Picture"
-              onclick="spy.FragmentDB.set_picture()"
+              onclick="spy.FragmentDB.store_picture()"
               name="picture" 
               width='50%'
               height="20">
@@ -48,7 +49,7 @@
               "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>
                     spy.FragmentDB.get_resi_class()
                   >>spy.FragmentDB.get_frag_for_gui()
-                  >>spy.FragmentDB.set_fragment_picture('Inputfrag.MOLEPIC2', 100)",
+                  >>spy.FragmentDB.set_fragment_picture('Inputfrag.MOLEPIC2', 100, 'InputFragment')",
               "readonly=false",
               "manage=true")
               $-
@@ -172,10 +173,12 @@
         </table>
     </tr>
     
-    </td>
-      <tr>  
+    <tr>  
       <td align="left"><font color="red"> 
-        <input type="label" name="message" width="100%" />
+        <input 
+            type="label" 
+            name="errormessage" 
+            width="100%" />
         </font>
       </td>
       <!-- html.SetValue('message', "Error") -->
@@ -185,3 +188,4 @@
 
 </body>
 </html>
+
