@@ -33,6 +33,10 @@ fragment_DB{
     frag_fvar = 1
       .type = int
       .help = Defines the free variable for the occupancy of a fragment.
+      
+    errormessage = ""
+      .type = str
+      .help = error messages from FragmentDB plugin
     }
   
   new_fragment{
@@ -56,6 +60,7 @@ fragment_DB{
     frag_restraints = ""
       .type = str
       .help = Enter restraints here.
+    
        
   } 
 

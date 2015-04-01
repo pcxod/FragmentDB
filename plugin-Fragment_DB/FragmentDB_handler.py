@@ -565,7 +565,7 @@ class FragmentTable():
     return FragmentId
 
 
-  def _fill_fragment_table(self, fragment_name, resiclass=None, tag=None, reference=None, comment=None):
+  def _fill_fragment_table(self, fragment_name, tag=None, resiclass=None, reference=None, comment=None):
     '''
     Fills a fragment into the database.
     :param fragment_name: Nam eof the Fragment

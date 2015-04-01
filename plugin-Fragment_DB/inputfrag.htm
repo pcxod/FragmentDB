@@ -43,7 +43,7 @@
               html.Snippet("gui/snippets/input-combo",
               "name=LIST_INPFRAGMENTS",
               "items=spy.FragmentDB.list_fragments()",
-              "value=",
+              "value=''",
               "width=100%",
               "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>
                     spy.FragmentDB.get_resi_class()
@@ -101,7 +101,7 @@
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="SET_ATOM" 
-              value="spy.GetParam('fragment_DB.new_fragment.frag_atoms')"
+              value=""
               width="100%" 
               height="160"
               onchange="spy.SetParam('fragment_DB.new_fragment.frag_atoms', html.GetValue('~name~'))"
@@ -172,12 +172,13 @@
         </table>
     </tr>
     
-    <tr>  
-      <td align="left"><font color="red"> <input
-      type="label" name="message" width="100%" />
-      </font></td>
-      <!-- html.SetValue('message', "Error") -->
     </td>
+      <tr>  
+      <td align="left"><font color="red"> 
+        <input type="label" name="message" width="100%" />
+        </font>
+      </td>
+      <!-- html.SetValue('message', "Error") -->
     </tr>
 </table>
 
