@@ -230,7 +230,6 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-
   def prepare_picture(self, im, max_size=150):
     '''
     resizes and colorizes the picture to diplay it in olex2
@@ -276,7 +275,6 @@ class FragmentDB(PT):
     :type control: string
     '''
     max_size = int(max_size)
-    import OlexVFS
     fragId = olx.GetVar('fragment_ID')
     pic = self.db.get_picture(fragId)
     if not pic:
@@ -433,7 +431,7 @@ class FragmentDB(PT):
     Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
     Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
     Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
-    return (Xc, Yc, Zc)
+    return(round(Xc, 6), round(Yc, 6), round(Zc, 6))
   
   def open_edit_fragment_window(self):
     '''
@@ -466,7 +464,6 @@ class FragmentDB(PT):
   def check_name(self, name):
     '''
     check if name is already present in the db
-    Acetone, C3H6O
     '''
     if self.db.has_exact_name(name):
       return True
@@ -479,10 +476,14 @@ class FragmentDB(PT):
     self.frag_cell = ''
     frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     if frag_cell:
+      if len(frag_cell) < 6:
+        print('Bad unit cell')
+        return False
       try:
         cell = [float(i) for i in frag_cell.split()]
       except ValueError, TypeError:
         print('Bad unit cell given!')
+        return False
     self.frag_cell = cell
 
 
@@ -507,7 +508,6 @@ class FragmentDB(PT):
       pass
     return atlines
 
-  
 
   def set_frag_restraints(self):
     '''
