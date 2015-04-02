@@ -19,7 +19,7 @@
     "items=spy.FragmentDB.list_fragments()",
     "value=",
     "width=80%",
-    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.get_resi_class()
+    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.get_resi_class('RESIDUE_CLASS')
         >>spy.FragmentDB.set_fragment_picture(FDBMOLEPIC, 100)",
     "readonly=false",
     "manage=true")
@@ -121,7 +121,7 @@
       width="40"
       bgcolor="$GetVar('HtmlInputBgColour')"
       name = "RESIDUE_CLASS"
-      value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.get_resi_class())"
+      value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.get_resi_class('RESIDUE_CLASS'))"
       onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))
             >>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
   >

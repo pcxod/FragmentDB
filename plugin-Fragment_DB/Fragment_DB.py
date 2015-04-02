@@ -55,6 +55,8 @@ Fragen und Ideen:
   are present
 - what can I do against accidentally editing of input-combo
 
+- make one "edit" and one "insert" button. this way i need only one input-combo! 
+
 '''
 
 
@@ -394,9 +396,11 @@ class FragmentDB(PT):
     residues.sort()
     return residues
   
-  def get_resi_class(self):
+  def get_resi_class(self, name):
     '''
     sets the residue class from the respective database fragment.
+    
+    :param name: name of the html element to display resi class
     '''
     try:
       fragId = olx.GetVar('fragment_ID')
@@ -408,10 +412,10 @@ class FragmentDB(PT):
       return
     resiclass = self.db.get_residue_class(fragId)
     # set the class in the text field of the gui:
-    if OV.IsControl('RESIDUE_CLASS'):
-      olx.html.SetValue('RESIDUE_CLASS', resiclass)
+    olx.html.SetValue(name, resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
+    
 
 ###############################################################################
 
