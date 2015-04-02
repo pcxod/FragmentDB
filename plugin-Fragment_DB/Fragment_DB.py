@@ -1,5 +1,7 @@
 from olexFunctions import OlexFunctions
 from collections import OrderedDict
+import StringIO
+from PIL import Image, ImageFile
 OV = OlexFunctions()
 
 '''
@@ -150,7 +152,6 @@ class FragmentDB(PT):
     '''
     fit a molecular fragment from the database into olex2
     '''
-    #db = FragmentTable(self.dbfile)
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
@@ -164,7 +165,6 @@ class FragmentDB(PT):
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     atoms = []
     labeldict = OrderedDict()
-    #OV.GetCurrentSelection()
     # adding atoms to structure:
     for i in self.db[fragId]:
       label = str(i[0])
@@ -228,17 +228,54 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-  def set_fragment_picture(self, name, max_size=150, control='FragmentDB'):
+
+  def prepare_picture(self, im, max_size=150):
+    '''
+    resizes and colorizes the picture to diplay it in olex2
+    needs a PIL Image instance
+    :param im: PIL Image instance
+    :type im: PIL Image instance
+    :param max_size: maximum size of the picture in pixels
+    :type max_size: int
+    :param control: html control to get the background color right
+    :type control: string
+    '''
+    for i in im.size:
+      if i < 50:
+        print('This picture is too small.')
+    im = im.convert(mode="RGBA")
+    img_w, img_h = im.size
+    ratio = float(max_size) / float(max(im.size))
+    # just an empirical value:
+    if float(max_size) / float(max(im.size)) > 0.6:
+      ratio = 0.6
+      # resize equally to fit in max_size
+    im = im.resize((int(img_w * ratio), int(img_h * ratio)), Image.ANTIALIAS)
+    # empty image of max_size
+    bgcolor = self.params.html.table_bg_colour.rgb
+    #bgcolor = self.params.html.bg_colour.rgb
+    IM = Image.new('RGBA', (max_size, max_size), bgcolor)
+    bg_w, bg_h = IM.size
+    img_w, img_h = im.size
+    # offset for image placement
+    offset = (bg_w - img_w) / 2, (bg_h - img_h) / 2
+    # place image in center of background image:
+    IM.paste(im, offset)
+    return IM
+
+  def set_fragment_picture(self, name, max_size=150):
     '''
     displays a picture of the fragment from the database in Olex2
+    :param name: name of the zimg html name
+    :type name: string
+    :param max_size: maximum size of the picture in pixels
+    :type max_size: int
+    :param control: name of the htmnl control
+    :type control: string
     '''
     max_size = int(max_size)
-    from PIL import Image, ImageFile
-    import StringIO
     import OlexVFS
-    import random
     fragId = olx.GetVar('fragment_ID')
-    #db = FragmentTable(self.dbfile)
     pic = self.db.get_picture(fragId)
     if not pic:
       #print('No fragment picture found.')
@@ -246,26 +283,7 @@ class FragmentDB(PT):
       olx.html.SetValue('errormessage', "No fragment picture found.")
       return False
     im = Image.open(StringIO.StringIO(pic))
-    im = im.convert(mode="RGBA")
-    img_w, img_h = im.size
-    ratio = float(max_size)/float(max(im.size))
-    # just an empirical value:
-    if float(max_size)/float(max(im.size)) > 0.6:
-      ratio = 0.6
-    # resize equally to fit in max_size 
-    im = im.resize((int(img_w*ratio), int(img_h*ratio)), Image.ANTIALIAS)
-    # empty image of max_size
-    if control == 'FragmentDB':
-      bgcolor = self.params.html.table_bg_colour.rgb
-    else:
-      bgcolor = self.params.html.bg_colour.rgb  
-    IM = Image.new('RGBA', (max_size,max_size), bgcolor)
-    bg_w, bg_h = IM.size
-    img_w, img_h = im.size
-    # offset for image placement
-    offset = ((bg_w - img_w) / 2, (bg_h - img_h) / 2)
-    # place image in center of background image:
-    IM.paste(im, offset)
+    IM = self.prepare_picture(im, max_size)
     # save it
     #randnum = random.randint(0, 999) 
     OlexVFS.save_image_to_olex(IM, 'pic_{0}.png'.format(fragId), 0)
@@ -352,7 +370,6 @@ class FragmentDB(PT):
     '''
     sets the residue class from the respective database fragment.
     '''
-    #db = FragmentTable(self.dbfile)
     try:
       fragId = olx.GetVar('fragment_ID')
     except(RuntimeError):
@@ -421,7 +438,6 @@ class FragmentDB(PT):
     check if name is already present in the db
     Acetone, C3H6O
     '''
-    #db = FragmentTable(self.dbfile)
     if self.db.has_exact_name(name):
       return True
     return False
@@ -500,7 +516,7 @@ class FragmentDB(PT):
   
   
   """
-  def check_residue(self, residue):
+  def check_residue_exist(self, residue):
     '''
     check if residue class is already in the db
     '''
@@ -596,7 +612,33 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
 
+  
+  def store_picture(self, title, filter, location, default_name=''):
+    '''
+    opens a file dialog and stores the selected picture in the db
+    '''
+    import random
+    picfile = olx.FileOpen(title, filter,location, default_name)
+    if not picfile:
+      return
+    fsize = os.stat(picfile).st_size
+    # do not allow picture of more than 1MB (1000000 bytes):
+    if fsize > 1000000:
+      print('This file is too large!')
+      return
+    if fsize <=1:
+      print('No valid picture found!')
+      return
+    #OV.SetParam('fragment_DB.new_fragment.frag_picfile', picfile)
+    #im = Image.open(StringIO.StringIO(picfile))
+    picdata = Image.open(picfile)
+    IM = self.prepare_picture(picdata, max_size=150, control='Inputfrag.MOLEPIC2')
+    randnum = random.randint(0, 999)
+    OlexVFS.save_image_to_olex(IM, 'storepic.png', 0)
+    # display it.
+    olx.html.SetImage('Inputfrag.MOLEPIC2', 'storepic.png')
 
+    
 
   def display_image(self, zimg):
     '''
@@ -611,10 +653,9 @@ class FragmentDB(PT):
     '''
     # check if the given name already exist in the database
     # store fragment with a new number
-    #db = FragmentTable(self.dbfile)
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    #resiclass = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
     frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    pic_data = OlexVFS.read_from_olex('storepic.png')
     coords = []
     for line in atlines:
       line = line.split()
@@ -623,10 +664,8 @@ class FragmentDB(PT):
       line[2:5] = coord
       coords.append(line)
     print('Adding fragment "{0}" to the database.'.format(fragname))
-    #print('Atoms:', coords)
-    #print('Restraints:', restraints)
-    #print('Residue:', resiclass)
-    id = self.db.store_fragment(fragname, coords, resiclass, restraints)
+    id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
+                                picture=pic_data)
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
       olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
@@ -657,7 +696,6 @@ OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
 OV.registerFunction(fdb.store_new_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
-
 OV.registerFunction(fdb.check_name,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
@@ -671,5 +709,7 @@ OV.registerFunction(fdb.set_frag_resiclass,False,"FragmentDB")
 
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
+
+OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 
 

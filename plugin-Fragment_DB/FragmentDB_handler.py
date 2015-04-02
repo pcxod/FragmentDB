@@ -119,7 +119,7 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
-    #self.con.text_factory = str
+    self.con.text_factory = str
     #self.con.text_factory = bytes
     with self.con:
       # set the database cursor
@@ -453,7 +453,10 @@ class FragmentTable():
       return False
     req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = {}
                '''.format(fragment_id)
-    picture = self.database.db_request(req_picture)[0][0]
+    try:
+      picture = self.database.db_request(req_picture)[0][0]
+    except TypeError:
+      return None
     return picture
   
   def get_residue_class(self, fragment_id):
@@ -532,7 +535,7 @@ class FragmentTable():
     return selected_results
 
   def store_fragment(self, fragment_name, atoms, resiclass=None, restraints=None, tag=None,
-                     reference=None, comment=None):
+                     reference=None, comment=None, picture=None):
     '''
     Store a complete new fragment into the database. Minimal requirement is a
     fragment name (Full chemical name) and a list of atoms. Restraints, short
@@ -550,11 +553,14 @@ class FragmentTable():
     :type reference: string
     :param comment: optional any comment about the fragment
     :type comment: string
+    :param picture: a picture of the molecule
+    :type picture: binary
     :rtype int: FragmentId -> last_rowid
     '''
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
-    FragmentId = self._fill_fragment_table(fragment_name, tag, resiclass, reference, comment)
+    FragmentId = self._fill_fragment_table(fragment_name, tag, resiclass, 
+                                           reference, comment, picture)
     if not FragmentId:
       raise Exception('No Id obtained during fragment storage.')
     # then stores atoms with the previously obtained FragmentId
@@ -565,7 +571,8 @@ class FragmentTable():
     return FragmentId
 
 
-  def _fill_fragment_table(self, fragment_name, tag=None, resiclass=None, reference=None, comment=None):
+  def _fill_fragment_table(self, fragment_name, tag=None, resiclass=None, 
+                           reference=None, comment=None, picture=None):
     '''
     Fills a fragment into the database.
     :param fragment_name: Nam eof the Fragment
@@ -576,8 +583,9 @@ class FragmentTable():
     :type comment: str
     :rtype list: last_rowid
     '''
-    table = (tag, resiclass, fragment_name, reference, comment)
-    req = '''INSERT INTO Fragment (tag, class, name, reference, comment) VALUES(?, ?, ?, ?, ?)'''
+    table = (tag, resiclass, fragment_name, reference, comment, picture)
+    req = '''INSERT INTO Fragment (tag, class, name, reference, comment, picture) 
+                            VALUES(?,     ?,     ?,      ?,        ?,       ?   )'''
     return self.database.db_request(req, table)
 
 
