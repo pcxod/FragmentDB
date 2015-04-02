@@ -411,6 +411,7 @@ class FragmentDB(PT):
     if OV.IsControl('RESIDUE_CLASS'):
       olx.html.SetValue('RESIDUE_CLASS', resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
+    OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
 
 ###############################################################################
 
@@ -526,32 +527,25 @@ class FragmentDB(PT):
     return restraints
 
 
-  def set_frag_resiclass(self):
+  def prepare_residue_class(self):
     '''
     set the residue class of a new fragment
     '''
     resi_class = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
     if resi_class:
-      olx.html.SetValue('Inputfrag.residue', resi_class)
       return resi_class
     
-  """
-  def check_resiclass_name(self):
-          if not self.resiclass[0].isalpha():
-        # resiclass does not startt with a char:
-        OV.SetParam('fragment_DB.new_fragment.frag_resiclass', '')
-        if OV.IsControl('residue'):
-          olx.html.SetValue('residue', '')
-  """
   
+  def resiclass_name_valid(self):
+    '''
+    check if name is valid name
+    '''
+    if not self.resiclass[0].isalpha():
+      # resiclass does not startt with a char:
+      return False
+    # check if resi is in db
+    # check if maximum 4 characters
   
-  """
-  def check_residue_exist(self, residue):
-    '''
-    check if residue class is already in the db
-    '''
-    pass
-  """
  
   def prepare_atoms_list(self, fragId):
     '''
@@ -599,7 +593,7 @@ class FragmentDB(PT):
     self.set_frag_cell()
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
-    resiclass = self.set_frag_resiclass()
+    resiclass = self.prepare_residue_class()
     #self.set_fragment_picture('storepic.png', prepare=False)
     self.store_new_fragment(atoms, restraints, resiclass)
 
@@ -616,7 +610,7 @@ class FragmentDB(PT):
     self.set_frag_cell()
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
-    resiclass = self.set_frag_resiclass()
+    resiclass = self.prepare_residue_class()
     self.store_new_fragment(atoms, restraints, resiclass)
   
   def get_frag_for_gui(self):
@@ -630,7 +624,7 @@ class FragmentDB(PT):
       return
     name = self.prepare_fragname(fragId)
     restr = self.prepare_restraints(fragId)
-    residue = self.db.get_residue_class(fragId)
+    residue = self.prepare_residue_class()
     cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     olx.html.SetValue('Inputfrag.set_cell', cell)
@@ -712,17 +706,14 @@ OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
 OV.registerFunction(fdb.check_name,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
-
 OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
-
 OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
-OV.registerFunction(fdb.set_frag_resiclass,False,"FragmentDB")
-
+OV.registerFunction(fdb.prepare_residue_class,False,"FragmentDB")
+OV.registerFunction(fdb.resiclass_name_valid,False,"FragmentDB")
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
-
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 
 
