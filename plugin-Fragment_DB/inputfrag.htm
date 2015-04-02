@@ -19,7 +19,7 @@
             <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
               value="Picture"
-              onclick="spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg', '', )"
+              onclick="spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg', '')"
               name="picture" 
               width='50%'
               height="20">
@@ -46,8 +46,8 @@
               "items=spy.FragmentDB.list_fragments()",
               "value=''",
               "width=100%",
-              "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>
-                    spy.FragmentDB.get_resi_class()
+              "onchange=SetVar(fragment_ID, html.GetValue(~name~))
+                  >>spy.FragmentDB.get_resi_class()
                   >>spy.FragmentDB.get_frag_for_gui()
                   >>spy.FragmentDB.set_fragment_picture('Inputfrag.MOLEPIC2', 100)",
               "readonly=false",
@@ -174,13 +174,7 @@
     </tr>
     
     <tr>  
-      <td align="left"><font color="red"> 
-        <input 
-            type="label" 
-            name="errormessage" 
-            width="100%" />
-        </font>
-      </td>
+
       <!-- html.SetValue('message', "Error") -->
     </tr>
 </table>

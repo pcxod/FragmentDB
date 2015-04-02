@@ -53,6 +53,8 @@ Fragen und Ideen:
 - OV.registerFunction() should warn about initialisation of non-existent functions
 - check state of input/edit and only allow "add new" if at least atoms and class
   are present
+- what can I do against accidentally editing of input-combo
+
 '''
 
 
@@ -263,7 +265,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, name, max_size=150):
+  def set_fragment_picture(self, name, max_size=150, prepare=True):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -278,17 +280,45 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     pic = self.db.get_picture(fragId)
     if not pic:
-      #print('No fragment picture found.')
+      print('No fragment picture found.')
       #Todo: Error message is not displayed
-      olx.html.SetValue('errormessage', "No fragment picture found.")
+      #olx.html.SetValue('errormessage', "No fragment picture found.")
       return False
     im = Image.open(StringIO.StringIO(pic))
-    IM = self.prepare_picture(im, max_size)
+    # only if we have raw data from the db or from file:
+    if prepare:
+      im = self.prepare_picture(im, max_size)
     # save it
-    #randnum = random.randint(0, 999) 
-    OlexVFS.save_image_to_olex(IM, 'pic_{0}.png'.format(fragId), 0)
+    OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
+    # display it in html:
+    if name:
+      olx.html.SetImage(name, 'storepic.png')
+  
+  
+  def store_picture(self, title, filter, location, default_name=''):
+    '''
+    opens a file dialog and stores the selected picture in the olex-vfs
+    '''
+    import random
+    picfile = olx.FileOpen(title, filter, location, default_name)
+    if not picfile:
+      return
+    fsize = os.stat(picfile).st_size
+    # do not allow picture of more than 1MB (1000000 bytes):
+    if fsize > 1000000:
+      print('This file is too large!')
+      return
+    if fsize <=1:
+      print('No valid picture found!')
+      return
+    im = Image.open(picfile)
+    #im = self.prepare_picture(im, max_size=100)
+    OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
-    olx.html.SetImage(name, 'pic_{0}.png'.format(fragId))
+    im = self.prepare_picture(im, max_size=100)
+    OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
+    olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
+  
   
   def range_resolver(self, restraintat, atom_names):
     '''
@@ -570,6 +600,7 @@ class FragmentDB(PT):
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.set_frag_resiclass()
+    #self.set_fragment_picture('storepic.png', prepare=False)
     self.store_new_fragment(atoms, restraints, resiclass)
 
   
@@ -613,33 +644,6 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
 
   
-  def store_picture(self, title, filter, location, default_name=''):
-    '''
-    opens a file dialog and stores the selected picture in the db
-    '''
-    import random
-    picfile = olx.FileOpen(title, filter,location, default_name)
-    if not picfile:
-      return
-    fsize = os.stat(picfile).st_size
-    # do not allow picture of more than 1MB (1000000 bytes):
-    if fsize > 1000000:
-      print('This file is too large!')
-      return
-    if fsize <=1:
-      print('No valid picture found!')
-      return
-    #OV.SetParam('fragment_DB.new_fragment.frag_picfile', picfile)
-    #im = Image.open(StringIO.StringIO(picfile))
-    picdata = Image.open(picfile)
-    IM = self.prepare_picture(picdata, max_size=150, control='Inputfrag.MOLEPIC2')
-    randnum = random.randint(0, 999)
-    OlexVFS.save_image_to_olex(IM, 'storepic.png', 0)
-    # display it.
-    olx.html.SetImage('Inputfrag.MOLEPIC2', 'storepic.png')
-
-    
-
   def display_image(self, zimg):
     '''
     display the zimg
@@ -655,7 +659,10 @@ class FragmentDB(PT):
     # store fragment with a new number
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
     frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
-    pic_data = OlexVFS.read_from_olex('storepic.png')
+    try:
+      pic_data = OlexVFS.read_from_olex('storepic.png')
+    except TypeError:
+      pic_data = ''
     coords = []
     for line in atlines:
       line = line.split()
@@ -678,11 +685,17 @@ class FragmentDB(PT):
     deletes a fragment from the database
     # Todo: reset all fields (oic, atoms, ...) after deltion
     '''
-    #db = FragmentTable(self.dbfile)
     fragId = olx.GetVar('fragment_ID')
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
+    # Now delete the fields:
+    olx.html.SetValue('Inputfrag.SET_ATOM', '')
+    olx.html.SetValue('Inputfrag.set_cell', '')
+    olx.html.SetValue('Inputfrag.set_name', '')
+    olx.html.SetValue('Inputfrag.restraints', '')
+    olx.html.SetValue('Inputfrag.residue', '')
+    olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
  
 
 fdb = FragmentDB()

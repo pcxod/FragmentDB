@@ -5,6 +5,7 @@ Created on 09.10.2014
 
 '''
 import sys
+import os
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
@@ -116,6 +117,8 @@ class DatabaseRequest():
     :param dbfile: database file
     :type dbfile: str
     '''
+    if not os.path.isfile(dbfile):
+      raise IOError('Database file not found!') 
     # open the database
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
@@ -162,17 +165,17 @@ class FragmentTable():
   >>> dbfile = 'tst1.sqlite'
   >>> db = FragmentTable(dbfile)
   >>> print db[2]
-  [(u'N1', u'7', 5.2916, 0.1111, 10.84), (u'N2', u'7', 4.1672, 1.8088, 9.1734), (u'C1', u'6', 5.8369, -0.7123, 11.7478), (u'C2', u'6', 5.9368, -2.0826, 11.5626), (u'C3', u'6', 5.4664, -2.6325, 10.3782), (u'C4', u'6', 4.9264, -1.7885, 9.4165), (u'C5', u'6', 4.8535, -0.4237, 9.6802), (u'C6', u'6', 4.2675, 0.5478, 8.7222), (u'C7', u'6', 3.8265, 0.1802, 7.4491), (u'C8', u'6', 3.2516, 1.1452, 6.6304), (u'C9', u'6', 3.1267, 2.4421, 7.1103), (u'C10', u'6', 3.5991, 2.7331, 8.3809)]
+  [('N1', '7', 5.2916, 0.1111, 10.84), ('N2', '7', 4.1672, 1.8088, 9.1734), ('C1', '6', 5.8369, -0.7123, 11.7478), ('C2', '6', 5.9368, -2.0826, 11.5626), ('C3', '6', 5.4664, -2.6325, 10.3782), ('C4', '6', 4.9264, -1.7885, 9.4165), ('C5', '6', 4.8535, -0.4237, 9.6802), ('C6', '6', 4.2675, 0.5478, 8.7222), ('C7', '6', 3.8265, 0.1802, 7.4491), ('C8', '6', 3.2516, 1.1452, 6.6304), ('C9', '6', 3.1267, 2.4421, 7.1103), ('C10', '6', 3.5991, 2.7331, 8.3809)]
 
   >>> for num, i in enumerate(db):
   ...   print(i)
   ...   if num >= 5: break
-  (54, u'1,2-Dichlorobenzene, C6H4Cl2')
-  (5, u'1,2-Difluorobenzene, C6H4F2')
-  (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
-  (18, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
-  (22, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
-  (2, u"2,2'-Bipyridine, C10H8N2, bipy")
+  (54, '1,2-Dichlorobenzene, C6H4Cl2')
+  (5, '1,2-Difluorobenzene, C6H4F2')
+  (48, '1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
+  (18, '1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
+  (22, '1,4-Diazabicyclo[2.2.2]octane, DABCO')
+  (2, "2,2'-Bipyridine, C10H8N2, bipy")
 
   '''
   def __init__(self, dbfile):
@@ -253,25 +256,25 @@ class FragmentTable():
     
     >>> for i in db[2]:
     ...   print(i)
-    (u'N1', u'7', 5.2916, 0.1111, 10.84)
-    (u'N2', u'7', 4.1672, 1.8088, 9.1734)
-    (u'C1', u'6', 5.8369, -0.7123, 11.7478)
-    (u'C2', u'6', 5.9368, -2.0826, 11.5626)
-    (u'C3', u'6', 5.4664, -2.6325, 10.3782)
-    (u'C4', u'6', 4.9264, -1.7885, 9.4165)
-    (u'C5', u'6', 4.8535, -0.4237, 9.6802)
-    (u'C6', u'6', 4.2675, 0.5478, 8.7222)
-    (u'C7', u'6', 3.8265, 0.1802, 7.4491)
-    (u'C8', u'6', 3.2516, 1.1452, 6.6304)
-    (u'C9', u'6', 3.1267, 2.4421, 7.1103)
-    (u'C10', u'6', 3.5991, 2.7331, 8.3809)
+    ('N1', '7', 5.2916, 0.1111, 10.84)
+    ('N2', '7', 4.1672, 1.8088, 9.1734)
+    ('C1', '6', 5.8369, -0.7123, 11.7478)
+    ('C2', '6', 5.9368, -2.0826, 11.5626)
+    ('C3', '6', 5.4664, -2.6325, 10.3782)
+    ('C4', '6', 4.9264, -1.7885, 9.4165)
+    ('C5', '6', 4.8535, -0.4237, 9.6802)
+    ('C6', '6', 4.2675, 0.5478, 8.7222)
+    ('C7', '6', 3.8265, 0.1802, 7.4491)
+    ('C8', '6', 3.2516, 1.1452, 6.6304)
+    ('C9', '6', 3.1267, 2.4421, 7.1103)
+    ('C10', '6', 3.5991, 2.7331, 8.3809)
 
     >>> dblen = len(db)
     >>> print(db[dblen-1])
-    [(u'O1', u'8', 0.2825, 16.5296, 4.5813), (u'C1', u'6', 0.9432, 17.3408, 3.5245), (u'C2', u'6', 1.0998, 16.3313, 2.3935), (u'C3', u'6', 2.292, 17.8677, 3.9709), (u'C4', u'6', -0.0098, 18.4574, 3.1231)]
+    [('O1', '8', 0.2825, 16.5296, 4.5813), ('C1', '6', 0.9432, 17.3408, 3.5245), ('C2', '6', 1.0998, 16.3313, 2.3935), ('C3', '6', 2.292, 17.8677, 3.9709), ('C4', '6', -0.0098, 18.4574, 3.1231)]
 
     >>> print(db[-1])
-    [(u'O1', u'8', 0.2825, 16.5296, 4.5813), (u'C1', u'6', 0.9432, 17.3408, 3.5245), (u'C2', u'6', 1.0998, 16.3313, 2.3935), (u'C3', u'6', 2.292, 17.8677, 3.9709), (u'C4', u'6', -0.0098, 18.4574, 3.1231)]
+    [('O1', '8', 0.2825, 16.5296, 4.5813), ('C1', '6', 0.9432, 17.3408, 3.5245), ('C2', '6', 1.0998, 16.3313, 2.3935), ('C3', '6', 2.292, 17.8677, 3.9709), ('C4', '6', -0.0098, 18.4574, 3.1231)]
 
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
@@ -320,11 +323,11 @@ class FragmentTable():
     after: 63
     
     >>> print db[-3][1]
-    (u'F1', u'9', 0.819, 0.819, 0.819)
+    ('F1', '9', 0.819, 0.819, 0.819)
     
     >>> del db[-3]
     >>> print db[-3][1]
-    (u'C2', u'6', 1.9035, 2.482, 2.4282)
+    ('C2', '6', 1.9035, 2.482, 2.4282)
     
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
@@ -353,9 +356,9 @@ class FragmentTable():
     ...   print(i)
     ...   if num > 1:
     ...     break
-    (54, u'1,2-Dichlorobenzene, C6H4Cl2')
-    (5, u'1,2-Difluorobenzene, C6H4F2')
-    (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
+    (54, '1,2-Dichlorobenzene, C6H4Cl2')
+    (5, '1,2-Difluorobenzene, C6H4F2')
+    (48, '1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
     '''
     all_fragments = self.get_all_fragment_names()
     return iter(all_fragments)
@@ -363,18 +366,38 @@ class FragmentTable():
   def has_name(self, name):
     '''
     Returns True if a partial name is found in the DB.
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> db.has_name('Benzene')
+    True
+    
+    >>> db.has_name('Benzil')
+    False
     '''
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
     if self.database.db_request(req):
       return True
+    else:
+      return False
   
   def has_exact_name(self, name):
     '''
     Returns True if a partial name is found in the DB.
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> db.has_exact_name('1,2-Dichlorobenzene, C6H4Cl2')
+    True
+    
+    >>> db.has_exact_name('Benzene')
+    False
     '''
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
     if self.database.db_request(req):
       return True
+    else:
+      return False
   
   
   def has_index(self, Id):
@@ -383,19 +406,38 @@ class FragmentTable():
     :param Id: Id of the respective fragment
     :type Id: int
     :rtype: bool
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> db.has_index('5')
+    True
+    
+    >>> db.has_index('999')
+    False
+    
     '''
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = {}'''.format(Id)
     if self.database.db_request(req):
       return True
+    else:
+      return False
   
   def get_all_rowids(self):
     '''
     returns all Ids in the database as list.
     :rtype: list 
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> db.get_all_rowids()
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]
+        
     '''
     ids = []
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
     rows = self.database.db_request(req)
+    if not rows:
+      return False
     for i in rows:
       ids.append(i[0])
     return ids
@@ -406,7 +448,10 @@ class FragmentTable():
     '''
     req = '''SELECT Fragment.Id, Fragment.name FROM Fragment ORDER BY Name'''
     rows = self.database.db_request(req)
-    return rows
+    if rows:
+      return rows
+    else:
+      return False
 
   def _get_fragment(self, fragment_id):
     '''
@@ -428,7 +473,7 @@ class FragmentTable():
     >>> dbfile = 'tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_fragment_name(2)[0]
-    u"2,2'-Bipyridine, C10H8N2, bipy"
+    "2,2'-Bipyridine, C10H8N2, bipy"
     
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
@@ -488,7 +533,7 @@ class FragmentTable():
     >>> dbfile = 'tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_restraints(5)
-    [(u'SADI', u'0.02 C1 F1 C2 F2'), (u'SADI', u'0.02 C1 C6 C5 C6 C1 C2 C4 C5 C3 C4 C2 C3'), (u'SADI', u'0.04 C1 F2 C3 F2 C2 F1 C6 F1'), (u'SADI', u'0.04 C4 C6 C3 C5 C2 C4 C1 C3 C2 C6 C1 C5'), (u'FLAT', u'C1 > F2'), (u'SIMU', u'C1 > F2'), (u'RIGU', u'C1 > F2')]
+    [('SADI', '0.02 C1 F1 C2 F2'), ('SADI', '0.02 C1 C6 C5 C6 C1 C2 C4 C5 C3 C4 C2 C3'), ('SADI', '0.04 C1 F2 C3 F2 C2 F1 C6 F1'), ('SADI', '0.04 C4 C6 C3 C5 C2 C4 C1 C3 C2 C6 C1 C5'), ('FLAT', 'C1 > F2'), ('SIMU', 'C1 > F2'), ('RIGU', 'C1 > F2')]
     
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
@@ -506,7 +551,7 @@ class FragmentTable():
     >>> dbfile = 'tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(3, u'Trifluoroethanol, OCH2CF3-'), (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
+    [(3, 'Trifluoroethanol, OCH2CF3-'), (58, 'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, 'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
