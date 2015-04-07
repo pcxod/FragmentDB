@@ -136,20 +136,19 @@ class FragmentDB(PT):
     if name.upper() == 'RESIDUE_CLASS'.upper():
       varname = 'fragment_DB.fragment.resi_class'
     if name.upper() == 'Inputfrag.residue'.upper():
-      varname = 'new_fragment.frag_resiclass'
-      
+      varname = 'fragment_DB.new_fragment.frag_resiclass'
     if not resiclass:
       return
     if not resiclass[0].isalpha():
       # resiclass does not start with a char:
-      OV.SetParam('fragment_DB.fragment.resi_class', resiclass[1:])
+      OV.SetParam('fragment_DB.fragment.resi_class', resiclass[1:].upper())
       olx.html.SetValue(name, OV.GetParam(varname))
     # force 4 characters: 
     elif len(resiclass) > 4:
-      OV.SetParam(varname, resiclass[:4])
+      OV.SetParam(varname, resiclass[:4].upper())
       olx.html.SetValue(name, OV.GetParam(varname))
     else:
-      OV.SetParam(varname, resiclass)
+      OV.SetParam(varname, resiclass.upper())
       olx.html.SetValue(name, OV.GetParam(varname))
     
   def list_fragments(self):
@@ -289,8 +288,6 @@ class FragmentDB(PT):
     pic = self.db.get_picture(fragId)
     if not pic:
       print('No fragment picture found.')
-      #Todo: Error message is not displayed
-      #olx.html.SetValue('errormessage', "No fragment picture found.")
       return False
     im = Image.open(StringIO.StringIO(pic))
     # save it as raw and small pic:
@@ -302,8 +299,7 @@ class FragmentDB(PT):
     '''
     display an image in zimgname 
     '''
-    pic_data = OlexVFS.read_from_olex(image_file)
-    olx.html.SetImage(zimgname, 'displayimg.png')
+    olx.html.SetImage(zimgname, image_file)
   
   def store_picture(self, title, filter, location, default_name=''):
     '''
@@ -421,12 +417,10 @@ class FragmentDB(PT):
     except ValueError:
       return
     resiclass = self.db.get_residue_class(fragId)
-    # set the class in the text field of the gui:
-    #olx.html.SetValue(name, resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
-    resi = self.prepare_residue_class()
-    olx.html.SetValue('RESIDUE_CLASS', resi)
+    # set the class in the text field of the gui:
+    olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
     
 
 ###############################################################################
@@ -468,8 +462,6 @@ class FragmentDB(PT):
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
     self.get_frag_for_gui()
-    # prepare=False to prevent that the image from the DB is reduced further in size:
-    #olx.html.SetImage('Inputfrag.MOLEPIC2', 'displpic.png')
     self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
   
@@ -559,18 +551,6 @@ class FragmentDB(PT):
     if resi_class:
       return resi_class
     
-  
-  def resiclass_name_valid(self):
-    '''
-    check if name is valid name
-    '''
-    if not self.resiclass[0].isalpha():
-      # resiclass does not startt with a char:
-      return False
-    # check if resi is in db
-    # check if maximum 4 characters
-  
- 
   def prepare_atoms_list(self, fragId):
     '''
     prepare the atom list to display in a multiline edit field
@@ -687,6 +667,8 @@ class FragmentDB(PT):
       #olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', id)
+    olx.html.SetValue('RESIDUE_CLASS', '')
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
     self.get_frag_for_gui()
     
   def delete_fragment(self):
@@ -727,7 +709,6 @@ OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
 OV.registerFunction(fdb.prepare_residue_class,False,"FragmentDB")
-OV.registerFunction(fdb.resiclass_name_valid,False,"FragmentDB")
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
