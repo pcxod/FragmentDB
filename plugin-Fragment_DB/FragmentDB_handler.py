@@ -510,8 +510,8 @@ class FragmentTable():
 
     >>> dbfile = 'tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
-    >>> db.get_residue_class(2)
-    'BIP'
+    >>> db.get_residue_class(47)
+    'ACE'
     
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int

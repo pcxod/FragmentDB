@@ -15,8 +15,4 @@ xcopy /Y %GIT%\inputfrag.htm %FDBDIR%
 rem xcopy /Y %GIT%\fragment-database.sqlite %FDBDIR%
 
 
-rem xcopy /Y %GIT%\Fragment_Edit.py %FDBDIR% 
-
-
-
 del %FDBDIR%\*.pyc

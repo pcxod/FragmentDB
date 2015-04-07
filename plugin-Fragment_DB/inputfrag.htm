@@ -34,7 +34,7 @@
             </td>
           
           </tr>
-
+<!--
           <tr>
             <td halign='left' width='15%'>
               <b>%Fragment:%</b> </td>
@@ -55,7 +55,7 @@
               $-
             </td>
           </tr>
-          
+    -->      
           <tr>
             <td>
             </td>
@@ -136,7 +136,7 @@
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="residue" 
               width="50%"
-              onchange='spy.SetParam(fragment_DB.new_fragment.frag_resiclass, html.GetValue(~name~))'
+              onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)'
               multiline="False">
             </td>
             

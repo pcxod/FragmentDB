@@ -56,7 +56,7 @@ Fragen und Ideen:
 - what can I do against accidentally editing of input-combo
 
 - make one "edit" and one "insert" button. this way i need only one input-combo! 
-
+- how can I set the curso to the end of a edit box?
 '''
 
 
@@ -100,7 +100,6 @@ class FragmentDB(PT):
     #self.print_func()
 
 
-
   def print_func(self):
     import olex_core
     #l = olex_core.ExportFunctionList()
@@ -112,7 +111,6 @@ class FragmentDB(PT):
           print(y)
         except:
           pass
-          
           
   def set_occu(self, occ):
     '''
@@ -129,19 +127,30 @@ class FragmentDB(PT):
         return
     OV.SetParam('fragment_DB.fragment.frag_occ', occ)
 
-  def set_resiclass(self, resiclass):
+  def set_resiclass(self, resiclass, name):
     '''
     sets the residue class and ensures that it is of len(4) 
     and .isalpha is the first character.
     '''
+    varname = ''
+    if name.upper() == 'RESIDUE_CLASS'.upper():
+      varname = 'fragment_DB.fragment.resi_class'
+    if name.upper() == 'Inputfrag.residue'.upper():
+      varname = 'new_fragment.frag_resiclass'
+      
+    if not resiclass:
+      return
     if not resiclass[0].isalpha():
-      # resiclass does not startt with a char:
-      OV.SetParam('fragment_DB.fragment.resi_class', '')
-    # force 4 characters:
+      # resiclass does not start with a char:
+      OV.SetParam('fragment_DB.fragment.resi_class', resiclass[1:])
+      olx.html.SetValue(name, OV.GetParam(varname))
+    # force 4 characters: 
     elif len(resiclass) > 4:
-      OV.SetParam('fragment_DB.fragment.resi_class', resiclass[:4])
+      OV.SetParam(varname, resiclass[:4])
+      olx.html.SetValue(name, OV.GetParam(varname))
     else:
-      OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
+      OV.SetParam(varname, resiclass)
+      olx.html.SetValue(name, OV.GetParam(varname))
     
   def list_fragments(self):
     '''
@@ -150,7 +159,6 @@ class FragmentDB(PT):
     '''
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
     return items
-
 
   def fit_db_fragment(self, fragId=None):
     '''
@@ -232,7 +240,7 @@ class FragmentDB(PT):
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
   
-  def prepare_picture(self, im, max_size=150):
+  def prepare_picture(self, im, max_size=100):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -266,7 +274,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, name, max_size=150, prepare=True):
+  def set_fragment_picture(self, name, max_size=100):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -285,15 +293,17 @@ class FragmentDB(PT):
       #olx.html.SetValue('errormessage', "No fragment picture found.")
       return False
     im = Image.open(StringIO.StringIO(pic))
-    # only if we have raw data from the db or from file:
-    if prepare:
-      im = self.prepare_picture(im, max_size)
-    # save it
+    # save it as raw and small pic:
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    # display it in html:
-    if name:
-      olx.html.SetImage(name, 'storepic.png')
+    im = self.prepare_picture(im, max_size=100)
+    OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
   
+  def display_image(self, zimgname, image_file):
+    '''
+    display an image in zimgname 
+    '''
+    pic_data = OlexVFS.read_from_olex(image_file)
+    olx.html.SetImage(zimgname, 'displayimg.png')
   
   def store_picture(self, title, filter, location, default_name=''):
     '''
@@ -412,9 +422,11 @@ class FragmentDB(PT):
       return
     resiclass = self.db.get_residue_class(fragId)
     # set the class in the text field of the gui:
-    olx.html.SetValue(name, resiclass)
+    #olx.html.SetValue(name, resiclass)
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
+    resi = self.prepare_residue_class()
+    olx.html.SetValue('RESIDUE_CLASS', resi)
     
 
 ###############################################################################
@@ -442,6 +454,10 @@ class FragmentDB(PT):
     '''
     opens a new window to input/update a database fragment
     '''
+    try:
+      olx.GetVar('fragment_ID')
+    except RuntimeError:
+      return
     pop_name = "Inputfrag"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
@@ -451,6 +467,10 @@ class FragmentDB(PT):
     path = "%s/inputfrag.htm" % (self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
+    self.get_frag_for_gui()
+    # prepare=False to prevent that the image from the DB is reduced further in size:
+    #olx.html.SetImage('Inputfrag.MOLEPIC2', 'displpic.png')
+    self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
   
   def set_frag_name(self, enable_check=True):
@@ -598,7 +618,6 @@ class FragmentDB(PT):
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
-    #self.set_fragment_picture('storepic.png', prepare=False)
     self.store_new_fragment(atoms, restraints, resiclass)
 
   
@@ -640,14 +659,6 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_cell', cell)
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
-
-  
-  def display_image(self, zimg):
-    '''
-    display the zimg
-    '''
-    olx.html.SetImage(self, zimg_name, image_file)
-    
       
   def store_new_fragment(self, atlines, restraints, resiclass):
     '''
@@ -673,7 +684,7 @@ class FragmentDB(PT):
                                 picture=pic_data)
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-      olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
+      #olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', id)
     self.get_frag_for_gui()
@@ -686,7 +697,7 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-    olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
+    #olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
     # Now delete the fields:
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
     olx.html.SetValue('Inputfrag.set_cell', '')
@@ -694,6 +705,7 @@ class FragmentDB(PT):
     olx.html.SetValue('Inputfrag.restraints', '')
     olx.html.SetValue('Inputfrag.residue', '')
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
  
 
 fdb = FragmentDB()
@@ -719,5 +731,6 @@ OV.registerFunction(fdb.resiclass_name_valid,False,"FragmentDB")
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
+OV.registerFunction(fdb.display_image,False,"FragmentDB")
 
 
