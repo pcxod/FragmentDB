@@ -603,10 +603,14 @@ class FragmentDB(PT):
   
   def update_fragment(self):
     '''
+    
+    * Delete the old and create new fragment
+    
     execute this to update a fragment
     # Todo: update creates a doublette
     updates the database information of a fragment
-    '''    
+    '''
+    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')    
     state = self.set_frag_name(enable_check=False)
     if not state:
       return
@@ -614,7 +618,27 @@ class FragmentDB(PT):
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
-    self.store_new_fragment(atoms, restraints, resiclass)
+    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    try:
+      pic_data = OlexVFS.read_from_olex('storepic.png')
+    except TypeError:
+      pic_data = ''
+    coords = []
+    for line in atlines:
+      line = line.split()
+      frac_coord = [ float(i) for i in line[2:5] ]
+      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      line[2:5] = coord
+      coords.append(line)
+    print('Updating fragment "{0}".'.format(fragname))
+    id = self.db.update_fragment(fragname, coords, resiclass, restraints, 
+                                picture=pic_data)
+    if id:
+      olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    olx.SetVar('fragment_ID', id)
+    olx.html.SetValue('RESIDUE_CLASS', '')
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    self.get_frag_for_gui()
   
   def get_frag_for_gui(self):
     '''
@@ -664,7 +688,6 @@ class FragmentDB(PT):
                                 picture=pic_data)
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-      #olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', id)
     olx.html.SetValue('RESIDUE_CLASS', '')
@@ -679,7 +702,6 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-    #olx.html.SetItems('Inputfrag.LIST_INPFRAGMENTS', self.list_fragments())
     # Now delete the fields:
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
     olx.html.SetValue('Inputfrag.set_cell', '')
@@ -713,5 +735,3 @@ OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
-
-
