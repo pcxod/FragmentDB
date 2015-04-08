@@ -65,19 +65,29 @@
           <tr>
             <td width='20%'> Unit cell: </td>
             <td width='80%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="set_cell" 
               width="100%" 
               onchange='spy.SetParam(fragment_DB.new_fragment.frag_cell, html.GetValue(~name~))'
               multiline="False"
-            >
+            ></font>
             </td>
           </tr>
-          
           <tr>
-            <td width='20%'>Atoms: </td>
+            <td>
+            </td>
+            <td>
+            <a href='spy.FragmentDB.get_selected_atoms()'><font color="#000000" >
+            <b>Use selected:</b>
+            </td>
+          </tr>          
+          <tr>
+            <td width='10%'>Atoms: <br><br>
+            </a></td>
             <td width='80%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')">
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="SET_ATOM" 
@@ -86,7 +96,7 @@
               height="160"
               onchange="spy.SetParam('fragment_DB.new_fragment.frag_atoms', html.GetValue('~name~'))"
               multiline="True"
-            >
+            ></font>
             </td>
 
           </tr>
@@ -94,14 +104,16 @@
           <tr>
             <td width='20%'>restraints:</td>
             <td width='80%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')">
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="restraints" 
+              value=""
               width="100%"
               height="120"
               onchange='spy.SetParam(fragment_DB.new_fragment.frag_restraints, html.GetValue(~name~))'
               multiline="True"
-            >
+            ></font>
             </td>
          </tr>
           

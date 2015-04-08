@@ -427,11 +427,29 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
     
 
+  def selected_atom_names(self):
+    '''
+    returns the names of selected atoms
+    '''
+    atoms = olex.f("sel()")
+    return atoms.split()
+  
   def get_selected_atoms(self):
     '''
     returns the currently selected atoms for the atoms field
     '''
-    pass
+    atlist = []
+    atoms = self.selected_atom_names()
+    crd = [ olx.Crd(x) for x in atoms ]
+    # now I want to remove the residue number:
+    #atoms = [ y.split('_')[0] for y in atoms]
+    for atom, coord in zip(atoms, crd):
+      atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
+    #print(atlist)
+    at = ' \n'.join(atlist)
+    olx.html.SetValue('Inputfrag.SET_ATOM', at)
+    OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
+    return atlist
     
 
   def frac_to_cart(self, frac_coord, cell):
@@ -612,11 +630,7 @@ class FragmentDB(PT):
   
   def update_fragment(self):
     '''
-    
-    * Delete the old and create new fragment
-    
     execute this to update a fragment
-    # Todo: update creates a doublette
     updates the database information of a fragment
     '''
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')    
@@ -729,6 +743,8 @@ class FragmentDB(PT):
  
 
 fdb = FragmentDB()
+
+OV.registerFunction(fdb.get_selected_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
