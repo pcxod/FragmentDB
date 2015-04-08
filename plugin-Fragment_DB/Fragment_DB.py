@@ -59,8 +59,8 @@ Fragen und Ideen:
 - how can I set the curso to the end of a edit box?
 - If Inputfrag window is open, also update the fields when selecting different fragments in 
   the combo-box
-- Use a fixed font in the text fields
-- When I come bach from a different plugin, the image is not diplayed anymore
+- Use a fixed font in the text fields. Works but looks bretty ugly!
+- When I come back from a different plugin, the image is not diplayed anymore
 '''
 
 
@@ -425,21 +425,13 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
     # set the class in the text field of the gui:
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
-    
-
-  def selected_atom_names(self):
-    '''
-    returns the names of selected atoms
-    '''
-    atoms = olex.f("sel()")
-    return atoms.split()
   
   def get_selected_atoms(self):
     '''
     returns the currently selected atoms for the atoms field
     '''
     atlist = []
-    atoms = self.selected_atom_names()
+    atoms = olex.f("sel()").split()
     crd = [ olx.Crd(x) for x in atoms ]
     # now I want to remove the residue number:
     #atoms = [ y.split('_')[0] for y in atoms]
@@ -582,14 +574,17 @@ class FragmentDB(PT):
     '''
     prepare the atom list to display in a multiline edit field
     '''
+    atlist = []
     try:
       atoms_list = self.db[fragId]
     except IndexError:
       print('Database Fragment {} not found.'.format(fragId))
     if not atoms_list:
       return
-    atoms_list = [[str(i) for i in y] for y in atoms_list]
-    at = ' \n'.join([' '.join(i) for i in atoms_list])
+    atoms_list = [[i for i in y] for y in atoms_list]
+    for i in atoms_list:
+      atlist.append('{:4.4s} {:<3} {:>8.4f} {:>8.4f} {:>8.4f}'.format(*i))
+    at = ' \n'.join(atlist)
     return at
 
   def prepare_fragname(self, fragId):
