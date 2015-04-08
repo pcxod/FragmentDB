@@ -57,6 +57,10 @@ Fragen und Ideen:
 
 - make one "edit" and one "insert" button. this way i need only one input-combo! 
 - how can I set the curso to the end of a edit box?
+- If Inputfrag window is open, also update the fields when selecting different fragments in 
+  the combo-box
+- Use a fixed font in the text fields
+- When I come bach from a different plugin, the image is not diplayed anymore
 '''
 
 
@@ -423,7 +427,12 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
     
 
-###############################################################################
+  def get_selected_atoms(self):
+    '''
+    returns the currently selected atoms for the atoms field
+    '''
+    pass
+    
 
   def frac_to_cart(self, frac_coord, cell):
     '''
@@ -615,7 +624,7 @@ class FragmentDB(PT):
     if not state:
       return
     self.set_frag_cell()
-    atoms = self.set_frag_atoms()
+    atlines = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
     frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
@@ -630,8 +639,9 @@ class FragmentDB(PT):
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
       coords.append(line)
+    self.delete_fragment(reset=False)
     print('Updating fragment "{0}".'.format(fragname))
-    id = self.db.update_fragment(fragname, coords, resiclass, restraints, 
+    id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 picture=pic_data)
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
@@ -694,7 +704,18 @@ class FragmentDB(PT):
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
     self.get_frag_for_gui()
     
-  def delete_fragment(self):
+
+  def reset_state(self):
+    olx.html.SetValue('Inputfrag.SET_ATOM', '')
+    olx.html.SetValue('Inputfrag.set_cell', '')
+    olx.html.SetValue('Inputfrag.set_name', '')
+    olx.html.SetValue('Inputfrag.restraints', '')
+    olx.html.SetValue('Inputfrag.residue', '')
+    olx.html.SetValue('RESIDUE_CLASS', '')
+    olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+
+  def delete_fragment(self, reset=True):
     '''
     deletes a fragment from the database
     # Todo: reset all fields (oic, atoms, ...) after deltion
@@ -703,13 +724,8 @@ class FragmentDB(PT):
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     # Now delete the fields:
-    olx.html.SetValue('Inputfrag.SET_ATOM', '')
-    olx.html.SetValue('Inputfrag.set_cell', '')
-    olx.html.SetValue('Inputfrag.set_name', '')
-    olx.html.SetValue('Inputfrag.restraints', '')
-    olx.html.SetValue('Inputfrag.residue', '')
-    olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
-    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    if reset:
+      self.reset_state()
  
 
 fdb = FragmentDB()
