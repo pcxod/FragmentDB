@@ -50,7 +50,7 @@
           </tr>
           
           <tr>
-            <td width='20%'> Name: </td>
+            <td width='15%'> Name: </td>
             <td width='80%'>
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
@@ -63,7 +63,7 @@
           </tr>
           
           <tr>
-            <td width='20%'> Unit cell: </td>
+            <td width='15%'> Unit cell: </td>
             <td width='80%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
             <input type="text"
@@ -80,12 +80,11 @@
             </td>
             <td>
             <a href='spy.FragmentDB.get_selected_atoms()'><font color="#000000" >
-            <b>Use selected:</b>
+            <b>Use selected atoms:</b></font></a>
             </td>
           </tr>          
           <tr>
-            <td width='10%'>Atoms: <br><br>
-            </a></td>
+            <td width='10%'>Atoms: <br><br></td>
             <td width='80%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
             <input type="text"
@@ -102,7 +101,7 @@
           </tr>
                                 
           <tr>
-            <td width='20%'>restraints:</td>
+            <td width='15%'>restraints:</td>
             <td width='80%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
             <input type="text"
@@ -118,54 +117,62 @@
          </tr>
           
           <tr>
-           <td width='20%'>residue:</td>
-          <td>
-          <table align='left' border="0" cellpadding="0" cellspacing="10" width="100%">
-            <tr>
-            <td align="left">
-            <input type="text"
-              bgcolor="$GetVar(HtmlInputBgColour)"
-              name="residue" 
-              width="50%"
-              onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)'
-              multiline="False">
+            <td width='15%'>
+              residue:
             </td>
-            
-            <td width="40%" align="left"> (4 characters)</td>
-            <td width="10%"> </td>
-            </tr>
-          </table>
+            <td>
+              <table align='left' border="0" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+              <td align="left">
+                <input type="text"
+                  bgcolor="$GetVar(HtmlInputBgColour)"
+                  name="residue" 
+                  width="20%"
+                  onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)'
+                  multiline="False">
+                </td>
+                <td width="10%"> 
+                </td>
+                <td width="10%"> 
+                </td>
+              </tr>
+              </table>
           </tr>
-          
+            
+                 
+          <tr>
+            <td width='15%'>
+            </td>
+            <td width='85%'>
+              <table  border="0" cellpadding="10" cellspacing="0" width="100%">
+                <tr>
+                  <td><input type="button" name="UpdateFragment"
+                    value="Update"
+                    onclick="spy.FragmentDB.update_fragment()" />
+                  </td>
+                  
+                  <td><input type="button" name="AddFrag"
+                    value="Add as New"
+                    onclick="spy.FragmentDB.add_new_frag()" />
+                  </td>
+                  
+                  <td><input type="button" name="DeleteFragment"
+                    value="Delete"
+                    onclick="spy.FragmentDB.delete_fragment()" />
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+
         </table>
       </td>
     </tr>               
 
-    <tr>
-      <td>
-      
-        <table  border="0" cellpadding="0" cellspacing="10" width="100%">
-          <tr>
-            <td><input type="button" name="UpdateFragment"
-              value="Update"
-              onclick="spy.FragmentDB.update_fragment()" />
-            </td>
-            
-            <td><input type="button" name="AddFrag"
-              value="Add as New"
-              onclick="spy.FragmentDB.add_new_frag()" />
-            </td>
-            
-            <td><input type="button" name="DeleteFragment"
-              value="Delete"
-              onclick="spy.FragmentDB.delete_fragment()" />
-            </td>
-          </tr>
-        </table>
-    </tr>
+
     
     <tr>  
-
       <!-- html.SetValue('message', "Error") -->
     </tr>
 </table>

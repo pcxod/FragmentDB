@@ -123,13 +123,17 @@ class FragmentDB(PT):
     '''
     if ',' in occ:
       occ = occ.replace(',', '.')
-    else:
-      try:
-        float(occ)
-      except(SyntaxError, NameError, ValueError):
-        print('bad value for occupancy provided')
-        return
-    OV.SetParam('fragment_DB.fragment.frag_occ', occ)
+    try:
+      float(occ)
+    except(SyntaxError, NameError, ValueError):
+      print('bad value for occupancy provided')
+      return
+    varname = 'fragment_DB.fragment.frag_occ'
+    OV.SetParam(varname, occ)
+    # I want to do this, but it immediately forces the cursor to the left
+    # position:
+    #olx.html.SetValue('FRAG_OCCUPANCY', OV.GetParam(varname))
+    
 
   def set_resiclass(self, resiclass, name):
     '''
@@ -432,6 +436,9 @@ class FragmentDB(PT):
     '''
     atlist = []
     atoms = olex.f("sel()").split()
+    if not atoms:
+      print('No atoms selected!')
+      return
     crd = [ olx.Crd(x) for x in atoms ]
     # now I want to remove the residue number:
     #atoms = [ y.split('_')[0] for y in atoms]
@@ -476,7 +483,7 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 530, 680
+    width, height = 530, 650
     path = "%s/inputfrag.htm" % (self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
@@ -735,7 +742,22 @@ class FragmentDB(PT):
     # Now delete the fields:
     if reset:
       self.reset_state()
- 
+  
+  def get_chemdrawstyle(self):
+    '''
+    opens a file dialog window to save the standard chemdraw style
+    '''
+    from shutil import copyfile
+    title = "Save Chemdrawstyle file"
+    filter = ''
+    location = '.'
+    stylename = None
+    default_name = 'chemdraw_style.cds'
+    stylename = olx.FileSave(title, filter, location, default_name)
+    if not stylename:
+      return
+    spath = "%s/drawstyle.cds" % (self.p_path)
+    copyfile(spath, stylename)
 
 fdb = FragmentDB()
 
@@ -750,7 +772,7 @@ OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
 OV.registerFunction(fdb.store_new_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
-OV.registerFunction(fdb.check_name,False,"FragmentDB")
+OV.registerFunction(fdb.get_chemdrawstyle,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_name,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_cell,False,"FragmentDB")
 OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
