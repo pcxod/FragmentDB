@@ -162,10 +162,10 @@ class DatabaseRequest():
   
 class FragmentTable():
   '''
-  >>> dbfile = 'tst1.sqlite'
+  >>> dbfile = 'tst.sqlite'
   >>> db = FragmentTable(dbfile)
-  >>> print db[2]
-  [('N1', '7', 5.2916, 0.1111, 10.84), ('N2', '7', 4.1672, 1.8088, 9.1734), ('C1', '6', 5.8369, -0.7123, 11.7478), ('C2', '6', 5.9368, -2.0826, 11.5626), ('C3', '6', 5.4664, -2.6325, 10.3782), ('C4', '6', 4.9264, -1.7885, 9.4165), ('C5', '6', 4.8535, -0.4237, 9.6802), ('C6', '6', 4.2675, 0.5478, 8.7222), ('C7', '6', 3.8265, 0.1802, 7.4491), ('C8', '6', 3.2516, 1.1452, 6.6304), ('C9', '6', 3.1267, 2.4421, 7.1103), ('C10', '6', 3.5991, 2.7331, 8.3809)]
+  >>> print db[3]
+  [('O1', '8', ' -0.7562', '  1.6521', ' -0.3348'), ('C1', '6', ' -2.1051', '  1.9121', ' -0.4223'), ('C2', '6', ' -2.5884', '  1.9919', ' -1.8717'), ('F1', '9', ' -1.9571', '  2.9653', ' -2.5781'), ('F2', '9', ' -3.9264', '  2.2817', ' -1.9122'), ('F3', '9', ' -2.4130', '  0.8316', ' -2.5460')]
 
   >>> for num, i in enumerate(db):
   ...   print(i)
@@ -191,12 +191,12 @@ class FragmentTable():
     Returns a database fragment if its name contains element of type int.
     E.g. db[2]
 
-    >>> dbfile = 'tst1.sqlite'
-    >>> 2 in FragmentTable(dbfile)
+    >>> dbfile = 'tst.sqlite'
+    >>> 3 in FragmentTable(dbfile)
     True
 
     >>> db = FragmentTable(dbfile)
-    >>> if 2 in db:
+    >>> if 3 in db:
     ...   print('yes')
     yes
 
@@ -204,12 +204,18 @@ class FragmentTable():
     Wrong type. Expected integer.
     False
 
-    >>> '2' in FragmentTable(dbfile)
+    >>> '3' in FragmentTable(dbfile)
     True
     
-    >>> 2 in FragmentTable(dbfile)
+    >>> 3 in FragmentTable(dbfile)
     True
 
+    >>> 999 in FragmentTable(dbfile)
+    False
+    
+    >>> "999" in FragmentTable(dbfile)
+    False
+    
     :param name: (partial) name of a database fragment.
     :type name: str
     '''
@@ -254,27 +260,21 @@ class FragmentTable():
       ...
     IndexError: Database fragment not found.
     
-    >>> for i in db[2]:
+    >>> for i in db[3]:
     ...   print(i)
-    ('N1', '7', 5.2916, 0.1111, 10.84)
-    ('N2', '7', 4.1672, 1.8088, 9.1734)
-    ('C1', '6', 5.8369, -0.7123, 11.7478)
-    ('C2', '6', 5.9368, -2.0826, 11.5626)
-    ('C3', '6', 5.4664, -2.6325, 10.3782)
-    ('C4', '6', 4.9264, -1.7885, 9.4165)
-    ('C5', '6', 4.8535, -0.4237, 9.6802)
-    ('C6', '6', 4.2675, 0.5478, 8.7222)
-    ('C7', '6', 3.8265, 0.1802, 7.4491)
-    ('C8', '6', 3.2516, 1.1452, 6.6304)
-    ('C9', '6', 3.1267, 2.4421, 7.1103)
-    ('C10', '6', 3.5991, 2.7331, 8.3809)
+    ('O1', '8', ' -0.7562', '  1.6521', ' -0.3348')
+    ('C1', '6', ' -2.1051', '  1.9121', ' -0.4223')
+    ('C2', '6', ' -2.5884', '  1.9919', ' -1.8717')
+    ('F1', '9', ' -1.9571', '  2.9653', ' -2.5781')
+    ('F2', '9', ' -3.9264', '  2.2817', ' -1.9122')
+    ('F3', '9', ' -2.4130', '  0.8316', ' -2.5460')
 
     >>> dblen = len(db)
     >>> print(db[dblen-1])
-    [('O1', '8', 0.2825, 16.5296, 4.5813), ('C1', '6', 0.9432, 17.3408, 3.5245), ('C2', '6', 1.0998, 16.3313, 2.3935), ('C3', '6', 2.292, 17.8677, 3.9709), ('C4', '6', -0.0098, 18.4574, 3.1231)]
+    [('O1', '8', '  0.2825', ' 16.5296', '  4.5813'), ('C1', '6', '  0.9432', ' 17.3408', '  3.5245'), ('C2', '6', '  1.0998', ' 16.3313', '  2.3935'), ('C3', '6', '  2.2920', ' 17.8677', '  3.9709'), ('C4', '6', ' -0.0098', ' 18.4574', '  3.1231')]
 
     >>> print(db[-1])
-    [('O1', '8', 0.2825, 16.5296, 4.5813), ('C1', '6', 0.9432, 17.3408, 3.5245), ('C2', '6', 1.0998, 16.3313, 2.3935), ('C3', '6', 2.292, 17.8677, 3.9709), ('C4', '6', -0.0098, 18.4574, 3.1231)]
+    [('O1', '8', '  0.2825', ' 16.5296', '  4.5813'), ('C1', '6', '  0.9432', ' 17.3408', '  3.5245'), ('C2', '6', '  1.0998', ' 16.3313', '  2.3935'), ('C3', '6', '  2.2920', ' 17.8677', '  3.9709'), ('C4', '6', ' -0.0098', ' 18.4574', '  3.1231')]
 
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
@@ -300,8 +300,8 @@ class FragmentTable():
     
     # have to create a copy of the db before I delete the entry:
     >>> import shutil
-    >>> shutil.copyfile('fragment-database.sqlite', 'tst.sqlite')
-    >>> dbfile = 'tst.sqlite'
+    >>> shutil.copyfile('tst.sqlite', 'tst1.sqlite')
+    >>> dbfile = 'tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> del db[2]
     >>> db[2]
@@ -323,11 +323,11 @@ class FragmentTable():
     after: 63
     
     >>> print db[-3][1]
-    ('F1', '9', 0.819, 0.819, 0.819)
+    ('F1', '9', '  0.8190', '  0.8190', '  0.8190')
     
     >>> del db[-3]
     >>> print db[-3][1]
-    ('C2', '6', 1.9035, 2.482, 2.4282)
+    ('C2', '6', '  1.9035', '  2.4820', '  2.4282')
     
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
