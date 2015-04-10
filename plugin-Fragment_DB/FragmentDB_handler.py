@@ -579,12 +579,12 @@ class FragmentTable():
     selected_results = [search_results[i] for i in sorted(search_results)[0:selection]]
     return selected_results
 
-  def store_fragment(self, fragment_name, atoms, resiclass=None, restraints=None, tag=None,
+  def store_fragment(self, fragment_name, atoms, resiclass=None, restraints=None,
                      reference=None, comment=None, picture=None):
     '''
     Store a complete new fragment into the database. Minimal requirement is a
-    fragment name (Full chemical name) and a list of atoms. Restraints, short
-    name tag, reference and comments are optional.
+    fragment name (Full chemical name) and a list of atoms. Restraints, 
+    reference and comments are optional.
 
     :param fragment_name: full chemical name of the fragment
     :type fragment_name: string
@@ -592,8 +592,6 @@ class FragmentTable():
     :type atoms: list
     :param restraints: [['DFIX', '1.564', 'C1 C2'], ['SADI', 'C2 C3 C4 C5']]
     :type restraints: list of list
-    :param tag: short name tag (not mandatory)
-    :type tag: string
     :param reference: optional short description where it came from
     :type reference: string
     :param comment: optional any comment about the fragment
@@ -604,7 +602,7 @@ class FragmentTable():
     '''
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
-    FragmentId = self._fill_fragment_table(fragment_name, tag, resiclass, 
+    FragmentId = self._fill_fragment_table(fragment_name, resiclass, 
                                            reference, comment, picture)
     if not FragmentId:
       raise Exception('No Id obtained during fragment storage.')
@@ -616,25 +614,23 @@ class FragmentTable():
     return FragmentId
 
 
-  def _fill_fragment_table(self, fragment_name, tag=None, resiclass=None, 
+  def _fill_fragment_table(self, fragment_name, resiclass=None, 
                            reference=None, comment=None, picture=None):
     '''
     Fills a fragment into the database.
     :param fragment_name: Nam eof the Fragment
     :type fragment_name: str
-    :param tag: short name tag (not mandatory)
-    :type tag: str
     :param comment: any comment about the fragment
     :type comment: str
     :rtype list: last_rowid
     '''
-    table = (tag, resiclass, fragment_name, reference, comment, picture)
-    req = '''INSERT INTO Fragment (tag, class, name, reference, comment, picture) 
-                            VALUES(?,     ?,     ?,      ?,        ?,       ?   )'''
+    table = (resiclass, fragment_name, reference, comment, picture)
+    req = '''INSERT INTO Fragment (class, name, reference, comment, picture) 
+                            VALUES(?,     ?,      ?,        ?,       ?   )'''
     return self.database.db_request(req, table)
 
 
-  def _fill_atom_table(self, FragmentId, atom_table, tag=None):
+  def _fill_atom_table(self, FragmentId, atom_table):
     '''
     Fills atoms into the Atoms table.
     [('C1', '6', 1.2, -0.023, 3.615), ('C2', '6', 1.203, -0.012, 2.106), ...]
@@ -661,9 +657,9 @@ class FragmentTable():
         x = line[2]
         y = line[3]
         z = line[4]
-        req = '''INSERT INTO atoms (FragmentId, tag, Name, element,
-                x, y, z) VALUES(?, ?, ?, ?, ?, ?, ?)'''
-        self.database.db_request(req, (FragmentId, tag, Name, element, x, y, z))
+        req = '''INSERT INTO atoms (FragmentId, Name, element, x, y, z) 
+                             VALUES(     ?,      ?,     ?,     ?, ?, ?)'''
+        self.database.db_request(req, (FragmentId, Name, element, x, y, z))
 
 
   def _fill_restraint_table(self, FragmentId, restraints_list):
@@ -748,11 +744,10 @@ if __name__ == '__main__':
                 ('RIGU' 'C1 > F2'))
   reference = 'sdfg ayrfgrawg adrgaegh ef'
   fragment_name=table[1]
-  tag= 'benz'
   comment = 'asfgagr'
   
   id = False
-  #id = db.store_fragment(fragment_name, atoms, restraints2, tag, reference, comment)
+  #id = db.store_fragment(fragment_name, atoms, restraints2, reference, comment)
   if id:
     print('stored', id)
 
