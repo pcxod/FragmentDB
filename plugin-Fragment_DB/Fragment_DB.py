@@ -533,6 +533,25 @@ class FragmentDB(PT):
   def set_frag_atoms(self):
     '''
     handles the fragment atoms of a new/edited fragment
+    C1 1 x y z 11.0 U U =   U U U U
+    C1 1 x y z 11.0
+    next atom after the fifth list element has to start with a character
+    and not "=", otherwise it is a U value
+    
+    
+          for num, i in enumerate(atoms):
+        if num >= 5 and not i[0].isalpha():
+            del atoms[6]
+            continue
+          atomline = atoms[i:i+5]
+          if len(atomline) < 5:
+            #print("Parameter of Atom {} missing".format(atomline[0]))
+            continue
+          atlines.append(' '.join(atomline))
+
+    take the firat 5 elements from the string, delete them, check ich first char from
+    the next list element isalpha(), otherwise delete the next element as long as the 
+    first char of the next string isalpha().
     '''
     atlines = []
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
@@ -542,6 +561,7 @@ class FragmentDB(PT):
       atoms = None
       return
     try:
+      # atoms is a string with all atoms in one line
       for i in range(0, len(atoms), 5):
           atomline = atoms[i:i+5]
           if len(atomline) < 5:
