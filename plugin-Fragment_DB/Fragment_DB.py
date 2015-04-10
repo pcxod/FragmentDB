@@ -157,7 +157,7 @@ class FragmentDB(PT):
       olx.html.SetValue(name, OV.GetParam(varname))
     else:
       OV.SetParam(varname, resiclass.upper())
-      olx.html.SetValue(name, OV.GetParam(varname))
+      #olx.html.SetValue(name, OV.GetParam(varname))
     
   def list_fragments(self):
     '''
@@ -474,10 +474,11 @@ class FragmentDB(PT):
     '''
     opens a new window to input/update a database fragment
     '''
+    blank = False
     try:
       olx.GetVar('fragment_ID')
     except RuntimeError:
-      return
+      blank = True
     pop_name = "Inputfrag"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
@@ -487,6 +488,9 @@ class FragmentDB(PT):
     path = "%s/inputfrag.htm" % (self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
+    if blank:
+      self.blank_state()
+      return
     self.get_frag_for_gui()
     self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
@@ -654,6 +658,9 @@ class FragmentDB(PT):
     '''
     execute this to update a fragment
     updates the database information of a fragment
+    
+    TODO: make syntax check for restraints and atom names
+          - they have to fit together!
     '''
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')    
     state = self.set_frag_name(enable_check=False)
@@ -713,6 +720,9 @@ class FragmentDB(PT):
   def store_new_fragment(self, atlines, restraints, resiclass):
     '''
     add a new fragment to the database
+    
+    TODO: make syntax check for restraints and atom names
+    - they have to fit together!
     '''
     # check if the given name already exist in the database
     # store fragment with a new number
@@ -741,7 +751,7 @@ class FragmentDB(PT):
     self.get_frag_for_gui()
     
 
-  def reset_state(self):
+  def blank_state(self):
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
     olx.html.SetValue('Inputfrag.set_cell', '')
     olx.html.SetValue('Inputfrag.set_name', '')
@@ -761,7 +771,7 @@ class FragmentDB(PT):
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     # Now delete the fields:
     if reset:
-      self.reset_state()
+      self.blank_state()
   
   def get_chemdrawstyle(self):
     '''
