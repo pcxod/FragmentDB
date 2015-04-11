@@ -50,17 +50,15 @@ Fragen und Ideen:
 - Olex2 should not delete any atom while fragment fit/AddAtom()
 - I might insert new atoms just by selected atoms? with a button "from selection"?
 - I would like to replace atoms in 1 A around the fitting fragment. I should implement a replace mode.
-- OV.registerFunction() should warn about initialisation of non-existent functions
 - check state of input/edit and only allow "add new" if at least atoms and class
   are present
-- what can I do against accidentally editing of input-combo
-
-- make one "edit" and one "insert" button. this way i need only one input-combo! 
 - how can I set the curso to the end of a edit box?
 - If Inputfrag window is open, also update the fields when selecting different fragments in 
   the combo-box
 - Use a fixed font in the text fields. Works but looks bretty ugly!
 - When I come back from a different plugin, the image is not diplayed anymore
+- warn about duplicate atom names in atoms list
+- update fragment deletes the picture! set_fragment_picture?
 '''
 
 
@@ -536,26 +534,9 @@ class FragmentDB(PT):
 
   def set_frag_atoms(self):
     '''
-    handles the fragment atoms of a new/edited fragment
-    C1 1 x y z 11.0 U U =   U U U U
-    C1 1 x y z 11.0
-    next atom after the fifth list element has to start with a character
-    and not "=", otherwise it is a U value
-    
-    
-          for num, i in enumerate(atoms):
-        if num >= 5 and not i[0].isalpha():
-            del atoms[6]
-            continue
-          atomline = atoms[i:i+5]
-          if len(atomline) < 5:
-            #print("Parameter of Atom {} missing".format(atomline[0]))
-            continue
-          atlines.append(' '.join(atomline))
-
-    take the firat 5 elements from the string, delete them, check ich first char from
-    the next list element isalpha(), otherwise delete the next element as long as the 
-    first char of the next string isalpha().
+    -handles the fragment atoms of a new/edited fragment
+    -returns a list of lists:
+     [['C4', '1', '0.282212', '0.368636', '0.575493'], ...]
     '''
     atlines = []
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
@@ -564,15 +545,45 @@ class FragmentDB(PT):
     except AttributeError:
       atoms = None
       return
-    try:
-      # atoms is a string with all atoms in one line
-      for i in range(0, len(atoms), 5):
-          atomline = atoms[i:i+5]
-          if len(atomline) < 5:
-            continue
-          atlines.append(' '.join(atomline))
-    except TypeError:
-      pass
+    return self.atoms_parser(atoms)
+
+
+  def atoms_parser(self, atoms):
+    '''
+    formats the atoms from shelx as long string to a list of list with
+    exactly fife items: Atom SFAC x y z
+    :param atoms: string of atoms
+    '''
+    atline = []
+    atlines = []
+    for num, i in enumerate(atoms):
+      atline.append(i)
+      try:
+        # cut the long list in chuncs of atoms:
+        if num > 1 and atoms[num+1][0].isalpha():
+          atlines.append(atline)
+          atline = []
+      except IndexError:
+        # the last atom has no num+1
+        atlines.append(atline)
+    # go through all atoms and cut their line to 5 list elements At SFAC x y z:
+    for num, line in enumerate(atlines):
+      if len(line) > 5:
+        atlines[num] = line[:5]
+      if len(line) < 5:
+        # too short, parameters missing
+        print('Bad atom line found!! Parameter(s) missing.')
+      for x in line[1:5]:
+        # check if each is a rea number except for the atom:
+        try:
+          float(x)
+        except:
+          # if something is wrong, determine the bad guy:
+          for i in x:
+            if not i.isdigit() and i != '.':
+              print('Bad charachter {} in line.'.format(i))
+              continue
+          print('Bad atom line found!')
     return atlines
 
 
@@ -614,7 +625,7 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:4.4s} {:<3} {:>8.4f} {:>8.4f} {:>8.4f}'.format(*i))
+      atlist.append('{:5.4s} {:<3} {:>8.4f} {:>8.4f} {:>8.4f}'.format(*i))
     at = ' \n'.join(atlist)
     return at
 
@@ -677,7 +688,6 @@ class FragmentDB(PT):
       pic_data = ''
     coords = []
     for line in atlines:
-      line = line.split()
       frac_coord = [ float(i) for i in line[2:5] ]
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
@@ -734,7 +744,6 @@ class FragmentDB(PT):
       pic_data = ''
     coords = []
     for line in atlines:
-      line = line.split()
       frac_coord = [ float(i) for i in line[2:5] ]
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
