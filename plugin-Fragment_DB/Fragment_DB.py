@@ -279,7 +279,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, name, max_size=100):
+  def set_fragment_picture(self, max_size=100):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -489,8 +489,9 @@ class FragmentDB(PT):
     if blank:
       self.blank_state()
       return
-    self.get_frag_for_gui()
-    self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
+    else:
+      self.get_frag_for_gui()
+      self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
   
   def set_frag_name(self, enable_check=True):
@@ -685,6 +686,7 @@ class FragmentDB(PT):
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
+      print('No picture found')
       pic_data = ''
     coords = []
     for line in atlines:
@@ -698,17 +700,20 @@ class FragmentDB(PT):
                                 picture=pic_data)
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-    olx.SetVar('fragment_ID', id)
-    olx.html.SetValue('RESIDUE_CLASS', '')
-    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+      olx.SetVar('fragment_ID', id)
+    else:
+      print('Something is wrong with fragment storage.')
     self.get_frag_for_gui()
+    self.set_fragment_picture(100)
+    #olx.html.SetValue('RESIDUE_CLASS', '')
+    #olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+
   
   def get_frag_for_gui(self):
     '''
     get the fragment to display in the multiline edit field
     '''
     fragId = olx.GetVar('fragment_ID')
-    #db = FragmentTable(self.dbfile)
     at = self.prepare_atoms_list(fragId)
     if not at:
       return
@@ -820,6 +825,5 @@ OV.registerFunction(fdb.set_frag_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.set_frag_restraints,False,"FragmentDB")
 OV.registerFunction(fdb.prepare_residue_class,False,"FragmentDB")
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
