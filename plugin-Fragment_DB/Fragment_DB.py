@@ -58,7 +58,7 @@ Fragen und Ideen:
 - Use a fixed font in the text fields. Works but looks bretty ugly!
 - When I come back from a different plugin, the image is not diplayed anymore
 - warn about duplicate atom names in atoms list
-- update fragment deletes the picture! set_fragment_picture?
+- update fragment creates a wired bug on the Mac. The picture is not valid any more!
 '''
 
 
