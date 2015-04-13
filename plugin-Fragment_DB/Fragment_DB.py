@@ -5,50 +5,34 @@ from PIL import Image, ImageFile
 OV = OlexFunctions()
 
 '''
-
 Fragen und Ideen:
 
-- add search field which decreases the options in the input combobox.
+- add search field which decreases the options in the input combobox. Maybe type directly into 
+  the combo-box and run "find_fragment_by_name()" with "onchange" to get back a shorter list?
 - possibility to add sump to the free variable
 - Checkbox for "use DFIX"
-- Make GUI more compact.
-- how can I color already used residue numbers red in the spinner?
-- Problem solved by using olx.xf.au.SetAtomOccu(id, occupancy), but now Olex2 tells me an 
-  occupancy of 2 directly after the fit, but the value in the file and after refinement is the correct 
-  value of 1.
-- I would like to see the residue numbers of the atoms on changing the number 
-  like with part numbers
-- fit fragment to or near selected atoms/Q-peaks (cctbx model_matches())
+- I would like to see the residue numbers of the atoms on changing the number like with part numbers
+- fit fragment to or near selected atoms/Q-peaks
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
   make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
 - observe disagreeable restraints and warn user
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 - having to put symmetric fragments into negative part is a problem!
-- build routines to insert new fragments to db for users
 - a working SAME_resiclass atomlist would be great for repeating residues!
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
   (which is ok) but the restraints like SIMU N1 C1 C2 C3 C4 miss the nitrogen.
-- in mode fit: clicking two times the same atom pair makes strange things.
-- If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for this fragment 
-  and not expand to symmetry equivalent atoms like 
+- If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for 
+  this fragment and not expand to symmetry equivalent atoms like 
   EQIV $4 -1+X,1+Y,+Z
   DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
 - Is it possible to use javascript in Olex2? For JSmol for example?
-- How can I set a default value for snippets/input-combo out of the list of fragments?
 - On MAC systems the drop down selector can not be toggeled with the arrow keys.
-- das bild in ein <a href="function"> BILD</a> einbinden
-
 - maybe first apply relative restraints and then analyze the residuals. If they are bad try automatic 
   generated direct restraints. 
-  
-- which format should the atoms in the "insert atoms" windows have?
-  Name   element  x  y  z
-  C1     6        1  2  3
 - what should we do about duplicated atom labels? should we do anything? seem to work fine.
 - how can I set a fragment as default upon startup and activate it's picture? 
-- Olex2 should not delete any atom while fragment fit/AddAtom()
-- I might insert new atoms just by selected atoms? with a button "from selection"?
+- AddAtom() should have an option that prevents atom deletion of existing atoms.
 - I would like to replace atoms in 1 A around the fitting fragment. I should implement a replace mode.
 - check state of input/edit and only allow "add new" if at least atoms and class
   are present
@@ -59,6 +43,7 @@ Fragen und Ideen:
 - When I come back from a different plugin, the image is not diplayed anymore
 - warn about duplicate atom names in atoms list
 - update fragment creates a wired bug on the Mac. The picture is not valid any more!
+- Color already used residue numbers red in the spinner?
 '''
 
 
