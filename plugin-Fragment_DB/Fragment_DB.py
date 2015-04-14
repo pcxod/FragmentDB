@@ -45,6 +45,8 @@ Fragen und Ideen:
 - Color already used residue numbers red in the spinner?
 
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
+
+- select, sel -i, showh a False, center, mpln (how?), pict test.png nbg
 '''
 
 
@@ -513,7 +515,7 @@ class FragmentDB(PT):
         return False
       try:
         cell = [float(i) for i in frag_cell.split()]
-      except ValueError, TypeError:
+      except(ValueError, TypeError):
         print('Bad unit cell given!')
         return False
     self.frag_cell = cell
