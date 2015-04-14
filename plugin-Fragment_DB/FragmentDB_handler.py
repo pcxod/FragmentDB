@@ -6,12 +6,13 @@ Created on 09.10.2014
 '''
 import sys
 import os
+from collections import Counter
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
 
-__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'restraint_check', 
+__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'check_restraints_consistency', 
            'SHX_CARDS', 'RESTRAINT_CARDS']
 
 
@@ -70,6 +71,16 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   '''
   status = True
   atoms = [i[0].upper() for i in atoms]
+  # check for duplicates:
+  if len(set(atoms)) != len(atoms):
+            c1 = Counter(atoms)
+            c2 = Counter(set(atoms))
+            diff = c1 - c2
+            duplicates = list(diff.elements())
+            for i in duplicates:
+                print('\nDuplicate atom "{}" found!\n'.format(duplicates.pop()))
+                status = False
+  # check if restraint cards are valid
   restraint_atoms_list = set([])
   for n, line in enumerate(restraints):
     if not line:
@@ -81,7 +92,6 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
       status = False
       print('Bad line in header of database entry "{}" found!'.format(n, fragment_name))
       print(line)
-      sys.exit(status)
     if line[:4] in RESTRAINT_CARDS:
       line = line[5:].split()
       for i in line:
@@ -91,11 +101,12 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
           float(i)
         except(ValueError):
           restraint_atoms_list.add(i)
+  # check if restrained atoms are in th eatom list:
   for atom in restraint_atoms_list:
     atom = atom.upper()
     if not atom in atoms:
       status = False
-      print('\nBad atom "{}" in restraints of "{}".'.format(atom, fragment_name))
+      print('\nUnknown atom "{}" in restraints of "{}".'.format(atom, fragment_name))
   if not status:
     print('Check database entry.\n')
   return status

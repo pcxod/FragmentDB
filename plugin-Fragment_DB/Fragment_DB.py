@@ -41,7 +41,6 @@ Fragen und Ideen:
   the combo-box
 - Use a fixed font in the text fields. Works but looks bretty ugly!
 - When I come back from a different plugin, the image is not diplayed anymore
-- warn about duplicate atom names in atoms list
 - update fragment creates a wired bug on the Mac. The picture is not valid any more!
 - Color already used residue numbers red in the spinner?
 '''
@@ -659,6 +658,7 @@ class FragmentDB(PT):
     TODO: make syntax check for restraints and atom names
           - they have to fit together!
     '''
+    from FragmentDB_handler import check_restraints_consistency
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')    
     state = self.set_frag_name(enable_check=False)
     if not state:
@@ -683,6 +683,8 @@ class FragmentDB(PT):
       line[2:5] = coord
       coords.append(line)
     self.delete_fragment(reset=False)
+    if not check_restraints_consistency(restraints, atlines, fragname):
+      return
     id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
