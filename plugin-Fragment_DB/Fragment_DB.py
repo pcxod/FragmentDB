@@ -2,6 +2,7 @@ from olexFunctions import OlexFunctions
 from collections import OrderedDict
 import StringIO
 from PIL import Image, ImageFile
+from FragmentDB_handler import check_restraints_consistency
 OV = OlexFunctions()
 
 '''
@@ -16,7 +17,6 @@ Fragen und Ideen:
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
   make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
 - observe disagreeable restraints and warn user
-- can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 - having to put symmetric fragments into negative part is a problem!
 - a working SAME_resiclass atomlist would be great for repeating residues!
@@ -43,6 +43,8 @@ Fragen und Ideen:
 - When I come back from a different plugin, the image is not diplayed anymore
 - update fragment creates a wired bug on the Mac. The picture is not valid any more!
 - Color already used residue numbers red in the spinner?
+
+- can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 '''
 
 
@@ -658,7 +660,6 @@ class FragmentDB(PT):
     TODO: make syntax check for restraints and atom names
           - they have to fit together!
     '''
-    from FragmentDB_handler import check_restraints_consistency
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')    
     state = self.set_frag_name(enable_check=False)
     if not state:
@@ -740,10 +741,15 @@ class FragmentDB(PT):
     coords = []
     for line in atlines:
       frac_coord = [ float(i) for i in line[2:5] ]
+      if len(frac_coord) < 3:
+        print('Coordinate value missing in "{}"!!!'.format(' '.join(line)))
+        continue
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
       coords.append(line)
     print('Adding fragment "{0}" to the database.'.format(fragname))
+    if not check_restraints_consistency(restraints, atlines, fragname):
+      return
     id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 picture=pic_data)
     if id:
