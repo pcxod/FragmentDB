@@ -716,6 +716,9 @@ class Restraints():
     self.database = DatabaseRequest(dbfile)
 
   def get_restraints_from_fragmentId(self, fragment_id):
+    '''
+    returns the restraints from a database entry
+    '''
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
       FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
