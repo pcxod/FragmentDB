@@ -68,6 +68,7 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   - Checks if the Atomnames in the restraints of the dbhead are also in
     the list of the atoms of the respective dbentry.
   - Checks wether restraints cards are vaid.
+  - checks for duplicated atoms in the atoms list
   '''
   status = True
   atoms = [i[0].upper() for i in atoms]
@@ -718,6 +719,12 @@ class Restraints():
   def get_restraints_from_fragmentId(self, fragment_id):
     '''
     returns the restraints from a database entry
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> res = Restraints(dbfile)    
+    >>> res.get_restraints_from_fragmentId(7)
+    [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
+    
     '''
     req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
       FROM Restraints WHERE FragmentId = ?'''

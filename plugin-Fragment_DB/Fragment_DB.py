@@ -649,6 +649,8 @@ class FragmentDB(PT):
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
+    if not check_restraints_consistency(restraints, atoms, fragname):
+      return
     self.store_new_fragment(atoms, restraints, resiclass)
 
   
@@ -678,14 +680,12 @@ class FragmentDB(PT):
     for line in atlines:
       frac_coord = [ float(i) for i in line[2:5] ]
       if len(frac_coord) < 3:
-        print('Coordinate value missing in "{}"!!!'.format(' '.join(line)))
-        continue
+        print('Coordinate value missing in "{}".'.format(' '.join(line)))
+        return
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
       coords.append(line)
     self.delete_fragment(reset=False)
-    if not check_restraints_consistency(restraints, atlines, fragname):
-      return
     id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
@@ -697,7 +697,7 @@ class FragmentDB(PT):
     self.get_frag_for_gui()
     self.set_fragment_picture(100)
     #olx.html.SetValue('RESIDUE_CLASS', '')
-    #olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
 
   
   def get_frag_for_gui(self):
