@@ -676,13 +676,16 @@ class FragmentDB(PT):
     coords = []
     for line in atlines:
       frac_coord = [ float(i) for i in line[2:5] ]
+      if len(frac_coord) < 3:
+        print('Coordinate value missing in "{}"!!!'.format(' '.join(line)))
+        continue
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
       coords.append(line)
     self.delete_fragment(reset=False)
-    print('Updating fragment "{0}".'.format(fragname))
     id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 picture=pic_data)
+    print('Updated fragment "{0}".'.format(fragname))
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
       olx.SetVar('fragment_ID', id)

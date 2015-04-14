@@ -122,8 +122,8 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile)
     self.con.execute("PRAGMA foreign_keys = ON")
-    self.con.text_factory = str
-    #self.con.text_factory = bytes
+    #self.con.text_factory = str
+    #self.con.text_factory = sqlite3.OptimizedUnicode
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
@@ -624,6 +624,7 @@ class FragmentTable():
     :type comment: str
     :rtype list: last_rowid
     '''
+    picture = sqlite3.Binary(picture)
     table = (resiclass, fragment_name, reference, comment, picture)
     req = '''INSERT INTO Fragment (class, name, reference, comment, picture) 
                             VALUES(?,     ?,      ?,        ?,       ?   )'''
