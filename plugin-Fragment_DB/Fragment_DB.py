@@ -1,9 +1,11 @@
 from olexFunctions import OlexFunctions
 from collections import OrderedDict
+from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile
 from FragmentDB_handler import check_restraints_consistency
 OV = OlexFunctions()
+IT = ImageTools()
 
 '''
 Fragen und Ideen:
@@ -46,7 +48,6 @@ Fragen und Ideen:
 
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 
-- select, sel -i, showh a False, center, mpln (how?), pict test.png nbg
 '''
 
 
@@ -471,7 +472,7 @@ class FragmentDB(PT):
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
     width, height = 530, 650
-    path = "%s/inputfrag.htm" % (self.p_path)
+    path = "{}/inputfrag.htm".format(self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
               x=box_x, y=box_y)
     if blank:
@@ -549,7 +550,7 @@ class FragmentDB(PT):
       atline.append(i)
       try:
         # cut the long list in chuncs of atoms:
-        if num > 1 and atoms[num+1][0].isalpha():
+        if num > 2 and atoms[num+1][0].isalpha():
           atlines.append(atline)
           atline = []
       except IndexError:
@@ -651,8 +652,6 @@ class FragmentDB(PT):
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
-    if not check_restraints_consistency(restraints, atoms, fragname):
-      return
     self.store_new_fragment(atoms, restraints, resiclass)
 
   
@@ -687,6 +686,8 @@ class FragmentDB(PT):
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[2:5] = coord
       coords.append(line)
+    if not check_restraints_consistency(restraints, atlines, fragname):
+      return
     self.delete_fragment(reset=False)
     id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 picture=pic_data)
@@ -801,8 +802,47 @@ class FragmentDB(PT):
     spath = "%s/drawstyle.cds" % (self.p_path)
     copyfile(spath, stylename)
 
+  def make_selctions_picture(self):
+    '''
+    creates a picture from the currently selected fragment in Olex2 and 
+    stores it in 'storepic.png' as well as 'displaypic.png'
+    
+    TODO: Handle case where no atom is selected!!!
+    '''
+    import ImageTools
+    # "select with mouse"
+    # if showh a True:
+      # "showh a False"
+      # hstatus = True
+    picfile = "fdb_tmp.png"
+    OV.cmd("showh a False")
+    OV.cmd("sel -i")
+    OV.cmd("hide")
+    OV.cmd("center")
+    OV.cmd("sel -i")
+    OV.cmd("mpln -n")
+    OV.cmd("picta fdb_tmp.png -nbg")
+    OV.cmd("showP -m")
+    # if hstatus:
+      # "showh a True"
+    OV.cmd("showh a True")
+    im = Image.open(picfile)
+    im = IT.trim_image(im)
+    #im = self.prepare_picture(im, max_size=100)
+    OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
+    # display it.
+    im = self.prepare_picture(im, max_size=100)
+    OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
+    olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
+    try:
+      os.remove(picfile)
+    except:
+      pass
+    
+
 fdb = FragmentDB()
 
+OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
 OV.registerFunction(fdb.get_selected_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
 OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
