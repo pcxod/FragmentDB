@@ -422,16 +422,22 @@ class FragmentDB(PT):
     returns the currently selected atoms for the atoms field
     '''
     atlist = []
-    atoms = olex.f("sel()").split()
-    if not atoms:
+    atoms = []
+    atoms_all = olex.f("sel(a)").split()
+    if not atoms_all:
       print('No atoms selected!')
       return
+    # make a list without H atoms:
+    for at in atoms_all:
+      if at[0] == 'H' and at[:2] not in ('He', 'Hf', 'Ho', 'Hg'):
+        continue
+      atoms.append(at)
+    atoms.sort()
     crd = [ olx.Crd(x) for x in atoms ]
     # now I want to remove the residue number:
     #atoms = [ y.split('_')[0] for y in atoms]
     for atom, coord in zip(atoms, crd):
       atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
-    #print(atlist)
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
@@ -659,9 +665,6 @@ class FragmentDB(PT):
     '''
     execute this to update a fragment
     updates the database information of a fragment
-    
-    TODO: make syntax check for restraints and atom names
-          - they have to fit together!
     '''
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')    
     state = self.set_frag_name(enable_check=False)
@@ -729,9 +732,6 @@ class FragmentDB(PT):
   def store_new_fragment(self, atlines, restraints, resiclass):
     '''
     add a new fragment to the database
-    
-    TODO: make syntax check for restraints and atom names
-    - they have to fit together!
     '''
     # check if the given name already exist in the database
     # store fragment with a new number
@@ -806,14 +806,11 @@ class FragmentDB(PT):
     '''
     creates a picture from the currently selected fragment in Olex2 and 
     stores it in 'storepic.png' as well as 'displaypic.png'
-    
-    TODO: Handle case where no atom is selected!!!
     '''
     import ImageTools
     # "select with mouse"
-    # if showh a True:
-      # "showh a False"
-      # hstatus = True
+    if not olex.f("sel()").split():
+      return
     picfile = "fdb_tmp.png"
     OV.cmd("showh a False")
     OV.cmd("sel -i")
@@ -823,12 +820,9 @@ class FragmentDB(PT):
     OV.cmd("mpln -n")
     OV.cmd("picta fdb_tmp.png -nbg")
     OV.cmd("showP -m")
-    # if hstatus:
-      # "showh a True"
     OV.cmd("showh a True")
     im = Image.open(picfile)
     im = IT.trim_image(im)
-    #im = self.prepare_picture(im, max_size=100)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
     im = self.prepare_picture(im, max_size=100)
