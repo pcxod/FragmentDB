@@ -548,9 +548,10 @@ class FragmentDB(PT):
 
   def atoms_parser(self, atoms):
     '''
-    formats the atoms from shelx as long string to a list of list with
+    formats the atoms from shelx as long list to a list of list with
     exactly fife items: Atom SFAC x y z
-    :param atoms: string of atoms
+    :param atoms: line of atoms
+    :type atoms: list
     '''
     atline = []
     atlines = []
@@ -558,7 +559,7 @@ class FragmentDB(PT):
       atline.append(i)
       try:
         # cut the long list in chuncs of atoms:
-        if num > 2 and atoms[num+1][0].isalpha():
+        if num > 3 and atoms[num+1][0].isalpha():
           atlines.append(atline)
           atline = []
       except IndexError:
