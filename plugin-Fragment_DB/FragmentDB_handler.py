@@ -70,6 +70,9 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   - Checks wether restraints cards are vaid.
   - checks for duplicated atoms in the atoms list
   '''
+  if not restraints:
+    print('No restraints found!')
+    return True
   status = True
   atoms = [i[0].upper() for i in atoms]
   # check for duplicates:

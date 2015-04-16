@@ -47,7 +47,7 @@ Fragen und Ideen:
 - Color already used residue numbers red in the spinner?
 
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
-
+- How should I handle residues when putting selected atoms to the atoms list? 
 '''
 
 
@@ -210,7 +210,10 @@ class FragmentDB(PT):
     '''
     applies restraints to atoms
     '''
-    for num, i in enumerate(self.db.get_restraints(fragId)):
+    restraints = self.db.get_restraints(fragId)
+    if not restraints:
+      return
+    for num, i in enumerate(restraints):
       # i[0] is restraint like SADI or DFIX
       # i[1] is a string of atoms like 'C1 C2'
       restraint_atoms = i[1]
@@ -515,17 +518,22 @@ class FragmentDB(PT):
     set the unit cell of a new fragment to convert its coordinates to cartesian
     '''
     self.frag_cell = ''
-    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell').split()
     if frag_cell:
       if len(frag_cell) < 6:
-        print('Bad unit cell')
+        print('\nBad unit cell. Only {} values instead of 6.'.format(len(frag_cell)))
         return False
       try:
-        cell = [float(i) for i in frag_cell.split()]
+        cell = [float(i) for i in frag_cell]
       except(ValueError, TypeError):
         print('Bad unit cell given!')
         return False
+    else:
+      print('\nNo unit cell found!')
+      print('You have to supply a unit cell!')
+      return False
     self.frag_cell = cell
+    return True
 
 
   def set_frag_atoms(self):
@@ -641,6 +649,8 @@ class FragmentDB(PT):
     prepare the fragment restraints to display in a multiline edit field
     ''' 
     restr_list = self.db.get_restraints(fragId)
+    if not restr_list:
+      return 
     restr_list = [[str(i) for i in y] for y in restr_list]
     restr = ' \n'.join(['  '.join(i) for i in restr_list])
     return restr
@@ -654,7 +664,8 @@ class FragmentDB(PT):
     state = self.set_frag_name()
     if not state:
       return
-    self.set_frag_cell()
+    if not self.set_frag_cell():
+      return False
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
@@ -670,7 +681,8 @@ class FragmentDB(PT):
     state = self.set_frag_name(enable_check=False)
     if not state:
       return
-    self.set_frag_cell()
+    if not self.set_frag_cell():
+      return False
     atlines = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
