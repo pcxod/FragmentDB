@@ -48,6 +48,7 @@ Fragen und Ideen:
 
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle residues when putting selected atoms to the atoms list? 
+- What to do about SAME restraints?
 '''
 
 
@@ -87,22 +88,8 @@ class FragmentDB(PT):
     # for edited fragments:
     self.frag_cell = []
     self.db = FragmentTable(self.dbfile)
-    #OV.registerFunction(self.print_func,True,"FragmentDB")
-    #self.print_func()
 
 
-  def print_func(self):
-    import olex_core
-    #l = olex_core.ExportFunctionList()
-    #for i in l:
-    #  print(i)
-    for i in olex_core.ExportFunctionList():
-      for y in i:
-        try:
-          print(y)
-        except:
-          pass
-          
   def set_occu(self, occ):
     '''
     sets the occupancy, even if you enter a comma value instead of point as 
@@ -120,7 +107,6 @@ class FragmentDB(PT):
     # I want to do this, but it immediately forces the cursor to the left
     # position:
     #olx.html.SetValue('FRAG_OCCUPANCY', OV.GetParam(varname))
-    
 
   def set_resiclass(self, resiclass, name):
     '''
@@ -218,7 +204,7 @@ class FragmentDB(PT):
       # i[1] is a string of atoms like 'C1 C2'
       restraint_atoms = i[1]
       if '>' in restraint_atoms or '<' in restraint_atoms:
-        restraint_atoms = self.range_resolver(restraint_atoms, labeldict.keys())
+        restraint_atoms = self.range_resolver(restraint_atoms.split(), labeldict.keys())
       line = []
       for at in restraint_atoms.split():
         # is it a potential atom:
@@ -235,7 +221,6 @@ class FragmentDB(PT):
           line.append(at)
       # applies the restraint to atoms in line
       OV.cmd("{} {}".format(i[0], ' '.join(line)))
-
   
   def prepare_picture(self, im, max_size=100):
     '''
@@ -323,15 +308,17 @@ class FragmentDB(PT):
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
   
-  
   def range_resolver(self, restraintat, atom_names):
     '''
     resolves the atom names of ranges like "C1 > C5"
     works for each restraint line separately.
     TODO:
-    - does not work for SAME, need to resolve SADI!
+    - does not work for SAME! 
+    :param restraintat: atoms with a range definition
+    :type restraintat: list
+    :param atom_names: names of atoms in the fragment
+    :type atom_names: list
     '''
-    restraintat = restraintat.split()
     # dict with lists of positions of the > or < sign:
     rightleft = {'>':[], '<': []}
     for rl in rightleft:
@@ -518,10 +505,17 @@ class FragmentDB(PT):
     set the unit cell of a new fragment to convert its coordinates to cartesian
     '''
     self.frag_cell = ''
-    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell').split()
+    try:
+      frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell').split()
+    except(AttributeError):
+      print('No unit cell defined. You nedd to define unit cell parameters!')
+      return False
     if frag_cell:
       if len(frag_cell) < 6:
         print('\nBad unit cell. Only {} values instead of 6.'.format(len(frag_cell)))
+        return False
+      if len(frag_cell) > 6:
+        print('\nBad unit cell defined. {} values instead of 6.'.format(len(frag_cell)))
         return False
       try:
         cell = [float(i) for i in frag_cell]
@@ -694,7 +688,11 @@ class FragmentDB(PT):
       pic_data = ''
     coords = []
     for line in atlines:
-      frac_coord = [ float(i) for i in line[2:5] ]
+      try:
+        frac_coord = [ float(i) for i in line[2:5] ]
+      except(ValueError):
+        print('Bad coordinate defined in line "{}"'.format(' '.join(line)))
+        return
       if len(frac_coord) < 3:
         print('Coordinate value missing in "{}".'.format(' '.join(line)))
         return
