@@ -45,7 +45,8 @@
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Frag-FVAR-1;1 -->
-  <td width='20%'><b>%Part:%</b></td>
+  <td width='20%'><b>%Part:%</b>
+  </td>
   <td align='left' width='15%'>
     <font size="$GetVar('HtmlFontSizeControls')">
       <input
@@ -62,7 +63,8 @@
     </font>
   </td>
 
-  <td width='25%' align="right"><b>%Free variable:%</b></td>
+  <td width='25%' align="right"><b>%Free variable:%</b>
+  </td>
   <td align='left' width='15%'>
     <font size="$GetVar('HtmlFontSizeControls')">
       <input
@@ -79,7 +81,8 @@
     </font>
   </td>
 
-  <td width='15%'><b>%Occupancy:%</b></td>
+  <td width='15%'><b>%Occupancy:%</b>
+  </td>
   <td align='right' width='10%'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
@@ -114,6 +117,7 @@
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
         onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))"
   >
+  </td>
   <td width='50%' align='right'>
   <b>%Residue Class (4 character):%</b>
   </td>
@@ -130,7 +134,6 @@
   >
     </font>
   </td>
-  </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 
@@ -139,15 +142,17 @@
     $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
-  <td> 
-  <input 
-    type="label"
-    name = 'REFERENCE' 
-    value = 'spy.FragmentDB.show_reference()'
-  >
+  <td>
+    <td align="left"><font color="black"> <input
+      type="label" 
+      name="REFERENCE" 
+      bgcolor="$GetVar(HtmlTableBgColour)"
+      fgcolor="$GetVar(HtmlFontColour)"
+      width="100%" />
+    </font>
+    </td>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
-
 
 
 
