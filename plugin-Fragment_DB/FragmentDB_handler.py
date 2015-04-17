@@ -581,12 +581,19 @@ class FragmentTable():
     >>> db.get_reference(2)
     u'CCDC DOCYEB'
     
+    >>> db.get_reference(999)
+    ''
+    
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
     '''
     req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
     rows = self.database.db_request(req_ref, fragment_id)
-    return rows[0][0]
+    try:
+      ref = rows[0][0]
+      return ref
+    except(TypeError):
+      return ''
 
   def find_fragment_by_name(self, name, selection=5):
     '''
