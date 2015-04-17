@@ -110,7 +110,7 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     atom = atom.upper()
     if not atom in atoms:
       status = False
-      print('\nUnknown atom "{}" in restraints of "{}".'.format(atom, fragment_name))
+      print('Unknown atom "{}" in restraints of "{}".'.format(atom, fragment_name))
   if not status:
     print('Check database entry.\n')
   return status
@@ -398,7 +398,7 @@ class FragmentTable():
   
   def has_exact_name(self, name):
     '''
-    Returns True if a partial name is found in the DB.
+    Returns True if an exact name is found in the DB.
     
     >>> dbfile = 'tst1.sqlite'
     >>> db = FragmentTable(dbfile)
@@ -414,6 +414,23 @@ class FragmentTable():
     else:
       return False
   
+  def has_exact_resi_class(self, resi_class):
+    '''
+    Returns True if an exact residue class is found in the DB.
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> db.has_exact_resi_class('BENZ')
+    True
+    
+    >>> db.has_exact_resi_class('Benzene')
+    False
+    '''
+    req = '''SELECT class FROM Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
+    if self.database.db_request(req):
+      return True
+    else:
+      return False
   
   def has_index(self, Id):
     '''

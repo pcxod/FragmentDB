@@ -286,7 +286,15 @@ class FragmentDB(PT):
   
   def store_picture(self, title, filter, location, default_name=''):
     '''
-    opens a file dialog and stores the selected picture in the olex-vfs
+    opens a file dialog and stores the selected picture in the olex-vfs    
+    :param title: Title of the file dialog
+    :type title: string
+    :param filter: file endings filter like '*.png; *.tiff; *.tif; *.jpg; *.jpeg'
+    :type filter: sting
+    :param location: location of the path of file dialog
+    :type location: string
+    :param default_name: default preselected file name for the dialog 
+    :type default_name: string
     '''
     import random
     picfile = olx.FileOpen(title, filter, location, default_name)
@@ -503,6 +511,7 @@ class FragmentDB(PT):
   def set_frag_cell(self):
     '''
     set the unit cell of a new fragment to convert its coordinates to cartesian
+    the resulting cell is retrieved from phil and stored in self.frag_cell
     '''
     self.frag_cell = ''
     try:
@@ -647,7 +656,7 @@ class FragmentDB(PT):
     if not restr_list:
       return 
     restr_list = [[str(i) for i in y] for y in restr_list]
-    restr = ' \n'.join(['  '.join(i) for i in restr_list])
+    restr = '\n'.join(['  '.join(i) for i in restr_list])
     return restr
   
   
