@@ -23,6 +23,7 @@
               >>spy.FragmentDB.get_resi_class('RESIDUE_CLASS')
               >>spy.FragmentDB.set_fragment_picture(100)
               >>spy.FragmentDB.display_image('FDBMOLEPIC', 'displayimg.png')
+              >>spy.FragmentDB.show_reference()
               ",
     "readonly=false",
     "manage=true")
@@ -137,6 +138,13 @@
   <td width='50%' align='left'>
     $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
+  </td>
+  <td> 
+  <input 
+    type="label"
+    name = 'REFERENCE' 
+    value = 'spy.FragmentDB.show_reference()'
+  >
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 

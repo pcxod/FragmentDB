@@ -415,6 +415,17 @@ class FragmentDB(PT):
     # set the class in the text field of the gui:
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
   
+  def show_reference(self):
+    '''
+    show the reference of a fragment in the GUI
+    '''
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      return
+    ref = self.db.get_reference(fragId)
+    olx.html.SetValue('REFERENCE', ref)
+  
   def get_selected_atoms(self):
     '''
     returns the currently selected atoms for the atoms field
@@ -856,6 +867,7 @@ class FragmentDB(PT):
 
 fdb = FragmentDB()
 
+OV.registerFunction(fdb.show_reference,False,"FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
 OV.registerFunction(fdb.get_selected_atoms,False,"FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")

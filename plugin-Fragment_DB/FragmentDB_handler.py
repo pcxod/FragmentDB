@@ -448,8 +448,8 @@ class FragmentTable():
     False
     
     '''
-    req = '''SELECT Id FROM Fragment WHERE Fragment.Id = {}'''.format(Id)
-    if self.database.db_request(req):
+    req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
+    if self.database.db_request(req, Id):
       return True
     else:
       return False
@@ -494,8 +494,8 @@ class FragmentTable():
     '''
     req_atoms = '''SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
-      Fragment.Id = {}'''.format(fragment_id)
-    atomrows = self.database.db_request(req_atoms)
+      Fragment.Id = ?'''
+    atomrows = self.database.db_request(req_atoms, fragment_id)
     return atomrows
 
   def get_fragment_name(self, fragment_id):
@@ -510,9 +510,8 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = {}
-               '''.format(fragment_id)
-    name = self.database.db_request(req_name)[0]
+    req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ?  '''
+    name = self.database.db_request(req_name, fragment_id)[0]
     return name
   
   def get_picture(self, fragment_id):
@@ -528,10 +527,9 @@ class FragmentTable():
       int(fragment_id)
     except ValueError:
       return False
-    req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = {}
-               '''.format(fragment_id)
+    req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
     try:
-      picture = self.database.db_request(req_picture)[0][0]
+      picture = self.database.db_request(req_picture, fragment_id)[0][0]
     except TypeError:
       return None
     return picture
@@ -548,9 +546,8 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = {}
-               '''.format(fragment_id)
-    classname = self.database.db_request(req_class)
+    req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
+    classname = self.database.db_request(req_class, fragment_id)
     try:
       classname = classname[0][0]
     except(IndexError):
@@ -574,6 +571,22 @@ class FragmentTable():
             FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
+
+  def get_reference(self, fragment_id):
+    '''
+    returns the reference for Fragment(Id) from the database.
+    
+    >>> dbfile = 'tst1.sqlite'
+    >>> db = FragmentTable(dbfile)    
+    >>> db.get_reference(2)
+    u'CCDC DOCYEB'
+    
+    :param fragment_Id: id of the fragment in the database
+    :type fragment_Id: int
+    '''
+    req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
+    rows = self.database.db_request(req_ref, fragment_id)
+    return rows[0][0]
 
   def find_fragment_by_name(self, name, selection=5):
     '''
