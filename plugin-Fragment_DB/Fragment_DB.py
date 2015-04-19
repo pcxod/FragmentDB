@@ -701,7 +701,7 @@ class FragmentDB(PT):
     atlines = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
-    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    # frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
@@ -767,7 +767,7 @@ class FragmentDB(PT):
     # check if the given name already exist in the database
     # store fragment with a new number
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    # frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
