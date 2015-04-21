@@ -17,7 +17,7 @@
     html.Snippet("gui/snippets/input-combo",
     "name=LIST_FRAGMENTS",
     "items=spy.FragmentDB.list_fragments()",
-    "value=",
+    "value=''",
     "width=80%",
     "onchange=SetVar(fragment_ID, html.GetValue(~name~))
               >>spy.FragmentDB.get_resi_class('RESIDUE_CLASS')
@@ -25,6 +25,7 @@
               >>spy.FragmentDB.display_image('FDBMOLEPIC', 'displayimg.png')
               >>spy.FragmentDB.show_reference()
               ",
+    "onleave=spy.FragmentDB.search_fragments(~value~)",
     "readonly=false",
     "manage=true")
     $-
@@ -145,7 +146,8 @@
   <td>
     <td align="left"><font color="black"> <input
       type="label" 
-      name="REFERENCE" 
+      name="REFERENCE"
+      value="Reference:"
       bgcolor="$GetVar(HtmlTableBgColour)"
       fgcolor="$GetVar(HtmlFontColour)"
       width="100%" />

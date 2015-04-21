@@ -49,6 +49,8 @@ Fragen und Ideen:
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle residues when putting selected atoms to the atoms list? 
 - What to do about SAME restraints?
+- "onedit=spy.FragmentDB.search_fragments(~value~),
+- Why is type="label" not working?
 '''
 
 
@@ -136,9 +138,23 @@ class FragmentDB(PT):
     '''
     returns the available fragments in the database
     the list of names is separated by semicolon
+    i[0] => number
+    i[1] => name
     '''
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
     return items
+  
+  def search_fragments(self, search_string):
+    '''
+    performs a search for an unsharp name in a list
+    '''
+    print(search_string)
+    selected_results = self.db.find_fragment_by_name(search_string)
+    print(selected_results)
+    selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
+    # propagate the smaller list to the combo-box:
+    olx.html.SetItems('LIST_FRAGMENTS', selected_results)
+
 
   def fit_db_fragment(self, fragId=None):
     '''
@@ -867,6 +883,7 @@ class FragmentDB(PT):
 
 fdb = FragmentDB()
 
+OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.show_reference,False,"FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
 OV.registerFunction(fdb.get_selected_atoms,False,"FragmentDB")
