@@ -1,34 +1,38 @@
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
+$SetVar(name1, "foo bar: mark down")
 
 
-
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1;1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=help123;1; -->
   <td halign='left' width='100%'>
     <a>Choose a fragment and define its properties. Then fit it to the structure.</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=FragmentDB_2;1; -->
-  <td halign='left' width='15%'>
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=helpfoo;1; -->
+  <td halign='left' width='10%'>
     <b>%Fragment:%</b> 
   </td>
-  <td>
+  <td halign='left' width='70%'>
     $+
     html.Snippet("gui/snippets/input-combo",
     "name=LIST_FRAGMENTS",
     "items=spy.FragmentDB.list_fragments()",
     "value=''",
-    "width=80%",
+    "width=100%",
     "onchange=SetVar(fragment_ID, html.GetValue(~name~))
               >>spy.FragmentDB.get_resi_class('RESIDUE_CLASS')
               >>spy.FragmentDB.set_fragment_picture(100)
               >>spy.FragmentDB.display_image('FDBMOLEPIC', 'displayimg.png')
               >>spy.FragmentDB.show_reference()
               ",
-    "onleave=spy.FragmentDB.search_fragments(~value~)",
     "readonly=false",
     "manage=true")
     $-
+  </td>
+  <td halign='right' width='20%'>
+  <a href="spy.FragmentDB.search_fragments(html.GetValue('LIST_FRAGMENTS'))"> search</a>
+  /
+  <a href="html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments()))"> clear</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
@@ -54,7 +58,7 @@
         type="spin"
         name="FRAGMENT_PART"
         width="50"
-        height="17"
+        height="$GetVar('HtmlSpinHeight')"
         max='99'
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
@@ -72,7 +76,7 @@
         type="spin"
         name="FRAG_FVAR"
         width="40"
-        height="15"
+        height="$GetVar('HtmlSpinHeight')"
         max='99'
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"

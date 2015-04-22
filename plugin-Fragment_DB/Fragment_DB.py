@@ -51,6 +51,20 @@ Fragen und Ideen:
 - What to do about SAME restraints?
 - "onedit=spy.FragmentDB.search_fragments(~value~),
 - Why is type="label" not working?
+
+includes gui/blocks/tool-row-help.htm into the html
+name=... is the name like name in a snippet
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1; -->
+
+
+$SetVar(name, "foo bar: mark down")
+
+<!-- #include ... helpText=$GetVar(name)
+
+
+don't forget to give your table data a width:
+<td halign='left' width='80%'>
+-each snippet also has a width inside the dable data
 '''
 
 
@@ -148,10 +162,13 @@ class FragmentDB(PT):
     '''
     performs a search for an unsharp name in a list
     '''
-    print(search_string)
-    selected_results = self.db.find_fragment_by_name(search_string)
-    print(selected_results)
-    selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
+    if not search_string:
+      selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
+    else:
+      #print('searching for:', search_string)
+      selected_results = self.db.find_fragment_by_name(search_string)
+      #print('results:', selected_results)
+      selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
     # propagate the smaller list to the combo-box:
     olx.html.SetItems('LIST_FRAGMENTS', selected_results)
 
@@ -853,12 +870,15 @@ class FragmentDB(PT):
     '''
     creates a picture from the currently selected fragment in Olex2 and 
     stores it in 'storepic.png' as well as 'displaypic.png'
+    
+    #Todo: bei use selected: gleich cartesische koordinaten erzeugen und 1 1 1 90 9 09 zelle
     '''
     import ImageTools
     # "select with mouse"
     if not olex.f("sel()").split():
       return
     picfile = "fdb_tmp.png"
+    OV.cmd("sel atom bonds")
     OV.cmd("showh a False")
     OV.cmd("sel -i")
     OV.cmd("hide")
