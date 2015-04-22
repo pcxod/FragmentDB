@@ -10,45 +10,50 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- add search field which decreases the options in the input combobox. Maybe type directly into 
-  the combo-box and run "find_fragment_by_name()" with "onchange" to get back a shorter list?
 - possibility to add sump to the free variable
 - Checkbox for "use DFIX"
-- I would like to see the residue numbers of the atoms on changing the number like with part numbers
+
+- I would like to see the residue numbers of the atoms on changing the number 
+  like with part numbers labels -p
+
 - fit fragment to or near selected atoms/Q-peaks
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
   make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
 - observe disagreeable restraints and warn user
+
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
+
 - having to put symmetric fragments into negative part is a problem!
+
 - a working SAME_resiclass atomlist would be great for repeating residues!
+  SADI -i atoms names
+  
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
   (which is ok) but the restraints like SIMU N1 C1 C2 C3 C4 miss the nitrogen.
+  
+  can not reproduce it
 - If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for 
   this fragment and not expand to symmetry equivalent atoms like 
   EQIV $4 -1+X,1+Y,+Z
   DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
-- Is it possible to use javascript in Olex2? For JSmol for example?
-- On MAC systems the drop down selector can not be toggeled with the arrow keys.
+
 - maybe first apply relative restraints and then analyze the residuals. If they are bad try automatic 
   generated direct restraints. 
 - what should we do about duplicated atom labels? should we do anything? seem to work fine.
 - how can I set a fragment as default upon startup and activate it's picture? 
-- AddAtom() should have an option that prevents atom deletion of existing atoms.
-- I would like to replace atoms in 1 A around the fitting fragment. I should implement a replace mode.
-- check state of input/edit and only allow "add new" if at least atoms and class
-  are present
-- how can I set the curso to the end of a edit box?
-- If Inputfrag window is open, also update the fields when selecting different fragments in 
-  the combo-box
-- Use a fixed font in the text fields. Works but looks bretty ugly!
+
+- I would like to replace atoms in 1 A around the fitting fragment. 
+
+- how can I set the cursor to the end of a edit box?
+
 - When I come back from a different plugin, the image is not diplayed anymore
-- update fragment creates a wired bug on the Mac. The picture is not valid any more!
+
 - Color already used residue numbers red in the spinner?
 
 - can the state of the plugin be updated after fit to initialize e.g. the residue number again?
 - How should I handle residues when putting selected atoms to the atoms list? 
 - What to do about SAME restraints?
+
 - "onedit=spy.FragmentDB.search_fragments(~value~),
 - Why is type="label" not working?
 
@@ -65,6 +70,8 @@ $SetVar(name, "foo bar: mark down")
 don't forget to give your table data a width:
 <td halign='left' width='80%'>
 -each snippet also has a width inside the dable data
+
+-shift all koordinates around 10 angstroms
 '''
 
 
