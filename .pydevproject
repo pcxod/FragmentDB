@@ -3,11 +3,9 @@
 
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 3.0</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">python27</pydev_property>
-<pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>D:\downloads\olex2-code</path>
-<path>D:\downloads\olex2-gui</path>
-</pydev_pathproperty>
+
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/${PROJECT_DIR_NAME}</path>
+<path>/DSR-db</path>
+<path>/${PROJECT_DIR_NAME}/pyUtil</path>
 </pydev_pathproperty>
 </pydev_project>

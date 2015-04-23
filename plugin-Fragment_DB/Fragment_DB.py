@@ -50,7 +50,11 @@ Fragen und Ideen:
 
 - Color already used residue numbers red in the spinner?
 
-- can the state of the plugin be updated after fit to initialize e.g. the residue number again?
+- can the state of the plugin be updated after fit to initialize e.g. the 
+  residue number again?
+  # 
+- ask oleg about the combo-box to implement that it can start the search "onenter"  
+  
 - How should I handle residues when putting selected atoms to the atoms list? 
 - What to do about SAME restraints?
 
@@ -71,9 +75,11 @@ don't forget to give your table data a width:
 <td halign='left' width='80%'>
 -each snippet also has a width inside the dable data
 
--shift all koordinates around 10 angstroms
-'''
+-shift all koordinates around 10 angstroms?
 
+#from cctbx_olex_adapter import OlexCctbxAdapter
+#oca = OlexCctbxAdapter 
+'''
 
 import os
 import olex
