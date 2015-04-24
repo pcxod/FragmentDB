@@ -129,7 +129,7 @@ class FragmentDB(PT):
     try:
       float(occ)
     except(SyntaxError, NameError, ValueError):
-      print('bad value for occupancy provided')
+      print('Invalid value for occupancy provided')
       return
     varname = 'fragment_DB.fragment.frag_occ'
     OV.SetParam(varname, occ)
@@ -260,7 +260,7 @@ class FragmentDB(PT):
           except(KeyError):
             # in this case, an atom name in the restraint does not 
             # exist in the fragments atom list!
-            print('\nBad restraint found in line {}.\n'.format(num))
+            print('\nUnknown restraint found in line {}.\n'.format(num))
             # I must exit here!
             return
         else:
@@ -578,15 +578,15 @@ class FragmentDB(PT):
       return False
     if frag_cell:
       if len(frag_cell) < 6:
-        print('\nBad unit cell. Only {} values instead of 6.'.format(len(frag_cell)))
+        print('\nUnknown unit cell. Only {} values instead of 6.'.format(len(frag_cell)))
         return False
       if len(frag_cell) > 6:
-        print('\nBad unit cell defined. {} values instead of 6.'.format(len(frag_cell)))
+        print('\nUnknown unit cell defined. {} values instead of 6.'.format(len(frag_cell)))
         return False
       try:
         cell = [float(i) for i in frag_cell]
       except(ValueError, TypeError):
-        print('Bad unit cell given!')
+        print('Invalid unit cell given!')
         return False
     else:
       print('\nNo unit cell found!')
@@ -637,7 +637,7 @@ class FragmentDB(PT):
         atlines[num] = line[:5]
       if len(line) < 5:
         # too short, parameters missing
-        print('Bad atom line found!! Parameter(s) missing.')
+        print('Invalid atom line found!! Parameter(s) missing.')
       for x in line[1:5]:
         # check if each is a rea number except for the atom:
         try:
@@ -646,9 +646,9 @@ class FragmentDB(PT):
           # if something is wrong, determine the bad guy:
           for i in x:
             if not i.isdigit() and i != '.':
-              print('Bad charachter {} in line.'.format(i))
+              print('Invalid charachter {} in line.'.format(i))
               continue
-          print('Bad atom line found!')
+          print('Invalid atom line found!')
     return atlines
 
 
@@ -758,7 +758,7 @@ class FragmentDB(PT):
       try:
         frac_coord = [ float(i) for i in line[2:5] ]
       except(ValueError):
-        print('Bad coordinate defined in line "{}"'.format(' '.join(line)))
+        print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
         return
       if len(frac_coord) < 3:
         print('Coordinate value missing in "{}".'.format(' '.join(line)))
