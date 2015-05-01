@@ -206,7 +206,11 @@ class FragmentDB(PT):
     # adding atoms to structure:
     for i in self.db[fragId]:
       label = str(i[0])
-      x, y, z = olx.xf.au.Fractionalise(i[2],i[3],i[4]).split(',')
+      trans = 10.0
+      #translate molecule unless it is away of everything else:
+      # while not is_near_atoms:
+      #    translate...
+      x, y, z = olx.xf.au.Fractionalise(i[2]+trans,i[3]+trans,i[4]+trans).split(',')
       id = olx.xf.au.NewAtom(label, x, y, z, False)
       olx.xf.au.SetAtomPart(id, partnum)
       # if label is H... then SetAtomU == -1.3
@@ -227,9 +231,17 @@ class FragmentDB(PT):
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
-    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("mode fit")
+    #OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+    #OV.cmd("mode fit")
     return atoms
+
+  def is_near_atoms(self):
+    '''
+    
+    for atom in olex_core.GetRefinementModel(True)['atoms']:
+      coord = atom['crd'][0]
+    '''
+    
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
