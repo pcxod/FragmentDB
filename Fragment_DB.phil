@@ -1,0 +1,38 @@
+
+fragment_DB{
+  gui{
+    location = 'tools'
+      .type = str
+      .help = The tab item where the FragmentDB GUI shall appear.
+    before = 'images'
+      .type = str
+      .help = The tool before which the FragementDB GUI shall appear.
+    }
+  
+  fragment{
+    fragId = 0
+      .type = int
+      .help = Places the fragment in the residue with the respective number.
+
+    resinum = 0
+      .type = int
+      .help = Places the fragment in the residue with the respective number.
+      
+    resi_class = ""
+      .type = str
+      .help = Defines the class (name) of the residue.
+    
+    frag_part = 0
+      .type = int
+      .help = Defines the part number of the fragment.
+    
+    frag_occ = 1.0
+      .type = float
+      .help = Defines the occupancy of the whole fragment.
+      
+    frag_fvar = 1
+      .type = int
+      .help = Defines the free variable for the occupancy of a fragment.
+    }
+  
+}

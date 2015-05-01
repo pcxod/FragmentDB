@@ -1,0 +1,160 @@
+<!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
+
+<!-- Fragen:
+- Wie könnte man bereits benutzte residue nummern im type="spin" rot einfärben?
+
+- why does oxygen get 1/2 occupancy in the water structure???
+
+- kann man residue-nummern einblenden sobald der spin-knopf gedrückt wird?
+
+-->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1;1; -->
+  <td ALIGN='left' width='100%'>
+    <a>Choose a fragment and define its properties. Then fit it to the structure.</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_2; help_ext=FragmentDB_2;1; -->
+  <td ALIGN='left' width='100%'>
+    <b>%Fragment:%</b>
+    $+
+    html.Snippet("gui/snippets/input-combo",
+    "name=LIST_FRAGMENTS",
+    "items=spy.FragmentDB.list_fragments()",
+    "value=",
+    "onchange=SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.resi_class()",
+    "readonly=false",
+    "manage=true")
+    $-
+  
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_PART_1';help_ext=Frag-Part-1;1 -->
+  <td width='70%'><b>%Put fragment into Part:%</b></td>
+  <td width='30%'>
+  </td>
+  <td VALIGN='center'>
+    <font size='2'>
+      <input
+        type="spin"
+        name="FRAGMENT_PART"
+        width="50"
+        height="17"
+        max='99'
+        min='-99'
+        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
+        value="spy.GetParam(fragment_DB.fragment.frag_part)"
+        onchange='spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))>>labels -p '
+      >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_RESI_1';help_ext=Frag-Resi-1;1 -->
+  <td width='50%' align='left'>
+   <b>%Residue number (must be uniq):%</b>
+  </td>
+  <td 
+  width='10%' align='left' 
+  VALIGN='center'>
+    <font size='2'>
+      <input
+        type="spin"
+        name="RESIDUE"
+        width="50"
+        height="17"
+        max='99'
+        min='0'
+        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
+        value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
+        onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))"
+  >
+  <td width='30%' align='right'><b>%Residue Class (4 character):%</b></td>
+  <td width='70%' align='left'>
+    <font size="$GetVar('HtmlFontSizeControls')">
+    <input
+      type="text"
+      height="$GetVar('HtmlInputHeight')"
+      width="40"
+      bgcolor="$GetVar('HtmlInputBgColour')"
+      valign='center'
+      name = "RESIDUE_CLASS"
+      value = "spy.SetParam(fragment_DB.fragment.resi_class, spy.FragmentDB.resi_class())"
+      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.resi_class))'
+  >
+    </font>
+  </td>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Frag-FVAR-1;1 -->
+  <td width='100%'>
+    <b>%Assign free variable to fragment:%</b>
+  </td>
+  <td VALIGN='center'>
+    <font size='2'>
+      <input
+        type="spin"
+        name="FRAG_FVAR"
+        width="50"
+        height="17"
+        max='99'
+        min='-99'
+        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
+        value="spy.GetParam(fragment_DB.fragment.frag_fvar)"
+        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v'
+      >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_OCC_1';help_ext=Frag-OCC-1;1 -->
+<td><b>%Occupancy:%</b></td>
+  <td width='74%' align='right'>
+    <font size="$GetVar('HtmlFontSizeControls')">
+    <input
+      type="text"
+      height="$GetVar('HtmlInputHeight')"
+      width="40"
+      bgcolor="$GetVar('HtmlInputBgColour')"
+      valign='center'
+      name = "FRAG_OCCUPANCY"
+      value = "spy.GetParam(fragment_DB.fragment.frag_occ)"
+      min='-4'
+      max='4'
+      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))'
+    >
+    </font>
+  </td>
+<!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
+<!--  onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>html.SetValue(~name~, spy.GetParam(fragment_DB.fragment.frag_occ))'-->
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_3; help_ext=FragmentDB_3;1; -->
+  <td ALIGN='left' width='100%'>
+    <b><a href="spy.FragmentDB.fit_db_fragment()">FIT FRAGMENT</a>
+  </td>
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmenDB_4; help_ext=FragentDB_4;1; -->
+  <td ALIGN='left' width='100%'>
+<!--
+  <b><a ALIGN='left' href="spy.FragmentDB.fit_db_fragment(67)">FIT FRAGMENT thf</a>
+    <br>
+    <b><a ALIGN='center' href="spy.FragmentDB.fit_db_fragment(37)">FIT FRAGMENT oc(cf3)3</a>
+    <br>
+ -->
+    <b><a ALIGN='right' href="spy.FragmentDB.call_profile()"> profile</a>
+  </td>
+ 
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
+
+<!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
+
+
