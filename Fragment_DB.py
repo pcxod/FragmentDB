@@ -2,8 +2,9 @@ from olexFunctions import OlexFunctions
 from collections import OrderedDict
 from ImageTools import ImageTools
 import StringIO
-from PIL import Image, ImageFile
+from PIL import Image, ImageFile, ImageDraw
 from FragmentDB_handler import check_restraints_consistency
+
 OV = OlexFunctions()
 IT = ImageTools()
 
@@ -117,7 +118,8 @@ class FragmentDB(PT):
     # for edited fragments:
     self.frag_cell = []
     self.db = FragmentTable(self.dbfile)
-
+    self.write_text_on_image('<br><br>dummy text:<br>Choose at least <br>\
+three atom <br>pairs after the fit <br>and press escape.')
 
   def set_occu(self, occ):
     '''
@@ -241,7 +243,7 @@ class FragmentDB(PT):
     for atom in olex_core.GetRefinementModel(True)['atoms']:
       coord = atom['crd'][0]
     '''
-    
+    pass
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
@@ -817,6 +819,7 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_cell', cell)
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
+    
       
   def store_new_fragment(self, atlines, restraints, resiclass):
     '''
@@ -925,9 +928,28 @@ class FragmentDB(PT):
     except:
       pass
     
+  def write_text_on_image(self, text):
+    '''
+    write a text on an image to display it in an olex2 zimg
+    :param text: text to draw
+    :type text: string
+    :param zimg_name:
+    :type zimg_name:
+    ''' 
+    imsize = (600, 600)
+    bg_color = self.params.html.table_bg_colour.rgb
+    grey_IM = Image.new("RGB", imsize, bg_color) # Create new white image
+    draw = ImageDraw.Draw(grey_IM)
+    IT = ImageTools()
+    IT.write_text_to_draw(draw, text, font_size=60)
+    OlexVFS.save_image_to_olex(grey_IM, 'fdb_intro.png', 0)
+    #self.display_image(zimg_name, 'fdb_intro.png')
+    
+
 
 fdb = FragmentDB()
 
+#OV.registerFunction(fdb.write_text_on_image, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.show_reference,False,"FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
