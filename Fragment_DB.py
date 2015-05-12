@@ -24,8 +24,6 @@ Fragen und Ideen:
 
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 
-- having to put symmetric fragments into negative part is a problem!
-
 - a working SAME_resiclass atomlist would be great for repeating residues!
   SADI -i atoms names
   
@@ -60,27 +58,12 @@ Fragen und Ideen:
 - What to do about SAME restraints?
 
 - "onedit=spy.FragmentDB.search_fragments(~value~),
-- Why is type="label" not working?
 
-includes gui/blocks/tool-row-help.htm into the html
-name=... is the name like name in a snippet
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1; help_ext=FragmentDB_1; -->
+-having to put symmetric fragments into negative part is a problem.
+  -shift all koordinates around 10 angstroms?
 
-
-$SetVar(name, "foo bar: mark down")
-
-<!-- #include ... helpText=$GetVar(name)
-
-
-don't forget to give your table data a width:
-<td halign='left' width='80%'>
--each snippet also has a width inside the dable data
-
--shift all koordinates around 10 angstroms?
-
-#from cctbx_olex_adapter import OlexCctbxAdapter
-#oca = OlexCctbxAdapter 
 '''
+
 
 import os
 import olex
