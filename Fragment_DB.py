@@ -101,8 +101,8 @@ class FragmentDB(PT):
     # for edited fragments:
     self.frag_cell = []
     self.db = FragmentTable(self.dbfile)
-    self.write_text_on_image('<br><br>dummy text:<br>Choose at least <br>\
-three atom <br>pairs after the fit <br>and press escape.')
+#    self.write_text_on_image('<br><br>dummy text:<br>Choose at least <br>\
+#three atom <br>pairs after the fit <br>and press escape.')
 
   def set_occu(self, occ):
     '''
