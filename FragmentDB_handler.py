@@ -177,7 +177,7 @@ class DatabaseRequest():
   
 class FragmentTable():
   '''
-  >>> dbfile = 'tst.sqlite'
+  >>> dbfile = 'tests/tst.sqlite'
   >>> db = FragmentTable(dbfile)
   >>> print db[3]
   [(u'O1', u'8', -0.7562, 1.6521, -0.3348), (u'C1', u'6', -2.1051, 1.9121, -0.4223), (u'C2', u'6', -2.5884, 1.9919, -1.8717), (u'F1', u'9', -1.9571, 2.9653, -2.5781), (u'F2', u'9', -3.9264, 2.2817, -1.9122), (u'F3', u'9', -2.413, 0.8316, -2.546)]
@@ -206,7 +206,7 @@ class FragmentTable():
     Returns a database fragment if its name contains element of type int.
     E.g. db[2]
 
-    >>> dbfile = 'tst.sqlite'
+    >>> dbfile = 'tests/tst.sqlite'
     >>> 3 in FragmentTable(dbfile)
     True
 
@@ -249,7 +249,7 @@ class FragmentTable():
     Should return the number of database entrys.
     
     # number of fragments in the database:
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> len(db)  
     65
@@ -268,7 +268,7 @@ class FragmentTable():
     Called to implement evaluation of self[fragment_id].
     print FragmentTable[fragment_id]
 
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> print(db[0])
     Traceback (most recent call last):
@@ -315,8 +315,8 @@ class FragmentTable():
     
     # have to create a copy of the db before I delete the entry:
     >>> import shutil
-    >>> shutil.copyfile('tst.sqlite', 'tst1.sqlite')
-    >>> dbfile = 'tst1.sqlite'
+    >>> shutil.copyfile('tests/tst.sqlite', 'tests/tst1.sqlite')
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> del db[2]
     >>> db[2]
@@ -365,7 +365,7 @@ class FragmentTable():
     This method is called when an iterator is required for FragmentTable.
     Returns the Id and the Name as tuple.
 
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> for num, i in enumerate(db):
     ...   print(i)
@@ -382,7 +382,7 @@ class FragmentTable():
     '''
     Returns True if a partial name is found in the DB.
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.has_name('Benzene')
     True
@@ -400,7 +400,7 @@ class FragmentTable():
     '''
     Returns True if an exact name is found in the DB.
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.has_exact_name('1,2-Dichlorobenzene, C6H4Cl2')
     True
@@ -418,7 +418,7 @@ class FragmentTable():
     '''
     Returns True if an exact residue class is found in the DB.
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.has_exact_resi_class('BENZ')
     True
@@ -439,7 +439,7 @@ class FragmentTable():
     :type Id: int
     :rtype: bool
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.has_index('5')
     True
@@ -459,7 +459,7 @@ class FragmentTable():
     returns all Ids in the database as list.
     :rtype: list 
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.get_all_rowids()
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]
@@ -502,7 +502,7 @@ class FragmentTable():
     '''
     returns the "Name" column entry of fragment with id "fragment_id"
 
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_fragment_name(2)[0]
     u"2,2'-Bipyridine, C10H8N2, bipy"
@@ -519,7 +519,7 @@ class FragmentTable():
     returns a picture of the fragment if one exist in the database. Otherwise 
     it returns False.
     
-    dbfile = 'tst1.sqlite'
+    dbfile = 'tests/tst1.sqlite'
     db = FragmentTable(dbfile)    
     pic = db.get_picture(2)
     '''
@@ -538,7 +538,7 @@ class FragmentTable():
     '''
     returns the "class" column entry of fragment with id "fragment_id"
 
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_residue_class(47)
     'ACE'
@@ -559,7 +559,7 @@ class FragmentTable():
     '''
     returns the restraints for Fragment(Id) from the database.
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_restraints(5)
     [(u'SADI', u'0.02 C1 F1 C2 F2'), (u'SADI', u'0.02 C1 C6 C5 C6 C1 C2 C4 C5 C3 C4 C2 C3'), (u'SADI', u'0.04 C1 F2 C3 F2 C2 F1 C6 F1'), (u'SADI', u'0.04 C4 C6 C3 C5 C2 C4 C1 C3 C2 C6 C1 C5'), (u'FLAT', u'C1 > F2'), (u'SIMU', u'C1 > F2'), (u'RIGU', u'C1 > F2')]
@@ -576,7 +576,7 @@ class FragmentTable():
     '''
     returns the reference for Fragment(Id) from the database.
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_reference(2)
     u'CCDC DOCYEB'
@@ -600,7 +600,7 @@ class FragmentTable():
     find a fragment by its name in the database. This method will output a
     selection of (default=5) best hits.
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.find_fragment_by_name('cf3', selection=3)
     [(3, u'Trifluoroethanol, OCH2CF3-'), (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
@@ -760,7 +760,7 @@ class Restraints():
     '''
     returns the restraints from a database entry
     
-    >>> dbfile = 'tst1.sqlite'
+    >>> dbfile = 'tests/tst1.sqlite'
     >>> res = Restraints(dbfile)    
     >>> res.get_restraints_from_fragmentId(7)
     [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
@@ -783,7 +783,7 @@ if __name__ == '__main__':
     print('passed all tests!')
 
   # import cProfile
-  dbfile = 'tst1.sqlite'
+  dbfile = 'tests/tst1.sqlite'
 #  call_profile(dbfile)
   db = FragmentTable(dbfile)
   db.get_picture(2)

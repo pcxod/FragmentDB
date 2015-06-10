@@ -39,3 +39,4 @@ Icon
 .Trashes
 
 plugin-Fragment_DB/tst1.sqlite
+tests/tst1.sqlite
