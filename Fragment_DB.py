@@ -14,12 +14,11 @@ Fragen und Ideen:
 - make a user database that doesn't get overwritten during update!
 
 - possibility to add sump to the free variable
+
 - Checkbox for "use DFIX"
 
-- fit fragment to or near selected atoms/Q-peaks
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
   make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
-- observe disagreeable restraints and warn user
 
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 
@@ -53,8 +52,6 @@ Fragen und Ideen:
   
 - What to do about SAME restraints? Do not allow them.
 
-- having to put symmetric fragments into negative part is a problem.
-  -shift all koordinates around 10 angstroms?
 
 '''
 
