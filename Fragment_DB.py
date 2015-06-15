@@ -11,6 +11,8 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
+- make a user database that doesn't get overwritten during update!
+
 - possibility to add sump to the free variable
 - Checkbox for "use DFIX"
 
@@ -505,8 +507,9 @@ class FragmentDB(PT):
       atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
-    olx.html.SetValue('Inputfrag.set_cell', '1 1 1 90 90 90')
     self.cell = '1 1 1 90 90 90'
+    olx.html.SetValue('Inputfrag.set_cell', self.cell)
+    OV.SetParam('fragment_DB.new_fragment.frag_cell', self.cell)
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
     return atlist
     
@@ -560,7 +563,6 @@ class FragmentDB(PT):
     '''
     handles the name of a new/edited fragment
     '''
-    fragname = ""
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
     if self.check_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
