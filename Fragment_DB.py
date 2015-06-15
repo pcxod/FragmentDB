@@ -918,8 +918,6 @@ class FragmentDB(PT):
     '''
     creates a picture from the currently selected fragment in Olex2 and 
     stores it in 'storepic.png' as well as 'displaypic.png'
-    
-    #Todo: bei use selected: gleich cartesische koordinaten erzeugen und 1 1 1 90 9 09 zelle
     '''
     import ImageTools
     # "select with mouse"
@@ -936,7 +934,7 @@ class FragmentDB(PT):
     OV.cmd("sel -i")
     OV.cmd("sel atom bonds -i")
     OV.cmd('label -a')
-    OV.cmd("picta fdb_tmp.png -nbg")
+    OV.cmd("pict fdb_tmp.png -nbg")
     OV.cmd('kill labels')
     OV.cmd("showP -m")
     OV.cmd("showh a True")
