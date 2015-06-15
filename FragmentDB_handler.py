@@ -677,8 +677,8 @@ class FragmentTable():
     :rtype list: last_rowid
     '''
     picture = sqlite3.Binary(picture)
-    table = (resiclass, fragment_name, reference, comment, picture)
-    req = '''INSERT INTO Fragment (class, name, reference, comment, picture) 
+    table = (fragment_name, resiclass, reference, comment, picture)
+    req = '''INSERT INTO Fragment (name, class, reference, comment, picture) 
                             VALUES(?,     ?,      ?,        ?,       ?   )'''
     return self.database.db_request(req, table)
 

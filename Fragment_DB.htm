@@ -21,10 +21,7 @@ $SetVar(name1, "foo bar: mark down")
     "height=GetVar('HtmlComboHeight')",
     "width=100%",
     "onchange=SetVar(fragment_ID, html.GetValue(~name~))
-              >>spy.FragmentDB.get_resi_class('RESIDUE_CLASS')
-              >>spy.FragmentDB.set_fragment_picture(100)
-              >>spy.FragmentDB.display_image('FDBMOLEPIC', 'displayimg.png')
-              >>spy.FragmentDB.show_reference()
+              >>spy.FragmentDB.init_plugin()
               ",
     "readonly=false",
     "manage=False")
@@ -100,7 +97,7 @@ $SetVar(name1, "foo bar: mark down")
       value = "spy.GetParam(fragment_DB.fragment.frag_occ)"
       min='-4'
       max='4'
-      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))'
+      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o'
     >
     </font>
   </td>
@@ -121,7 +118,7 @@ $SetVar(name1, "foo bar: mark down")
         min='0'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
-        onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))"
+        onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))>>labels -rn"
   >
   </td>
   <td width='35%' align='right'>
@@ -136,8 +133,8 @@ $SetVar(name1, "foo bar: mark down")
       bgcolor="$GetVar('HtmlInputBgColour')"
       name = "RESIDUE_CLASS"
       value = ""
-      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)'
-  >
+      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc'
+    >
     </font>
   </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->

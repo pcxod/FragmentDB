@@ -69,6 +69,7 @@
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="set_cell" 
+              value="1 1 1 90 90 90"
               width="100%" 
               onchange='spy.SetParam(fragment_DB.new_fragment.frag_cell, html.GetValue(~name~))'
               multiline="False"
@@ -81,7 +82,6 @@
             <td>
             <a href='spy.FragmentDB.get_selected_atoms()>>spy.FragmentDB.make_selctions_picture()'><font color="#000000" >
             <b>Use selected atoms:</b></font></a>
-    <!--        <a href="spy.FragmentDB.make_selctions_picture()" > make picture </a> -->
             </td>
           </tr>          
           <tr>
@@ -124,18 +124,26 @@
             <td>
               <table align='left' border="0" cellpadding="0" cellspacing="0" width="100%">
               <tr>
-              <td align="left">
+              <td align="left" width='15%'>
                 <input type="text"
                   bgcolor="$GetVar(HtmlInputBgColour)"
                   name="residue" 
-                  width="20%"
+                  width="95%"
                   onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)'
                   multiline="False">
                 </td>
-                <td width="10%"> 
-                </td>
-                <td width="10%"> 
-                </td>
+              <td width='15%'> reference: </td>
+              <td width='60%'>
+              <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
+              <input type="text"
+                bgcolor="$GetVar(HtmlInputBgColour)"
+                name="reference_ed" 
+                width="100%" 
+                value="" 
+                onchange='spy.SetParam(fragment_DB.new_fragment.frag_reference, html.GetValue(~name~))'
+                multiline="False"
+              ></font>
+              </td>
               </tr>
               </table>
           </tr>

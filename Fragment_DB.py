@@ -14,9 +14,6 @@ Fragen und Ideen:
 - possibility to add sump to the free variable
 - Checkbox for "use DFIX"
 
-- I would like to see the residue numbers of the atoms on changing the number 
-  like with part numbers labels -p
-
 - fit fragment to or near selected atoms/Q-peaks
 - If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
   make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
@@ -30,36 +27,31 @@ Fragen und Ideen:
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
   (which is ok) but the restraints like SIMU N1 C1 C2 C3 C4 miss the nitrogen.
   
-  can not reproduce it
+  can not reproduce it:
 - If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for 
   this fragment and not expand to symmetry equivalent atoms like 
   EQIV $4 -1+X,1+Y,+Z
   DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
 
-- maybe first apply relative restraints and then analyze the residuals. If they are bad try automatic 
-  generated direct restraints. 
-- what should we do about duplicated atom labels? should we do anything? seem to work fine.
 - how can I set a fragment as default upon startup and activate it's picture? 
 
-- I would like to replace atoms in 1 A around the fitting fragment. 
+- I would like to replace atoms in 1.3 A around the fitting fragment. 
 
 - how can I set the cursor to the end of a edit box?
 
-- When I come back from a different plugin, the image is not diplayed anymore
-
-- Color already used residue numbers red in the spinner?
+- When I come back from a different plugin, the image is not diplayed anymore.
+  Solution: I could save the last id in the phil and reload the state
 
 - can the state of the plugin be updated after fit to initialize e.g. the 
   residue number again?
-  # 
-- ask oleg about the combo-box to implement that it can start the search "onenter"  
+  -Y Yes with "mode -e fit"
   
-- How should I handle residues when putting selected atoms to the atoms list? 
-- What to do about SAME restraints?
+- ask oleg about the combo-box to implement that it can start the search "onenter".  
+  "onedit=spy.FragmentDB.search_fragments(~value~),
+  
+- What to do about SAME restraints? Do not allow them.
 
-- "onedit=spy.FragmentDB.search_fragments(~value~),
-
--having to put symmetric fragments into negative part is a problem.
+- having to put symmetric fragments into negative part is a problem.
   -shift all koordinates around 10 angstroms?
 
 '''
@@ -104,6 +96,20 @@ class FragmentDB(PT):
 #    self.write_text_on_image('<br><br>dummy text:<br>Choose at least <br>\
 #three atom <br>pairs after the fit <br>and press escape.')
 
+  def init_plugin(self):
+    '''
+    initialize the plugins main form
+    '''
+    self.get_resi_class()
+    self.set_fragment_picture(100)
+    self.display_image('FDBMOLEPIC', 'displayimg.png')
+    self.show_reference()
+    resinum = self.find_free_residue_num()
+    olx.html.SetValue('RESIDUE', resinum)
+    OV.SetParam('fragment_DB.fragment.resinum', resinum)
+    
+
+  
   def set_occu(self, occ):
     '''
     sets the occupancy, even if you enter a comma value instead of point as 
@@ -169,6 +175,7 @@ class FragmentDB(PT):
       selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
     # propagate the smaller list to the combo-box:
     olx.html.SetItems('LIST_FRAGMENTS', selected_results)
+    
 
 
   def fit_db_fragment(self, fragId=None):
@@ -216,8 +223,11 @@ class FragmentDB(PT):
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
-    #OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    #OV.cmd("mode fit")
+    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+    OV.cmd("mode fit")
+    resinum = self.find_free_residue_num()
+    olx.html.SetValue('RESIDUE', resinum)
+    OV.SetParam('fragment_DB.fragment.resinum', resinum)
     return atoms
 
   def is_near_atoms(self):
@@ -325,9 +335,12 @@ class FragmentDB(PT):
     '''
     display an image in zimgname 
     '''
-    olx.html.SetImage(zimgname, image_file)
-  
-  def store_picture(self, title, filter, location, default_name=''):
+    try:
+      olx.html.SetImage(zimgname, image_file)
+    except RuntimeError:
+      pass
+    
+  def store_picture(self, title, ffilter, location, default_name=''):
     '''
     opens a file dialog and stores the selected picture in the olex-vfs    
     :param title: Title of the file dialog
@@ -339,8 +352,7 @@ class FragmentDB(PT):
     :param default_name: default preselected file name for the dialog 
     :type default_name: string
     '''
-    import random
-    picfile = olx.FileOpen(title, filter, location, default_name)
+    picfile = olx.FileOpen(title, ffilter, location, default_name)
     if not picfile:
       return
     fsize = os.stat(picfile).st_size
@@ -438,11 +450,9 @@ class FragmentDB(PT):
     residues.sort()
     return residues
   
-  def get_resi_class(self, name):
+  def get_resi_class(self):
     '''
     sets the residue class from the respective database fragment.
-    
-    :param name: name of the html element to display resi class
     '''
     try:
       fragId = olx.GetVar('fragment_ID')
@@ -458,7 +468,7 @@ class FragmentDB(PT):
     # set the class in the text field of the gui:
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
   
-  def show_reference(self):
+  def show_reference(self, edit=False):
     '''
     show the reference of a fragment in the GUI
     '''
@@ -467,7 +477,10 @@ class FragmentDB(PT):
     except(RuntimeError):
       return
     ref = self.db.get_reference(fragId)
-    olx.html.SetValue('REFERENCE', ref)
+    if not edit:
+      olx.html.SetValue('REFERENCE', ref)
+    else:
+      olx.html.SetValue('REFERENCE_edit', ref)
   
   def get_selected_atoms(self):
     '''
@@ -492,6 +505,8 @@ class FragmentDB(PT):
       atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
+    olx.html.SetValue('Inputfrag.set_cell', '1 1 1 90 90 90')
+    self.cell = '1 1 1 90 90 90'
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
     return atlist
     
@@ -674,6 +689,14 @@ class FragmentDB(PT):
     if resi_class:
       return resi_class
     
+  def prepare_reference(self):
+    '''
+    prepare the reference for a new/edited fragment
+    '''
+    reference = OV.GetParam('fragment_DB.new_fragment.frag_reference')
+    if reference:
+      return reference
+    
   def prepare_atoms_list(self, fragId):
     '''
     prepare the atom list to display in a multiline edit field
@@ -727,7 +750,8 @@ class FragmentDB(PT):
     atoms = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
-    self.store_new_fragment(atoms, restraints, resiclass)
+    reference = self.prepare_reference()
+    self.store_new_fragment(atoms, restraints, resiclass, reference)
 
   
   def update_fragment(self):
@@ -744,6 +768,7 @@ class FragmentDB(PT):
     atlines = self.set_frag_atoms()
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
+    reference = self.prepare_reference()
     # frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
@@ -764,10 +789,11 @@ class FragmentDB(PT):
       line[2:5] = coord
       coords.append(line)
     if not check_restraints_consistency(restraints, atlines, fragname):
+      print('Fragment was not added to the database!')
       return
     self.delete_fragment(reset=False)
     id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
-                                picture=pic_data)
+                                reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
@@ -776,7 +802,8 @@ class FragmentDB(PT):
       print('Something is wrong with fragment storage.')
     self.get_frag_for_gui()
     self.set_fragment_picture(100)
-    #olx.html.SetValue('RESIDUE_CLASS', '')
+    olx.html.SetValue('RESIDUE_CLASS', '')
+    self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
 
   
@@ -791,27 +818,31 @@ class FragmentDB(PT):
     name = self.prepare_fragname(fragId)
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
+    reference = self.db.get_reference(fragId)
     cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     olx.html.SetValue('Inputfrag.set_cell', cell)
     olx.html.SetValue('Inputfrag.set_name', name)
     olx.html.SetValue('Inputfrag.restraints', restr)
     olx.html.SetValue('Inputfrag.residue', residue)
+    olx.html.SetValue('Inputfrag.reference_ed', reference)
     OV.SetParam('fragment_DB.new_fragment.frag_name', name)
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
     OV.SetParam('fragment_DB.new_fragment.frag_cell', cell)
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
+    OV.SetParam('fragment_DB.new_fragment.frag_reference', reference)
     
       
-  def store_new_fragment(self, atlines, restraints, resiclass):
+  def store_new_fragment(self, atlines, restraints, resiclass, reference):
     '''
     add a new fragment to the database
     '''
     # check if the given name already exist in the database
     # store fragment with a new number
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    # frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
+    self.set_frag_cell()
+    #self.frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
@@ -827,16 +858,19 @@ class FragmentDB(PT):
       coords.append(line)
     print('Adding fragment "{0}" to the database.'.format(fragname))
     if not check_restraints_consistency(restraints, atlines, fragname):
+      print('Fragment was not added to the database!')
       return
-    id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
-                                picture=pic_data)
+    id = self.db.store_fragment(fragname, coords, resiclass, restraints,
+                                reference, picture=pic_data)
     if id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', id)
-    olx.html.SetValue('RESIDUE_CLASS', '')
-    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    self.get_frag_for_gui()
+    self.init_plugin()
+    #olx.html.SetValue('RESIDUE_CLASS', '')
+    #self.get_resi_class()
+    #olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    #self.get_frag_for_gui()
     
 
   def blank_state(self):
@@ -845,9 +879,12 @@ class FragmentDB(PT):
     olx.html.SetValue('Inputfrag.set_name', '')
     olx.html.SetValue('Inputfrag.restraints', '')
     olx.html.SetValue('Inputfrag.residue', '')
+    olx.html.SetValue('Inputfrag.reference_ed', '')
     olx.html.SetValue('RESIDUE_CLASS', '')
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    if olx.fs.Exists('displayimg.png'):
+      OV.CopyVFSFile('blank.png', 'displayimg.png')
 
   def delete_fragment(self, reset=True):
     '''
@@ -896,7 +933,11 @@ class FragmentDB(PT):
     OV.cmd("center")
     OV.cmd("sel -i")
     OV.cmd("mpln -n")
+    OV.cmd("sel -i")
+    OV.cmd("sel atom bonds -i")
+    OV.cmd('label -a')
     OV.cmd("picta fdb_tmp.png -nbg")
+    OV.cmd('kill labels')
     OV.cmd("showP -m")
     OV.cmd("showh a True")
     im = Image.open(picfile)
@@ -932,7 +973,7 @@ class FragmentDB(PT):
 
 fdb = FragmentDB()
 
-#OV.registerFunction(fdb.write_text_on_image, False, "FragmentDB")
+OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.show_reference,False,"FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
