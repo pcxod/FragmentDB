@@ -39,3 +39,5 @@ Icon
 
 plugin-Fragment_DB/tst1.sqlite
 tests/tst1.sqlite
+tests/user-tst.sqlite
+tests/user-tst1.sqlite

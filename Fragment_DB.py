@@ -53,8 +53,6 @@ Fragen und Ideen:
 - What to do about SAME restraints? Do not allow them.
 
 
-olx.html.SetItems("BOND_COLOUR_COMBO", t)
-olx.html.SetValue("BOND_COLOUR_COMBO", colour)
 
 '''
 
