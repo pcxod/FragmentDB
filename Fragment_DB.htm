@@ -21,8 +21,8 @@ $SetVar(name1, "foo bar: mark down")
     "height=GetVar('HtmlComboHeight')",
     "width=100%",
     "onchange=SetVar(fragment_ID, html.GetValue(~name~))
-              >>spy.FragmentDB.init_plugin()
-              ",
+              >>spy.FragmentDB.init_plugin()",
+    "onenter=spy.FragmentDB.search_fragments(html.GetValue(~name~))",
     "readonly=false",
     "manage=False")
     $-

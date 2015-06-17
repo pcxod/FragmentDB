@@ -99,6 +99,10 @@ class FragmentDB(PT):
     '''
     initialize the plugins main form
     '''
+    try:
+      int(olx.GetVar('fragment_ID'))
+    except(RuntimeError, ValueError):
+      return
     self.get_resi_class()
     self.set_fragment_picture(100)
     self.display_image('FDBMOLEPIC', 'displayimg.png')

@@ -22,6 +22,8 @@ xcopy /Y %GIT%\Fragment_DB.phil %FDBDIR2%
 xcopy /Y %GIT%\Fragment_DB.py %FDBDIR2%
 xcopy /Y %GIT%\FragmentDB_handler.py %FDBDIR2%
 xcopy /Y %GIT%\inputfrag.htm %FDBDIR2% 
+xcopy /Y %FDBDIR2%\FragmentDB_handler.pyc %GIT%
+xcopy /Y %FDBDIR2%\Fragment_DB.pyc %GIT%
 
 rem xcopy /Y %GIT%\fragment-database.sqlite %FDBDIR2%
 
