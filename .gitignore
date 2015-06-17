@@ -2,7 +2,6 @@
 Thumbs.db
 ehthumbs.db
 
-*.pyc
 tst.sqlite
 
 # Folder config file
