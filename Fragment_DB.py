@@ -53,6 +53,9 @@ Fragen und Ideen:
 - What to do about SAME restraints? Do not allow them.
 
 
+olx.html.SetItems("BOND_COLOUR_COMBO", t)
+olx.html.SetValue("BOND_COLOUR_COMBO", colour)
+
 '''
 
 
@@ -92,8 +95,7 @@ class FragmentDB(PT):
     # for edited fragments:
     self.frag_cell = []
     self.db = FragmentTable(self.dbfile)
-#    self.write_text_on_image('<br><br>dummy text:<br>Choose at least <br>\
-#three atom <br>pairs after the fit <br>and press escape.')
+    
 
   def init_plugin(self):
     '''
