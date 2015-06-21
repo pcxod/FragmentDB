@@ -64,7 +64,22 @@ Fragen und Ideen:
    # read distrib db, read user db
    # decide for every user db entry if name is existing in distrib db
    # if so, exchange distrib list entry with user entry (by exchanging data source)
-   # and append all other user entrys
+   # and append all non-existing user entrys reqularly
+   # all write action only in userdb. dirstrib db is read only userdb is mode rwc
+
+
+Something like this might help:
+
+Check out the UNION ALL and NOT IN operators:
+
+SELECT name, check
+  FROM Categories
+ WHERE tid = ?
+UNION ALL
+SELECT name, check
+  FROM DistinctCategories
+ WHERE name NOT IN (SELECT name FROM Categories WHERE tid = ?)
+
 '''
 
 

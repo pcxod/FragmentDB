@@ -125,25 +125,24 @@ def call_profile(dbfile):
       
       
 class DatabaseRequest():
-  def __init__(self, dbfile):
+  def __init__(self, dbfile, userdb=True):
     '''
     creates a connection and the cursor to the SQLite3 database file "dbfile".
     :param dbfile: database file
     :type dbfile: str
     '''
-    if not os.path.isfile(dbfile):
-      raise IOError('Database file not found!') 
     # open the database
     self.con = sqlite3.connect(dbfile)
-    self.con.execute("ATTACH 'tests/tst1.sqlite' AS userdb")
+    if userdb:
+      self.con.execute('''ATTACH 'file:tests/tst1.sqlite?mode=rwc' AS userdb''')
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
     #self.con.text_factory = sqlite3.OptimizedUnicode
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
-      self.table_info('userdb'+'.')
-      self.table_info('')
+      #self.table_info('userdb'+'.')
+      #self.table_info('')
 
   def db_request(self, request, *args):
     '''
@@ -164,7 +163,8 @@ class DatabaseRequest():
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
-      #print(e)
+      print(e)
+      print(request)
       return False
     rows = self.cur.fetchall()
     if not rows:
@@ -438,7 +438,7 @@ class FragmentTable():
     >>> db.has_name('Benzil')
     False
     '''
-    req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
+    req = '''SELECT Name FROM userdb.Fragment WHERE Name like "%{}%" '''.format(name, db)
     if self.database.db_request(req):
       return True
     else:
@@ -497,7 +497,8 @@ class FragmentTable():
     
     '''
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
-    if self.database.db_request(req, Id):
+    req_usr = '''SELECT Id FROM userdb.Fragment WHERE Id = ?'''
+    if self.database.db_request(req_usr, Id):
       return True
     else:
       return False
@@ -527,7 +528,9 @@ class FragmentTable():
     returns all fragment names in the database, sorted by name
     '''
     req = '''SELECT Fragment.Id, Fragment.name FROM Fragment ORDER BY Name'''
-    rows = self.database.db_request(req)
+    req_usr = '''SELECT userdb.Fragment.Id, userdb.Fragment.name FROM 
+                          userdb.Fragment ORDER BY Name'''
+    rows = self.database.db_request(req_usr)
     if rows:
       return rows
     else:
@@ -727,7 +730,7 @@ class FragmentTable():
     if picture:
       picture = sqlite3.Binary(picture)
     table = (fragment_name, resiclass, reference, comment, picture)
-    req = '''INSERT INTO Fragment (name, class, reference, comment, picture) 
+    req = '''INSERT INTO userdb.Fragment (name, class, reference, comment, picture) 
                             VALUES(?,     ?,      ?,        ?,       ?   )'''
     return self.database.db_request(req, table)
 
@@ -759,7 +762,7 @@ class FragmentTable():
         x = line[2]
         y = line[3]
         z = line[4]
-        req = '''INSERT INTO atoms (FragmentId, Name, element, x, y, z) 
+        req = '''INSERT INTO userdb.atoms (FragmentId, Name, element, x, y, z) 
                              VALUES(     ?,      ?,     ?,     ?, ?, ?)'''
         self.database.db_request(req, (FragmentId, Name, element, x, y, z))
 
@@ -796,7 +799,7 @@ class FragmentTable():
         restr_table.append(str(FragmentId))
         restr_table.append(line[:4])
         restr_table.append(line[5:])
-        req = '''INSERT INTO Restraints (FragmentId, ShelxName, atoms)
+        req = '''INSERT INTO userdb.Restraints (FragmentId, ShelxName, atoms)
                   VALUES(?, ?, ?)'''
         self.database.db_request(req, restr_table)
 
@@ -816,7 +819,7 @@ class Restraints():
     [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
     
     '''
-    req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+    req_restr = '''SELECT userdb.Restraints.ShelxName, userdb.Restraints.Atoms
       FROM Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
@@ -833,7 +836,7 @@ if __name__ == '__main__':
  #   print('passed all tests!')
 
   # import cProfile
-  dbfile = 'tests/tst2.sqlite'
+  dbfile = 'file:tests/tst.sqlite?mode=ro'
 #  call_profile(dbfile)
   db = FragmentTable(dbfile)
   picture = db.get_picture(2)
@@ -859,12 +862,17 @@ if __name__ == '__main__':
   comment = 'asfgagr'
   resiclass = 'bnzr'
   
-  database = DatabaseRequest(dbfile)
+  #database = DatabaseRequest(dbfile)
   #database.table_info('userdb.')
+  #database.table_info('')
   #database.values_in_col('Fragment')
+  idf = db.has_index('1') 
+  print(idf)
+  #print(db[1])
+  print(db.has_name('Benzene'))
   
-  #fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
-  #if fid:
-  #  print('stored', fid)
-
+  fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
+  if fid:
+    print('stored', fid)
+ # print(db[5])
  
