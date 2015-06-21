@@ -52,8 +52,19 @@ Fragen und Ideen:
   
 - What to do about SAME restraints? Do not allow them.
 
-
-
+- User database handling:
+ * write all change to the database in a user-db.sqlite
+ * modification of an existing db entry creates a modified copy in the userdb
+ * distribution entries are not removable
+ * distribution db is read-only
+ * deletion of the user entry recreates the distribution entry
+ * the user dfined entry wins over the distribution entry if name is same
+ * creating a new uniq name creates a new entry in the user db
+ * reading of the databases
+   # read distrib db, read user db
+   # decide for every user db entry if name is existing in distrib db
+   # if so, exchange distrib list entry with user entry (by exchanging data source)
+   # and append all other user entrys
 '''
 
 

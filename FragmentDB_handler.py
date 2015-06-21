@@ -7,7 +7,6 @@ Created on 09.10.2014
 import sys
 import os
 from collections import Counter
-
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
@@ -136,12 +135,15 @@ class DatabaseRequest():
       raise IOError('Database file not found!') 
     # open the database
     self.con = sqlite3.connect(dbfile)
+    self.con.execute("ATTACH 'tests/tst1.sqlite' AS userdb")
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
     #self.con.text_factory = sqlite3.OptimizedUnicode
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
+      self.table_info('userdb'+'.')
+      self.table_info('')
 
   def db_request(self, request, *args):
     '''
@@ -174,6 +176,51 @@ class DatabaseRequest():
     # commit is very slow:
     self.con.commit()
     self.con.close()
+
+
+  def total_rows(self, table_name, print_out=True):
+      """ Returns the total number of rows in the database """
+      self.cur.execute('SELECT COUNT(*) FROM {}'.format(table_name))
+      count = self.cur.fetchall()
+      if print_out:
+          print('\nTotal rows: {}'.format(count[0][0]))
+      return count[0][0]
+  
+  def table_info(self, table_name, print_out=True):
+      """ 
+         Returns a list of tuples with column informations:
+        (id, name, type, notnull, default_value, primary_key)
+      
+      """
+      self.cur.execute('SELECT name FROM {}sqlite_master WHERE type="table"'.format(table_name))
+      info = self.cur.fetchall()
+  
+      if print_out:
+          print("\nColumn Info:\nID, Name, Type, NotNull, DefaultVal, PrimaryKey")
+          for col in info:
+              print(col)
+      return info
+
+  def values_in_col(self, table_name, print_out=True):
+      """ Returns a dictionary with columns as keys and the number of not-null 
+          entries as associated values.
+      """
+      self.cur.execute('PRAGMA TABLE_INFO({})'.format(table_name))
+      info = self.cur.fetchall()
+      col_dict = dict()
+      for col in info:
+          col_dict[col[1]] = 0
+      for col in col_dict:
+          self.cur.execute('SELECT ({0}) FROM {1} WHERE {0} IS NOT NULL'.format(col, table_name))
+          # In my case this approach resulted in a better performance than using COUNT
+          number_rows = len(self.cur.fetchall())
+          col_dict[col] = number_rows
+      if print_out:
+          print("\nNumber of entries per column:")
+          for i in col_dict.items():
+              print('{}: {}'.format(i[0], i[1]))
+      return col_dict
+
   
 class FragmentTable():
   '''
@@ -200,6 +247,7 @@ class FragmentTable():
     :type dbfile: str
     '''
     self.database = DatabaseRequest(dbfile)
+
 
   def __contains__(self, fragment_id):
     '''
@@ -631,7 +679,7 @@ class FragmentTable():
     selected_results = [search_results[i] for i in sorted(search_results)[0:selection]]
     return selected_results
 
-  def store_fragment(self, fragment_name, atoms, resiclass=None, restraints=None,
+  def store_fragment(self, fragment_name=None, atoms=None, resiclass=None, restraints=None,
                      reference=None, comment=None, picture=None):
     '''
     Store a complete new fragment into the database. Minimal requirement is a
@@ -676,7 +724,8 @@ class FragmentTable():
     :type comment: str
     :rtype list: last_rowid
     '''
-    picture = sqlite3.Binary(picture)
+    if picture:
+      picture = sqlite3.Binary(picture)
     table = (fragment_name, resiclass, reference, comment, picture)
     req = '''INSERT INTO Fragment (name, class, reference, comment, picture) 
                             VALUES(?,     ?,      ?,        ?,       ?   )'''
@@ -752,6 +801,7 @@ class FragmentTable():
         self.database.db_request(req, restr_table)
 
 
+
 class Restraints():
   def __init__(self, dbfile):
     self.database = DatabaseRequest(dbfile)
@@ -777,16 +827,16 @@ class Restraints():
 
 
 if __name__ == '__main__':
-  import doctest
-  failed, attempted = doctest.testmod()
-  if failed == 0:
-    print('passed all tests!')
+ # import doctest
+ # failed, attempted = doctest.testmod()
+ # if failed == 0:
+ #   print('passed all tests!')
 
   # import cProfile
-  dbfile = 'tests/tst1.sqlite'
+  dbfile = 'tests/tst2.sqlite'
 #  call_profile(dbfile)
   db = FragmentTable(dbfile)
-  db.get_picture(2)
+  picture = db.get_picture(2)
 
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
   #atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
@@ -807,10 +857,14 @@ if __name__ == '__main__':
   reference = 'sdfg ayrfgrawg adrgaegh ef'
   fragment_name=table[1]
   comment = 'asfgagr'
+  resiclass = 'bnzr'
   
-  id = False
-  #id = db.store_fragment(fragment_name, atoms, restraints2, reference, comment)
-  if id:
-    print('stored', id)
+  database = DatabaseRequest(dbfile)
+  #database.table_info('userdb.')
+  #database.values_in_col('Fragment')
+  
+  #fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
+  #if fid:
+  #  print('stored', fid)
 
  
