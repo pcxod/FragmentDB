@@ -134,7 +134,7 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile)
     if userdb:
-      self.con.execute('''ATTACH 'tests\\tst1-usr.sqlite' AS userdb''')
+      self.con.execute('''ATTACH 'tests\\user-tst1.sqlite' AS userdb''')
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
     #self.con.text_factory = sqlite3.OptimizedUnicode
@@ -836,7 +836,11 @@ if __name__ == '__main__':
  #   print('passed all tests!')
 
   # import cProfile
-  dbfile = 'sqlite:tests\tst.sqlite?mode=ro'
+  pth = os.path.abspath('tests/tst.sqlite')
+  print(pth)
+  dbfile = 'file:///{}?mode=ro'.format(pth)
+  print(dbfile)
+  
   #dbfile = 'tst.sqlite'
 #  call_profile(dbfile)
   db = FragmentTable(dbfile)
