@@ -526,7 +526,10 @@ class FragmentTable():
     req_atoms_usr = '''SELECT userdb.Atoms.name, userdb.Atoms.element, userdb.Atoms.x, 
             userdb.Atoms.y, userdb.Atoms.z FROM userdb.Fragment, userdb.Atoms on 
             userdb.Fragment.Id=userdb.Atoms.FragmentId WHERE Fragment.Id = ?'''
-    atomrows = self.database.db_request(req_atoms, fragment_id)
+    if not userdb:
+      atomrows = self.database.db_request(req_atoms, fragment_id)
+    else:
+      atomrows = self.database.db_request(req_atoms_usr, fragment_id)
     return atomrows
 
   def get_fragment_name(self, fragment_id):
