@@ -68,6 +68,12 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     the list of the atoms of the respective dbentry.
   - Checks wether restraints cards are vaid.
   - checks for duplicated atoms in the atoms list
+  :param restraints: list of strings like ['SADI C1 C2', '', ...]
+  :type restraints: list of strings
+  :param atoms: list of atoms in the fragment
+  :type atoms: list
+  :param fragment_name: fragment name
+  :type fragment_name: string
   '''
   if not restraints:
     print('No restraints found!')
@@ -177,50 +183,6 @@ class DatabaseRequest():
     self.con.commit()
     self.con.close()
 
-
-  def total_rows(self, table_name, print_out=True):
-      """ Returns the total number of rows in the database """
-      self.cur.execute('SELECT COUNT(*) FROM {}'.format(table_name))
-      count = self.cur.fetchall()
-      if print_out:
-          print('\nTotal rows: {}'.format(count[0][0]))
-      return count[0][0]
-  
-  def table_info(self, table_name, print_out=True):
-      """ 
-         Returns a list of tuples with column informations:
-        (id, name, type, notnull, default_value, primary_key)
-      
-      """
-      self.cur.execute('SELECT name FROM {}sqlite_master WHERE type="table"'.format(table_name))
-      info = self.cur.fetchall()
-  
-      if print_out:
-          print("\nColumn Info:\nID, Name, Type, NotNull, DefaultVal, PrimaryKey")
-          for col in info:
-              print(col)
-      return info
-
-  def values_in_col(self, table_name, print_out=True):
-      """ Returns a dictionary with columns as keys and the number of not-null 
-          entries as associated values.
-      """
-      self.cur.execute('PRAGMA TABLE_INFO({})'.format(table_name))
-      info = self.cur.fetchall()
-      col_dict = dict()
-      for col in info:
-          col_dict[col[1]] = 0
-      for col in col_dict:
-          self.cur.execute('SELECT ({0}) FROM {1} WHERE {0} IS NOT NULL'.format(col, table_name))
-          # In my case this approach resulted in a better performance than using COUNT
-          number_rows = len(self.cur.fetchall())
-          col_dict[col] = number_rows
-      if print_out:
-          print("\nNumber of entries per column:")
-          for i in col_dict.items():
-              print('{}: {}'.format(i[0], i[1]))
-      return col_dict
-
   
 class FragmentTable():
   '''
@@ -240,13 +202,13 @@ class FragmentTable():
   (2, u"2,2'-Bipyridine, C10H8N2, bipy")
 
   '''
-  def __init__(self, dbfile):
+  def __init__(self, dbfile, dbname):
     '''
     Class to modify the database tables of the fragment database in "dbfile"
     :param dbfile: database file path
     :type dbfile: str
     '''
-    self.database = DatabaseRequest(dbfile)
+    self.database = DatabaseRequest(dbfile, dbname)
 
 
   def __contains__(self, fragment_id):
@@ -304,10 +266,13 @@ class FragmentTable():
     
     :rtype: int
     '''
-    req = '''SELECT Fragment.id FROM Fragment'''
-    rows = self.database.db_request(req)
-    if rows:
-      return len(rows)
+    num = 0
+    for table_name in ['Fragment', 'userdb.Fragment']:
+      req = 'SELECT COUNT(*) FROM {}'.format(table_name)
+      rows = self.database.db_request(req)[0][0]
+      num = num+rows
+    if num:
+      return num
     else:
       raise IndexError('Could not determine database size')
 
@@ -480,7 +445,7 @@ class FragmentTable():
     else:
       return False
   
-  def has_index(self, Id):
+  def has_index(self, Id, userdb=False):
     '''
     Returns True if db has index Id
     :param Id: Id of the respective fragment
@@ -498,12 +463,16 @@ class FragmentTable():
     '''
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
     req_usr = '''SELECT Id FROM userdb.Fragment WHERE Id = ?'''
-    if self.database.db_request(req_usr, Id):
+    if not userdb:
+      rows = self.database.db_request(req)
+    else:
+      rows = self.database.db_request(req_usr)
+    if rows:
       return True
     else:
       return False
   
-  def get_all_rowids(self):
+  def get_all_rowids(self, userdb=False):
     '''
     returns all Ids in the database as list.
     :rtype: list 
@@ -516,7 +485,11 @@ class FragmentTable():
     '''
     ids = []
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
-    rows = self.database.db_request(req)
+    req_usr = '''SELECT Id FROM userdb.Fragment ORDER BY Id'''
+    if not userdb:
+      rows = self.database.db_request(req)
+    else:
+      rows = self.database.db_request(req_usr)
     if not rows:
       return False
     for i in rows:
@@ -527,16 +500,20 @@ class FragmentTable():
     '''
     returns all fragment names in the database, sorted by name
     '''
-    req = '''SELECT Fragment.Id, Fragment.name FROM Fragment ORDER BY Name'''
+    req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
     req_usr = '''SELECT userdb.Fragment.Id, userdb.Fragment.name FROM 
-                          userdb.Fragment ORDER BY Name'''
-    rows = self.database.db_request(req_usr)
-    if rows:
-      return rows
+                          userdb.Fragment'''
+    allrows = []
+    for requests in [req, req_usr]:
+      rows = self.database.db_request(requests)
+      allrows = allrows+rows
+    if allrows:
+      allrows.sort(key=lambda x: x[1])
+      return allrows
     else:
       return False
 
-  def _get_fragment(self, fragment_id):
+  def _get_fragment(self, fragment_id, userdb=False):
     '''
     returns a full fragment with all atoms, atom types as a tuple.
     :param fragment_id: id of the fragment in the database
@@ -546,6 +523,9 @@ class FragmentTable():
     req_atoms = '''SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
       Fragment.Id = ?'''
+    req_atoms_usr = '''SELECT userdb.Atoms.name, userdb.Atoms.element, userdb.Atoms.x, 
+            userdb.Atoms.y, userdb.Atoms.z FROM userdb.Fragment, userdb.Atoms on 
+            userdb.Fragment.Id=userdb.Atoms.FragmentId WHERE Fragment.Id = ?'''
     atomrows = self.database.db_request(req_atoms, fragment_id)
     return atomrows
 
@@ -836,16 +816,18 @@ if __name__ == '__main__':
  #   print('passed all tests!')
 
   # import cProfile
-  pth = os.path.abspath('tests/tst.sqlite')
-  print(pth)
-  dbfile = 'file:///{}?mode=ro'.format(pth)
+  dbname = 'tst1.sqlite'
+  dbfile = os.path.abspath('tests/{}').format(dbname)
   print(dbfile)
   
   #dbfile = 'tst.sqlite'
 #  call_profile(dbfile)
-  db = FragmentTable(dbfile)
+  db = FragmentTable(dbfile, dbname)
   picture = db.get_picture(2)
-
+  
+  for i in db.get_all_fragment_names():
+    print(i)
+  sys.exit()
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
   #atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
   table = ['sBenzene', 'super Benzene',
