@@ -3,6 +3,10 @@ Created on 09.10.2014
 
 @author: Daniel Kratzert
 
+- user table wird mit id umsetzer angesprochen. alles was von user raus geht oder
+  geschrieben wird bekommt nach aussen eine Id+1000000.
+  Fuer schreiben: wenn user, dann Id+1000000.
+  Fuer lesen: Wenn Id > 1000000, dann aus user lesen.
 '''
 import sys
 import os
@@ -489,12 +493,10 @@ class FragmentTable():
     if not userdb:
       rows = self.database.db_request(req)
     else:
-      rows = self.database.db_request(req_usr)
+      rows = rows+self.database.db_request(req_usr)
     if not rows:
       return False
-    for i in rows:
-      ids.append(i[0])
-    return ids
+    return [i[0] for i in rows]
   
   def get_all_fragment_names(self):
     '''
@@ -506,7 +508,8 @@ class FragmentTable():
     allrows = []
     for requests in [req, req_usr]:
       rows = self.database.db_request(requests)
-      allrows = allrows+rows
+      if rows:
+        allrows = allrows+rows
     if allrows:
       allrows.sort(key=lambda x: x[1])
       return allrows
