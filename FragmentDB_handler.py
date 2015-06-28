@@ -123,15 +123,6 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   if not status:
     print('Check database entry.\n')
   return status
-
-
-def call_profile(dbfile):
-  import cProfile
-  import pstats
-  cp = cProfile.Profile()
-  db=FragmentTable(dbfile)
-  cp.runcall(db._get_fragment, 17)
-  pstats.Stats(cp).strip_dirs().sort_stats('time').print_stats(20)
       
       
 class DatabaseRequest():
@@ -206,13 +197,13 @@ class FragmentTable():
   (2, u"2,2'-Bipyridine, C10H8N2, bipy")
 
   '''
-  def __init__(self, dbfile, dbname):
+  def __init__(self, dbfile, userdb=True):
     '''
     Class to modify the database tables of the fragment database in "dbfile"
     :param dbfile: database file path
     :type dbfile: str
     '''
-    self.database = DatabaseRequest(dbfile, dbname)
+    self.database = DatabaseRequest(dbfile, userdb)
 
 
   def __contains__(self, fragment_id):
@@ -369,12 +360,16 @@ class FragmentTable():
     if fragment_id < 0:
       fragment_id = self.get_all_rowids()[fragment_id]
     req = '''DELETE FROM Fragment WHERE rowid = ?'''
+    req_usr = '''DELETE FROM userdb.Fragment WHERE rowid = ?''' 
     try:
       fragment_id = int(fragment_id)
     except(ValueError, TypeError):
       print('Wrong type. Expected integer.')
     # actually delete the item:
-    deleted = self.database.db_request(req, fragment_id)
+    if fragment_id < 1000000:
+      deleted = self.database.db_request(req, fragment_id)
+    else:
+      deleted = self.database.db_request(req_usr, fragment_id)
     return deleted
 
   def __iter__(self):
@@ -407,15 +402,19 @@ class FragmentTable():
     >>> db.has_name('Benzil')
     False
     '''
-    req = '''SELECT Name FROM userdb.Fragment WHERE Name like "%{}%" '''.format(name, db)
+    req = '''SELECT Name FROM Fragment WHERE Name like "%{}%" '''.format(name, db)
+    req_usr = '''SELECT Name FROM userdb.Fragment WHERE Name like "%{}%" '''.format(name, db)
     if self.database.db_request(req):
       return True
+    elif self.database.db_request(req_usr):
+      return 'userdb'
     else:
       return False
   
   def has_exact_name(self, name):
     '''
-    Returns True if an exact name is found in the DB.
+    Returns True if an exact name is found in the DB. Returns 'userdb if
+    the name is found in the userdb.
     
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
@@ -426,8 +425,11 @@ class FragmentTable():
     False
     '''
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
+    req_usr = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
     if self.database.db_request(req):
       return True
+    elif self.database.db_request(req_usr):
+      return 'userdb'
     else:
       return False
   
@@ -449,7 +451,7 @@ class FragmentTable():
     else:
       return False
   
-  def has_index(self, Id, userdb=False):
+  def has_index(self, fragment_id):
     '''
     Returns True if db has index Id
     :param Id: Id of the respective fragment
@@ -467,10 +469,11 @@ class FragmentTable():
     '''
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
     req_usr = '''SELECT Id FROM userdb.Fragment WHERE Id = ?'''
-    if not userdb:
-      rows = self.database.db_request(req)
+    if fragment_id < 1000000:
+      rows = self.database.db_request(req, fragment_id)
     else:
-      rows = self.database.db_request(req_usr)
+      fragment_id = fragment_id-1000000
+      rows = self.database.db_request(req_usr, fragment_id)
     if rows:
       return True
     else:
@@ -490,12 +493,12 @@ class FragmentTable():
     ids = []
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
     req_usr = '''SELECT Id FROM userdb.Fragment ORDER BY Id'''
-    if not userdb:
-      rows = self.database.db_request(req)
-    else:
-      rows = rows+self.database.db_request(req_usr)
+    rows = self.database.db_request(req)
+    rows_usr = self.database.db_request(req_usr)
     if not rows:
       return False
+    rows_usr = [i[0]+1000000 for i in rows_usr]
+    rows = rows+rows_usr
     return [i[0] for i in rows]
   
   def get_all_fragment_names(self):
@@ -516,7 +519,7 @@ class FragmentTable():
     else:
       return False
 
-  def _get_fragment(self, fragment_id, userdb=False):
+  def _get_fragment(self, fragment_id):
     '''
     returns a full fragment with all atoms, atom types as a tuple.
     :param fragment_id: id of the fragment in the database
@@ -529,7 +532,7 @@ class FragmentTable():
     req_atoms_usr = '''SELECT userdb.Atoms.name, userdb.Atoms.element, userdb.Atoms.x, 
             userdb.Atoms.y, userdb.Atoms.z FROM userdb.Fragment, userdb.Atoms on 
             userdb.Fragment.Id=userdb.Atoms.FragmentId WHERE Fragment.Id = ?'''
-    if not userdb:
+    if fragment_id < 1000000:
       atomrows = self.database.db_request(req_atoms, fragment_id)
     else:
       atomrows = self.database.db_request(req_atoms_usr, fragment_id)
@@ -547,7 +550,11 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ?  '''
+    if fragment_id < 1000000:
+      req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ? '''
+    else:
+      req_name = '''SELECT userdb.Fragment.Name FROM userdb.Fragment WHERE 
+                        Fragment.Id = ? '''
     name = self.database.db_request(req_name, fragment_id)[0]
     return name
   
@@ -564,7 +571,11 @@ class FragmentTable():
       int(fragment_id)
     except ValueError:
       return False
-    req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
+    if fragment_id < 1000000:
+      req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
+    else:
+      req_picture = '''SELECT userdb.Fragment.picture FROM userdb.Fragment WHERE 
+                          Fragment.Id = ? '''  
     try:
       picture = self.database.db_request(req_picture, fragment_id)[0][0]
     except TypeError:
@@ -583,7 +594,11 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
+    if fragment_id < 1000000:
+      req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
+    else:
+      req_class = '''SELECT userdb.Fragment.class FROM userdb.Fragment WHERE 
+                        Fragment.Id = ?'''
     classname = self.database.db_request(req_class, fragment_id)
     try:
       classname = classname[0][0]
@@ -604,8 +619,12 @@ class FragmentTable():
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
     '''
-    req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+    if fragment_id < 1000000:
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
+    else:
+      req_restr = '''SELECT userdb.Restraints.ShelxName, userdb.Restraints.Atoms
+            FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
 
@@ -624,7 +643,10 @@ class FragmentTable():
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
     '''
-    req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
+    if fragment_id < 1000000:
+      req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
+    else:
+      req_ref = '''SELECT userdb.Reference FROM userdb.Fragment WHERE Fragment.Id = ? '''
     rows = self.database.db_request(req_ref, fragment_id)
     try:
       ref = rows[0][0]
@@ -792,8 +814,8 @@ class FragmentTable():
 
 
 class Restraints():
-  def __init__(self, dbfile):
-    self.database = DatabaseRequest(dbfile)
+  def __init__(self, dbfile, userdb=True):
+    self.database = DatabaseRequest(dbfile, userdb)
 
   def get_restraints_from_fragmentId(self, fragment_id):
     '''
@@ -805,8 +827,12 @@ class Restraints():
     [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
     
     '''
-    req_restr = '''SELECT userdb.Restraints.ShelxName, userdb.Restraints.Atoms
-      FROM Restraints WHERE FragmentId = ?'''
+    if fragment_id < 1000000:
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+                      FROM Restraints WHERE FragmentId = ?'''
+    else:
+      req_restr = '''SELECT userdb.Restraints.ShelxName, userdb.Restraints.Atoms
+                      FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
 
