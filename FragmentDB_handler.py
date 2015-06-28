@@ -135,13 +135,15 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile)
     if userdb:
-      self.con.execute('''ATTACH 'tests\\user-tst1.sqlite' AS userdb''')
+      self.con.execute('''ATTACH 'tests/tst-usr.sqlite' AS userdb''')
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
     #self.con.text_factory = sqlite3.OptimizedUnicode
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
+      #ttt = self.cur.execute('PRAGMA userdb.table_info(Fragment)').fetchall()
+      #print(ttt)
       #self.table_info('userdb'+'.')
       #self.table_info('')
 
@@ -165,7 +167,7 @@ class DatabaseRequest():
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
       print(e)
-      print(request)
+      print(request, args)
       return False
     rows = self.cur.fetchall()
     if not rows:
@@ -203,6 +205,7 @@ class FragmentTable():
     :param dbfile: database file path
     :type dbfile: str
     '''
+    self.userdb = userdb
     self.database = DatabaseRequest(dbfile, userdb)
 
 
@@ -264,7 +267,10 @@ class FragmentTable():
     num = 0
     for table_name in ['Fragment', 'userdb.Fragment']:
       req = 'SELECT COUNT(*) FROM {}'.format(table_name)
-      rows = self.database.db_request(req)[0][0]
+      try:
+        rows = self.database.db_request(req)[0][0]
+      except TypeError:
+        pass
       num = num+rows
     if num:
       return num
@@ -308,6 +314,7 @@ class FragmentTable():
       print('Wrong type. Integer expected')
       #sys.exit()
       return False
+    # works only for distribution db:
     if fragment_id < 0:
       fragment_id = len(self)-abs(fragment_id)
     found = self._get_fragment(fragment_id)
@@ -369,6 +376,7 @@ class FragmentTable():
     if fragment_id < 1000000:
       deleted = self.database.db_request(req, fragment_id)
     else:
+      fragment_id = fragment_id-1000000
       deleted = self.database.db_request(req_usr, fragment_id)
     return deleted
 
@@ -425,7 +433,7 @@ class FragmentTable():
     False
     '''
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
-    req_usr = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
+    req_usr = '''SELECT Name FROM userdb.Fragment WHERE Fragment.Name = "{}" '''.format(name)
     if self.database.db_request(req):
       return True
     elif self.database.db_request(req_usr):
@@ -446,7 +454,10 @@ class FragmentTable():
     False
     '''
     req = '''SELECT class FROM Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
+    req_usr = '''SELECT class FROM userdb.Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
     if self.database.db_request(req):
+      return True
+    elif self.database.db_request(req_usr):
       return True
     else:
       return False
@@ -467,6 +478,11 @@ class FragmentTable():
     False
     
     '''
+    try:
+      fragment_id = int(fragment_id)
+    except(TypeError):
+      print('Wrong type for database index. Only numbers allowed.')
+      return False
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
     req_usr = '''SELECT Id FROM userdb.Fragment WHERE Id = ?'''
     if fragment_id < 1000000:
@@ -490,29 +506,31 @@ class FragmentTable():
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]
         
     '''
-    ids = []
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
     req_usr = '''SELECT Id FROM userdb.Fragment ORDER BY Id'''
-    rows = self.database.db_request(req)
+    rows = [i[0] for i in self.database.db_request(req)]
     rows_usr = self.database.db_request(req_usr)
     if not rows:
       return False
     rows_usr = [i[0]+1000000 for i in rows_usr]
     rows = rows+rows_usr
-    return [i[0] for i in rows]
+    return rows
   
   def get_all_fragment_names(self):
     '''
     returns all fragment names in the database, sorted by name
     '''
     req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
-    req_usr = '''SELECT userdb.Fragment.Id, userdb.Fragment.name FROM 
-                          userdb.Fragment'''
+    req_usr = '''SELECT Fragment.Id, Fragment.name FROM userdb.Fragment'''
     allrows = []
-    for requests in [req, req_usr]:
-      rows = self.database.db_request(requests)
-      if rows:
-        allrows = allrows+rows
+    rows = self.database.db_request(req)
+    if self.userdb:
+      rows_usr = self.database.db_request(req_usr)
+      if rows_usr:
+        rows_usr = [[i[0]+1000000, i[1]] for i in rows_usr]
+        allrows = allrows+rows+rows_usr
+    else:
+      allrows = rows
     if allrows:
       allrows.sort(key=lambda x: x[1])
       return allrows
@@ -535,6 +553,7 @@ class FragmentTable():
     if fragment_id < 1000000:
       atomrows = self.database.db_request(req_atoms, fragment_id)
     else:
+      fragment_id = fragment_id-1000000
       atomrows = self.database.db_request(req_atoms_usr, fragment_id)
     return atomrows
 
@@ -553,6 +572,7 @@ class FragmentTable():
     if fragment_id < 1000000:
       req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ? '''
     else:
+      fragment_id = fragment_id-1000000
       req_name = '''SELECT userdb.Fragment.Name FROM userdb.Fragment WHERE 
                         Fragment.Id = ? '''
     name = self.database.db_request(req_name, fragment_id)[0]
@@ -574,7 +594,8 @@ class FragmentTable():
     if fragment_id < 1000000:
       req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
     else:
-      req_picture = '''SELECT userdb.Fragment.picture FROM userdb.Fragment WHERE 
+      fragment_id = fragment_id-1000000
+      req_picture = '''SELECT Fragment.picture FROM userdb.Fragment WHERE 
                           Fragment.Id = ? '''  
     try:
       picture = self.database.db_request(req_picture, fragment_id)[0][0]
@@ -597,12 +618,13 @@ class FragmentTable():
     if fragment_id < 1000000:
       req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
     else:
-      req_class = '''SELECT userdb.Fragment.class FROM userdb.Fragment WHERE 
+      fragment_id = fragment_id-1000000
+      req_class = '''SELECT Fragment.class FROM userdb.Fragment WHERE 
                         Fragment.Id = ?'''
     classname = self.database.db_request(req_class, fragment_id)
     try:
       classname = classname[0][0]
-    except(IndexError):
+    except(IndexError, TypeError):
       print('Could not find residue class.')
       return
     return str(classname) 
@@ -623,7 +645,7 @@ class FragmentTable():
       req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
     else:
-      req_restr = '''SELECT userdb.Restraints.ShelxName, userdb.Restraints.Atoms
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
@@ -646,7 +668,7 @@ class FragmentTable():
     if fragment_id < 1000000:
       req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
     else:
-      req_ref = '''SELECT userdb.Reference FROM userdb.Fragment WHERE Fragment.Id = ? '''
+      req_ref = '''SELECT Reference FROM userdb.Fragment WHERE Fragment.Id = ? '''
     rows = self.database.db_request(req_ref, fragment_id)
     try:
       ref = rows[0][0]
@@ -831,7 +853,7 @@ class Restraints():
       req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
                       FROM Restraints WHERE FragmentId = ?'''
     else:
-      req_restr = '''SELECT userdb.Restraints.ShelxName, userdb.Restraints.Atoms
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
                       FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
@@ -848,17 +870,20 @@ if __name__ == '__main__':
  #   print('passed all tests!')
 
   # import cProfile
-  dbname = 'tst1.sqlite'
+  dbname = 'tst.sqlite'
   dbfile = os.path.abspath('tests/{}').format(dbname)
   print(dbfile)
   
   #dbfile = 'tst.sqlite'
 #  call_profile(dbfile)
-  db = FragmentTable(dbfile, dbname)
+  db = FragmentTable(dbfile, userdb=True)
   picture = db.get_picture(2)
-  
-  for i in db.get_all_fragment_names():
-    print(i)
+  print(db.get_residue_class(1000005))
+  names = db.get_all_fragment_names()
+  print(db[1000005])
+  #for i in names:
+  #  print(i)
+    
   sys.exit()
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
   #atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
@@ -890,8 +915,12 @@ if __name__ == '__main__':
   #print(db[1])
   print(db.has_name('Benzene'))
   
-  fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
-  if fid:
-    print('stored', fid)
+ # fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
+ # if fid:
+ #   print('stored', fid)
  # print(db[5])
+ 
+ 
+ 
+ 
  
