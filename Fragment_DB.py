@@ -38,6 +38,8 @@ Fragen und Ideen:
 - ask oleg about the combo-box to implement that it can start the search "onenter".  
   "onedit=spy.FragmentDB.search_fragments(~value~),
   
+- get help messages to work.
+  
 '''
 
 
