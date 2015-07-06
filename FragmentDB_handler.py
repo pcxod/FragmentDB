@@ -3,10 +3,6 @@ Created on 09.10.2014
 
 @author: Daniel Kratzert
 
-- user table wird mit id umsetzer angesprochen. alles was von user raus geht oder
-  geschrieben wird bekommt nach aussen eine Id+1000000.
-  Fuer schreiben: wenn user, dann Id+1000000.
-  Fuer lesen: Wenn Id > 1000000, dann aus user lesen.
 '''
 import sys
 import os
@@ -19,7 +15,7 @@ __all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints']
       
       
 class DatabaseRequest():
-  def __init__(self, dbfile, userdb=True, userdb_path='./'):
+  def __init__(self, dbfile, userdb_path=False):
     '''
     creates a connection and the cursor to the SQLite3 database file "dbfile".
     :param dbfile: database file
@@ -27,8 +23,7 @@ class DatabaseRequest():
     '''
     # open the database
     self.con = sqlite3.connect(dbfile)
-    if userdb:
-      #self.con.execute('''ATTACH 'user-fragment-database.sqlite' AS userdb''')
+    if userdb_path:
       self.con.execute('ATTACH "{}" AS userdb'.format(userdb_path))
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
@@ -36,9 +31,6 @@ class DatabaseRequest():
     with self.con:
       # set the database cursor
       self.cur = self.con.cursor()
-      #ttt = self.cur.execute('PRAGMA userdb.table_info(Fragment)').fetchall()
-      #print(ttt)
-
 
   def db_request(self, request, *args):
     '''
@@ -77,7 +69,7 @@ class DatabaseRequest():
 class FragmentTable():
   '''
   >>> dbfile = 'tests/tst.sqlite'
-  >>> db = FragmentTable(dbfile, userdb=True, userdb_path='./')
+  >>> db = FragmentTable(dbfile, './tests/tst-usr.sqlite')
   >>> print db[3]
   [(u'O1', u'8', -0.7562, 1.6521, -0.3348), (u'C1', u'6', -2.1051, 1.9121, -0.4223), (u'C2', u'6', -2.5884, 1.9919, -1.8717), (u'F1', u'9', -1.9571, 2.9653, -2.5781), (u'F2', u'9', -3.9264, 2.2817, -1.9122), (u'F3', u'9', -2.413, 0.8316, -2.546)]
 
@@ -86,21 +78,20 @@ class FragmentTable():
   ...   if num >= 5: break
   (54, u'1,2-Dichlorobenzene, C6H4Cl2')
   (5, u'1,2-Difluorobenzene, C6H4F2')
+  [1000005, u'1,2-Difluorobenzene, C6H4F2']
   (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
   (18, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
   (22, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
-  (2, u"2,2'-Bipyridine, C10H8N2, bipy")
 
   '''
-  def __init__(self, dbfile, userdb=True, userdb_path='./'):
+  def __init__(self, dbfile, userdb_path=''):
     '''
     Class to modify the database tables of the fragment database in "dbfile"
     :param dbfile: database file path
     :type dbfile: str
     '''
-    self.userdb = userdb
-    self.database = DatabaseRequest(dbfile, userdb, userdb_path)
-
+    self.userdb = userdb_path
+    self.database = DatabaseRequest(dbfile, userdb_path)
 
 
   def __contains__(self, fragment_id):
@@ -153,9 +144,9 @@ class FragmentTable():
     
     # number of fragments in the database:
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> len(db)  
-    63
+    69
     
     :rtype: int
     '''
@@ -228,7 +219,7 @@ class FragmentTable():
     >>> import shutil
     >>> shutil.copyfile('tests/tst.sqlite', 'tests/tst1.sqlite')
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> del db[2]
     >>> db[2]
     Traceback (most recent call last):
@@ -236,17 +227,17 @@ class FragmentTable():
     IndexError: Database fragment not found.
     
     >>> print 'before:', len(db)
-    before: 64
+    before: 70
     
     # del db[0] deletes nothing:
     
     >>> del db[0]
     >>> print 'after:', len(db)
-    after: 64
+    after: 70
 
     >>> del db[3]
     >>> print 'after:', len(db)
-    after: 63
+    after: 69
     
     >>> print db[-3][1]
     Traceback (most recent call last):
@@ -281,14 +272,14 @@ class FragmentTable():
     Returns the Id and the Name as tuple.
 
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> for num, i in enumerate(db):
     ...   print(i)
     ...   if num > 1:
     ...     break
     (54, u'1,2-Dichlorobenzene, C6H4Cl2')
     (5, u'1,2-Difluorobenzene, C6H4F2')
-    (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
+    [1000005, u'1,2-Difluorobenzene, C6H4F2']
     '''
     all_fragments = self.get_all_fragment_names()
     if all_fragments:
@@ -301,9 +292,9 @@ class FragmentTable():
     Returns True if a partial name is found in the DB.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile, userdb=True, userdb_path='./')
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_name('Benzene')
-    True
+    'userdb'
     
     >>> db.has_name('Benzil')
     False
@@ -324,7 +315,7 @@ class FragmentTable():
     the name is found in the userdb.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_name('1,2-Dichlorobenzene, C6H4Cl2')
     True
     
@@ -346,7 +337,7 @@ class FragmentTable():
     Returns True if an exact residue class is found in the DB.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_resi_class('BENZ')
     True
     
@@ -402,9 +393,9 @@ class FragmentTable():
     :rtype: list 
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.get_all_rowids()
-    [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 1000001, 1000002, 1000003, 1000004, 1000005]
+    [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006]
         
     '''
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
@@ -568,12 +559,12 @@ class FragmentTable():
     returns the reference for Fragment(Id) from the database.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)    
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')    
     >>> db.get_reference(4)
     u'CCDC LIBXUR'
     
     >>> db.get_reference(999)
-    ''
+    'no reference found'
 
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
@@ -597,9 +588,9 @@ class FragmentTable():
     selection of (default=5) best hits.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(9, u'PF-Anion, [Al{OC(CF3)3}4]-'), (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
+    [[1000003, u'Trifluoroethanol, OCH2CF3-'], (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
@@ -758,23 +749,36 @@ class FragmentTable():
 
 
 class Restraints():
-  def __init__(self, dbfile, userdb=True):
+  def __init__(self, dbfile, userdb):
     self.database = DatabaseRequest(dbfile, userdb)
 
+  def fragid_toint(self, fragment_id):
+    try:
+      int(fragment_id)
+    except ValueError as e:
+      print(e)
+      return
+    return int(fragment_id)
+  
   def get_restraints_from_fragmentId(self, fragment_id):
     '''
     returns the restraints from a database entry
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> res = Restraints(dbfile)    
+    >>> res = Restraints(dbfile, 'tests/tst-usr.sqlite')    
     >>> res.get_restraints_from_fragmentId(7)
     [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
     
+    >>> res.get_restraints_from_fragmentId(1000001)
+    [(u'SADI', u'0.02 C1 C2 C2 C3 C3 C4 C4 C5 C5 C6 C6 C1'), (u'SADI', u'0.04 C1 C5 C1 C5 C4 C2 C4 C6 C6 C2 C5 C3'), (u'FLAT', u'C1 > C6'), (u'SIMU', u'C1 > C6'), (u'RIGU', u'C1 > C6')]
+    
     '''
+    fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
       req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
                       FROM Restraints WHERE FragmentId = ?'''
     else:
+      fragment_id = fragment_id-1000000
       req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
                       FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
@@ -798,11 +802,11 @@ if __name__ == '__main__':
   
   #dbfile = 'tst.sqlite'
 #  call_profile(dbfile)
-  db = FragmentTable(dbfile, userdb=True)
-  picture = db.get_picture(2)
-  print(db.get_residue_class(1000005))
-  names = db.get_all_fragment_names()
-  print(db[1000005])
+ # db = FragmentTable(dbfile, userdb='tests/tst-usr.sqlite')
+ # picture = db.get_picture(2)
+ # print(db.get_residue_class(1000005))
+ # names = db.get_all_fragment_names()
+ # print(db[1000005])
   #for i in names:
   #  print(i)
     

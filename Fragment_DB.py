@@ -11,14 +11,9 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- make a user database that doesn't get overwritten during update!
-
-- possibility to add sump to the free variable
+- use "mode match" instead of "mode fit".
 
 - Checkbox for "use DFIX"
-
-- If atom is near other atom (< 1/2*wavelength) and has same name (if in same resi class) or same atom type:
-  make them eadp. Maybe an extra button? Or is it possible to start something after "mode fit"?
 
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 
@@ -26,22 +21,15 @@ Fragen und Ideen:
   SADI -i atoms names
   
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
-  (which is ok) but the restraints like SIMU N1 C1 C2 C3 C4 miss the nitrogen.
+  and the restraints like SIMU N1 C1 C2 C3 C4 break.
+  I need to replace target positions, or no atom!
   
-  can not reproduce it:
 - If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for 
   this fragment and not expand to symmetry equivalent atoms like 
   EQIV $4 -1+X,1+Y,+Z
   DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
 
-- how can I set a fragment as default upon startup and activate it's picture? 
-
 - I would like to replace atoms in 1.3 A around the fitting fragment. 
-
-- how can I set the cursor to the end of a edit box?
-
-- When I come back from a different plugin, the image is not diplayed anymore.
-  Solution: I could save the last id in the phil and reload the state
 
 - can the state of the plugin be updated after fit to initialize e.g. the 
   residue number again?
@@ -50,36 +38,6 @@ Fragen und Ideen:
 - ask oleg about the combo-box to implement that it can start the search "onenter".  
   "onedit=spy.FragmentDB.search_fragments(~value~),
   
-- What to do about SAME restraints? Do not allow them.
-
-- User database handling:
- * write all change to the database in a user-db.sqlite
- * modification of an existing db entry creates a modified copy in the userdb
- * distribution entries are not removable
- * distribution db is read-only
- * deletion of the user entry recreates the distribution entry
- * the user dfined entry wins over the distribution entry if name is same
- * creating a new uniq name creates a new entry in the user db
- * reading of the databases
-   # read distrib db, read user db
-   # decide for every user db entry if name is existing in distrib db
-   # if so, exchange distrib list entry with user entry (by exchanging data source)
-   # and append all non-existing user entrys reqularly
-   # all write action only in userdb. dirstrib db is read only userdb is mode rwc
-
-
-Something like this might help:
-
-Check out the UNION ALL and NOT IN operators:
-
-SELECT name, check
-  FROM Categories
- WHERE tid = ?
-UNION ALL
-SELECT name, check
-  FROM DistinctCategories
- WHERE name NOT IN (SELECT name FROM Categories WHERE tid = ?)
-
 '''
 
 
@@ -122,7 +80,7 @@ class FragmentDB(PT):
       initialize_user_db(self.userdbfile)
     # for edited fragments:
     self.frag_cell = []
-    self.db = FragmentTable(self.dbfile, userdb=True, userdb_path=self.userdbfile)
+    self.db = FragmentTable(self.dbfile, self.userdbfile)
     
 
   def init_plugin(self):
@@ -142,7 +100,6 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     
 
-  
   def set_occu(self, occ):
     '''
     sets the occupancy, even if you enter a comma value instead of point as 
