@@ -3,7 +3,7 @@ from collections import OrderedDict
 from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
-from FragmentDB_handler import check_restraints_consistency
+from helper_functions import check_restraints_consistency, initialize_user_db
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -116,9 +116,13 @@ class FragmentDB(PT):
     self.setup_gui()
     self.params = OV.GuiParams()
     self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
+    self.userdb = 'user-fragment-database.sqlite'
+    self.userdbfile = os.sep.join([instance_path, os.sep,'db', os.sep, self.userdb])
+    if not os.path.exists(self.userdbfile) or os.path.getsize(self.userdbfile) < 100:
+      initialize_user_db(self.userdbfile)
     # for edited fragments:
     self.frag_cell = []
-    self.db = FragmentTable(self.dbfile)
+    self.db = FragmentTable(self.dbfile, userdb=True, userdb_path=self.userdbfile)
     
 
   def init_plugin(self):
@@ -232,15 +236,15 @@ class FragmentDB(PT):
       # while not is_near_atoms:
       #    translate...
       x, y, z = olx.xf.au.Fractionalise(i[2]+trans,i[3]+trans,i[4]+trans).split(',')
-      id = olx.xf.au.NewAtom(label, x, y, z, False)
-      olx.xf.au.SetAtomPart(id, partnum)
+      at_id = olx.xf.au.NewAtom(label, x, y, z, False)
+      olx.xf.au.SetAtomPart(at_id, partnum)
       # if label is H... then SetAtomU == -1.3
-      olx.xf.au.SetAtomU(id, 0.045)
-      olx.xf.au.SetAtomOccu(id, occupancy)
-      name = olx.xf.au.GetAtomName(id)
-      labeldict[name.upper()] = id
-      print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], id, x, y, z))
-      atoms.append(id)
+      olx.xf.au.SetAtomU(at_id, 0.045)
+      olx.xf.au.SetAtomOccu(at_id, occupancy)
+      name = olx.xf.au.GetAtomName(at_id)
+      labeldict[name.upper()] = at_id
+      print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], at_id, x, y, z))
+      atoms.append(at_id)
     olx.xf.EndUpdate()
     # now residues and otgher stuff:
     if resiclass and resinum:
@@ -491,7 +495,7 @@ class FragmentDB(PT):
       int(fragId)
     except ValueError:
       return
-    resiclass = self.db.get_residue_class(fragId)
+    resiclass = self.db.get_residue_class(int(fragId))
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
     # set the class in the text field of the gui:
@@ -643,7 +647,7 @@ class FragmentDB(PT):
     -returns a list of lists:
      [['C4', '1', '0.282212', '0.368636', '0.575493'], ...]
     '''
-    atlines = []
+    atlines = []  # @UnusedVariable
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split()
@@ -697,7 +701,7 @@ class FragmentDB(PT):
     '''
     handles the restraints of a new/edited fragment
     '''
-    restraints = []
+    restraints = []  # @UnusedVariable
     restr = OV.GetParam('fragment_DB.new_fragment.frag_restraints')
     if restr:
       line = restr.split()
@@ -821,12 +825,12 @@ class FragmentDB(PT):
       print('Fragment was not added to the database!')
       return
     self.delete_fragment(reset=False)
-    id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
+    frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
                                 reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
-    if id:
+    if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-      olx.SetVar('fragment_ID', id)
+      olx.SetVar('fragment_ID', frag_id)
     else:
       print('Something is wrong with fragment storage.')
     self.get_frag_for_gui()
@@ -889,12 +893,12 @@ class FragmentDB(PT):
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
       return
-    id = self.db.store_fragment(fragname, coords, resiclass, restraints,
+    at_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
-    if id:
+    if at_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     # now get the fragment back from the db to display the new cell:
-    olx.SetVar('fragment_ID', id)
+    olx.SetVar('fragment_ID', at_id)
     self.init_plugin()
     #olx.html.SetValue('RESIDUE_CLASS', '')
     #self.get_resi_class()
@@ -933,11 +937,11 @@ class FragmentDB(PT):
     '''
     from shutil import copyfile
     title = "Save Chemdrawstyle file"
-    filter = ''
+    ffilter = ''
     location = '.'
-    stylename = None
+    stylename = None  # @UnusedVariable
     default_name = 'chemdraw_style.cds'
-    stylename = olx.FileSave(title, filter, location, default_name)
+    stylename = olx.FileSave(title, ffilter, location, default_name)
     if not stylename:
       return
     spath = "%s/drawstyle.cds" % (self.p_path)

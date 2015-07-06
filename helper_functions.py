@@ -111,5 +111,97 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   return status
 
 
+
+
+def initialize_user_db(user_dbpath):
+  '''
+  initializes an empty user database in DataDir()/db/
+  :param user_dbpath: path with filename where to create the database.
+  :type user_dbpath: string
+  '''
+  import sqlite3 as lite
+  con = lite.connect(user_dbpath)
+  con.text_factory = str
+  cur = con.cursor()
+  print('initializing FragmentDB user databse.')
+  con.execute("PRAGMA foreign_keys = ON")
+  cur.execute("DROP TABLE IF EXISTS fragment")
+  cur.execute("DROP TABLE IF EXISTS atoms")
+  cur.execute("DROP TABLE IF EXISTS atom")
+  cur.execute("DROP TABLE IF EXISTS FragmentRestraints")
+  cur.execute("DROP TABLE IF EXISTS Restraints")
+  try:
+    cur.execute("DROP INDEX Atoms_FK")
+  except:
+    pass
+  try:
+    cur.execute("DROP INDEX Restraint_FK")
+  except:
+    pass
+  try:
+    cur.execute("DROP INDEX Fragment_Name")
+  except:
+    pass
+  try:
+    cur.execute("DROP INDEX AtomId")
+  except:
+    pass
+  cur.execute('''
+              CREATE TABLE Fragment (
+                  Id    INTEGER NOT NULL,
+                  class  VARCHAR(4),
+                  version TEXT,
+                  Name    TEXT,
+                  Reference    TEXT,
+                  comment    TEXT,
+                  picture    BLOB,
+                  PRIMARY KEY(Id));
+              ''')
+  cur.execute('''
+              CREATE TABLE Atoms (
+                  Id    INTEGER NOT NULL,
+                  FragmentId    INTEGER NOT NULL,
+                  version TEXT,
+                  Name    VARCHAR(255),
+                  element    VARCHAR(2),
+                  x    FLOAT,
+                  y    FLOAT,
+                  z    FLOAT,
+              PRIMARY KEY(Id),
+                FOREIGN KEY(FragmentId)
+                  REFERENCES Fragment(Id)
+                    ON DELETE CASCADE
+                    ON UPDATE NO ACTION);
+              ''')
+  cur.execute('''
+                 CREATE TABLE Restraints (
+                    Id INTEGER  NOT NULL,
+                    FragmentId  INTEGER NOT NULL,
+                    version TEXT,
+                    ShelxName CHAR(4),
+                    Atoms TEXT,
+                  PRIMARY KEY(Id),
+                    FOREIGN KEY(FragmentId)
+                      REFERENCES Fragment(Id)
+                      ON DELETE CASCADE
+                      ON UPDATE NO ACTION);
+                  ''')
+  cur.execute('''
+              CREATE INDEX Atoms_FK ON Atoms(FragmentId);
+              ''')
+  cur.execute('''
+              CREATE INDEX Restraint_FK ON Restraints(FragmentId);
+              ''')
+  cur.execute('''
+              CREATE INDEX Fragment_Name ON Atoms(Name);
+              ''')
+  cur.execute('''
+              CREATE INDEX AtomId ON Atoms(Id);
+              ''')
+  con.execute("PRAGMA foreign_keys = ON")
+  con.commit()
+
+
+
 if __name__ == '__main__':
   pass
