@@ -11,7 +11,7 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- use "mode match" instead of "mode fit".
+- use ImportFrag and "mode match" instead of "mode fit".
 
 - Checkbox for "use DFIX"
 
