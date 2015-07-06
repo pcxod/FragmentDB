@@ -6,136 +6,25 @@ Created on 09.10.2014
 '''
 import sys
 import os
-from collections import Counter
-
+from helper_functions import dice_coefficient, SHX_CARDS
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
 
-__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints', 'check_restraints_consistency', 
-           'SHX_CARDS', 'RESTRAINT_CARDS']
-
-
-SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
-             'L.S.', 'CGLS', 'BOND', 'FMAP', 'PLAN', 'TEMP', 'ACTA', 'CONF',
-             'SIMU', 'RIGU', 'WGHT', 'FVAR', 'DELU', 'SAME', 'DISP', 'LAUE',
-             'REM', 'MORE', 'TIME', 'END', 'HKLF', 'OMIT', 'SHEL', 'BASF',
-             'TWIN', 'EXTI', 'SWAT', 'HOPE', 'MERG', 'SPEC', 'RESI', 'MOVE',
-             'ANIS', 'AFIX', 'HFIX', 'FRAG', 'FEND', 'EXYZ', 'EADP', 'EQIV',
-             'CONN', 'BIND', 'FREE', 'DFIX', 'BUMP', 'SADI', 'CHIV', 'FLAT',
-             'DEFS', 'ISOR', 'NCSY', 'SUMP', 'BLOC', 'DAMP', 'STIR', 'MPLA',
-             'RTAB', 'HTAB', 'SIZE', 'WPDB', 'GRID', 'MOLE', 'XNPD', 'REST',
-             'CHAN', 'FLAP', 'RNUM', 'SOCC', 'PRIG', 'WIGL', 'RANG', 'TANG',
-             'ADDA', 'STAG', 'NEUT', 'ABIN', 'ANSC', 'ANSR', 'NOTR', 'TWST',
-             'PART', 'DANG')
-
-RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP',
-                'HFIX', 'SADI', 'CHIV', 'FLAT', 'DEFS', 'ISOR', 'NCSY', 'DANG')
-
-
-def dice_coefficient(a, b):
-  '''
-  dice coefficient 2nt/na + nb
-  Compares the similarity of a and b
-  :param a: string
-  :param b: string
-  '''
-  a = a.lower()
-  b = b.lower()
-  if not len(a) or not len(b): return 0.0
-  if len(a) == 1:
-      a = a+'.'
-  if len(b) == 1:
-      b = b + '.'
-  a_bigram_list = []
-  for i in range(len(a)-1):
-    a_bigram_list.append(a[i:i+2])
-  b_bigram_list = []
-  for i in range(len(b)-1):
-    b_bigram_list.append(b[i:i+2])
-  a_bigrams = set(a_bigram_list)
-  b_bigrams = set(b_bigram_list)
-  overlap = len(a_bigrams & b_bigrams)
-  dice_coeff = overlap * 2.0/(len(a_bigrams) + len(b_bigrams))
-  dice_coeff = 1-dice_coeff # invert the result
-  if dice_coeff < 0.5:  # make a cutoff for the best matches
-    return 0.0
-  return round(dice_coeff, 6)
-
-
-def check_restraints_consistency(restraints, atoms, fragment_name):
-  '''
-  - Checks if the Atomnames in the restraints of the dbhead are also in
-    the list of the atoms of the respective dbentry.
-  - Checks wether restraints cards are vaid.
-  - checks for duplicated atoms in the atoms list
-  '''
-  if not restraints:
-    print('No restraints found!')
-    return True
-  status = True
-  atoms = [i[0].upper() for i in atoms]
-  # check for duplicates:
-  if len(set(atoms)) != len(atoms):
-            c1 = Counter(atoms)
-            c2 = Counter(set(atoms))
-            diff = c1 - c2
-            duplicates = list(diff.elements())
-            for i in duplicates:
-                print('\nDuplicate atom "{}" found!\n'.format(duplicates.pop()))
-                status = False
-  # check if restraint cards are valid
-  restraint_atoms_list = set([])
-  for n, line in enumerate(restraints):
-    if not line:
-      continue
-    line = line.upper()
-    line2 = line.split()
-    # only the first 4 characters, because SADI_TOL would be bad:
-    if line2[0] not in SHX_CARDS:  
-      status = False
-      print('Bad line in header of database entry "{}" found!'.format(n, fragment_name))
-      print(line)
-    if line[:4] in RESTRAINT_CARDS:
-      line = line[5:].split()
-      for i in line:
-        if i in ('>', '<'):
-          continue
-        try:
-          float(i)
-        except(ValueError):
-          restraint_atoms_list.add(i)
-  # check if restrained atoms are in th eatom list:
-  for atom in restraint_atoms_list:
-    atom = atom.upper()
-    if not atom in atoms:
-      status = False
-      print('Unknown atom "{}" in restraints of "{}".'.format(atom, fragment_name))
-  if not status:
-    print('Check database entry.\n')
-  return status
-
-
-def call_profile(dbfile):
-  import cProfile
-  import pstats
-  cp = cProfile.Profile()
-  db=FragmentTable(dbfile)
-  cp.runcall(db._get_fragment, 17)
-  pstats.Stats(cp).strip_dirs().sort_stats('time').print_stats(20)
+__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints']
       
       
 class DatabaseRequest():
-  def __init__(self, dbfile):
+  def __init__(self, dbfile, userdb_path=False):
     '''
     creates a connection and the cursor to the SQLite3 database file "dbfile".
     :param dbfile: database file
     :type dbfile: str
     '''
-    if not os.path.isfile(dbfile):
-      raise IOError('Database file not found!') 
     # open the database
     self.con = sqlite3.connect(dbfile)
+    if userdb_path:
+      self.con.execute('ATTACH "{}" AS userdb'.format(userdb_path))
     self.con.execute("PRAGMA foreign_keys = ON")
     #self.con.text_factory = str
     #self.con.text_factory = sqlite3.OptimizedUnicode
@@ -162,7 +51,8 @@ class DatabaseRequest():
       self.cur.execute(request, args)
       last_rowid = self.cur.lastrowid
     except OperationalError as e:
-      #print(e)
+      print(e)
+      print(request, args)
       return False
     rows = self.cur.fetchall()
     if not rows:
@@ -174,11 +64,12 @@ class DatabaseRequest():
     # commit is very slow:
     self.con.commit()
     self.con.close()
+
   
 class FragmentTable():
   '''
   >>> dbfile = 'tests/tst.sqlite'
-  >>> db = FragmentTable(dbfile)
+  >>> db = FragmentTable(dbfile, './tests/tst-usr.sqlite')
   >>> print db[3]
   [(u'O1', u'8', -0.7562, 1.6521, -0.3348), (u'C1', u'6', -2.1051, 1.9121, -0.4223), (u'C2', u'6', -2.5884, 1.9919, -1.8717), (u'F1', u'9', -1.9571, 2.9653, -2.5781), (u'F2', u'9', -3.9264, 2.2817, -1.9122), (u'F3', u'9', -2.413, 0.8316, -2.546)]
 
@@ -187,19 +78,21 @@ class FragmentTable():
   ...   if num >= 5: break
   (54, u'1,2-Dichlorobenzene, C6H4Cl2')
   (5, u'1,2-Difluorobenzene, C6H4F2')
+  [1000005, u'1,2-Difluorobenzene, C6H4F2']
   (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
   (18, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
   (22, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
-  (2, u"2,2'-Bipyridine, C10H8N2, bipy")
 
   '''
-  def __init__(self, dbfile):
+  def __init__(self, dbfile, userdb_path=''):
     '''
     Class to modify the database tables of the fragment database in "dbfile"
     :param dbfile: database file path
     :type dbfile: str
     '''
-    self.database = DatabaseRequest(dbfile)
+    self.userdb = userdb_path
+    self.database = DatabaseRequest(dbfile, userdb_path)
+
 
   def __contains__(self, fragment_id):
     '''
@@ -216,8 +109,9 @@ class FragmentTable():
     yes
 
     >>> 'benzene' in FragmentTable(dbfile)
-    Wrong type. Expected integer.
-    False
+    Traceback (most recent call last):
+    ...
+    ValueError: invalid literal for int() with base 10: 'benzene'
 
     >>> '3' in FragmentTable(dbfile)
     True
@@ -250,16 +144,22 @@ class FragmentTable():
     
     # number of fragments in the database:
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> len(db)  
-    65
+    69
     
     :rtype: int
     '''
-    req = '''SELECT Fragment.id FROM Fragment'''
-    rows = self.database.db_request(req)
-    if rows:
-      return len(rows)
+    num = 0
+    for table_name in ['Fragment', 'userdb.Fragment']:
+      req = 'SELECT COUNT(*) FROM {}'.format(table_name)
+      try:
+        rows = self.database.db_request(req)[0][0]
+      except TypeError:
+        pass
+      num = num+rows
+    if num:
+      return num
     else:
       raise IndexError('Could not determine database size')
 
@@ -275,33 +175,35 @@ class FragmentTable():
       ...
     IndexError: Database fragment not found.
     
-    >>> for i in db[3]:
+    >>> print(db[5])
+    [(u'C1', u'6', 0.5337, 0.6968, 0.0), (u'C2', u'6', 0.5337, -0.6968, 0.0), (u'C3', u'6', -0.6618, -1.4038, 0.0), (u'C4', u'6', -1.8695, -0.6988, 0.0), (u'C5', u'6', -1.8695, 0.6988, 0.0), (u'C6', u'6', -0.6618, 1.4037, 0.0), (u'F1', u'9', 1.7137, 1.3554, 0.0), (u'F2', u'9', 1.7137, -1.3554, 0.0)]
+    
+    >>> for i in db[8]:
     ...   print(i)
-    (u'O1', u'8', -0.7562, 1.6521, -0.3348)
-    (u'C1', u'6', -2.1051, 1.9121, -0.4223)
-    (u'C2', u'6', -2.5884, 1.9919, -1.8717)
-    (u'F1', u'9', -1.9571, 2.9653, -2.5781)
-    (u'F2', u'9', -3.9264, 2.2817, -1.9122)
-    (u'F3', u'9', -2.413, 0.8316, -2.546)
-
-    >>> dblen = len(db)
-    >>> print(db[dblen-1])
-    [(u'O1', u'8', 0.2825, 16.5296, 4.5813), (u'C1', u'6', 0.9432, 17.3408, 3.5245), (u'C2', u'6', 1.0998, 16.3313, 2.3935), (u'C3', u'6', 2.292, 17.8677, 3.9709), (u'C4', u'6', -0.0098, 18.4574, 3.1231)]
+    (u'P1', u'15', 0.0, 0.0, -0.0001)
+    (u'F1', u'9', -1.5721, 0.4748, 0.1103)
+    (u'F2', u'9', -0.1279, -0.042, -1.6402)
+    (u'F3', u'9', 1.5722, -0.4749, -0.1103)
+    (u'F4', u'9', 0.1278, 0.042, 1.6403)
+    (u'F5', u'9', 0.4704, 1.5755, -0.077)
+    (u'F6', u'9', -0.4705, -1.5754, 0.077)
 
     >>> print(db[-1])
-    [(u'O1', u'8', 0.2825, 16.5296, 4.5813), (u'C1', u'6', 0.9432, 17.3408, 3.5245), (u'C2', u'6', 1.0998, 16.3313, 2.3935), (u'C3', u'6', 2.292, 17.8677, 3.9709), (u'C4', u'6', -0.0098, 18.4574, 3.1231)]
+    Only positive index numbers allowed!
+    False
 
     :param fragment_id: Id number of fragment to return.
     :type fragment_id: int
     '''
-    try:
-      fragment_id = int(fragment_id)
-    except(ValueError, KeyError):
-      print('Wrong type. Integer expected')
-      #sys.exit()
-      return False
+    fragment_id = self.fragid_toint(fragment_id) 
+    # this is too early here:
+    #if fragment_id > 1000000:
+    #  fragment_id = fragment_id-1000000
+    # works only for distribution db:
     if fragment_id < 0:
-      fragment_id = len(self)-abs(fragment_id)
+      print('Only positive index numbers allowed!')
+      return False
+      #fragment_id = len(self)-abs(fragment_id)
     found = self._get_fragment(fragment_id)
     if found:
       return found
@@ -317,7 +219,7 @@ class FragmentTable():
     >>> import shutil
     >>> shutil.copyfile('tests/tst.sqlite', 'tests/tst1.sqlite')
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> del db[2]
     >>> db[2]
     Traceback (most recent call last):
@@ -325,25 +227,24 @@ class FragmentTable():
     IndexError: Database fragment not found.
     
     >>> print 'before:', len(db)
-    before: 64
+    before: 70
     
     # del db[0] deletes nothing:
     
     >>> del db[0]
     >>> print 'after:', len(db)
-    after: 64
+    after: 70
 
     >>> del db[3]
     >>> print 'after:', len(db)
-    after: 63
+    after: 69
     
     >>> print db[-3][1]
-    (u'F1', u'9', 0.819, 0.819, 0.819)
+    Traceback (most recent call last):
+    ...
+    TypeError: 'bool' object has no attribute '__getitem__'
     
-    >>> del db[-3]
-    >>> print db[-3][1]
-    (u'C2', u'6', 1.9035, 2.482, 2.4282)
-    
+   
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
     '''
@@ -352,12 +253,17 @@ class FragmentTable():
     if fragment_id < 0:
       fragment_id = self.get_all_rowids()[fragment_id]
     req = '''DELETE FROM Fragment WHERE rowid = ?'''
+    req_usr = '''DELETE FROM userdb.Fragment WHERE rowid = ?''' 
     try:
       fragment_id = int(fragment_id)
     except(ValueError, TypeError):
       print('Wrong type. Expected integer.')
     # actually delete the item:
-    deleted = self.database.db_request(req, fragment_id)
+    if fragment_id < 1000000:
+      deleted = self.database.db_request(req, fragment_id)
+    else:
+      fragment_id = fragment_id-1000000
+      deleted = self.database.db_request(req_usr, fragment_id)
     return deleted
 
   def __iter__(self):
@@ -366,42 +272,50 @@ class FragmentTable():
     Returns the Id and the Name as tuple.
 
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> for num, i in enumerate(db):
     ...   print(i)
     ...   if num > 1:
     ...     break
     (54, u'1,2-Dichlorobenzene, C6H4Cl2')
     (5, u'1,2-Difluorobenzene, C6H4F2')
-    (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
+    [1000005, u'1,2-Difluorobenzene, C6H4F2']
     '''
     all_fragments = self.get_all_fragment_names()
-    return iter(all_fragments)
+    if all_fragments:
+      return iter(all_fragments)
+    else:
+      return False
 
   def has_name(self, name):
     '''
     Returns True if a partial name is found in the DB.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_name('Benzene')
-    True
+    'userdb'
     
     >>> db.has_name('Benzil')
     False
     '''
-    req = '''SELECT Name FROM Fragment WHERE Fragment.Name like "%{}%" '''.format(name)
-    if self.database.db_request(req):
-      return True
+    req = '''SELECT Name FROM Fragment WHERE Name like "%{}%" '''.format(name)
+    req_usr = '''SELECT Name FROM userdb.Fragment WHERE Name like "%{}%" '''.format(name)
+    # user modifications have highest priority:
+    if self.database.db_request(req_usr):
+      return 'userdb'
+    elif self.database.db_request(req):
+      return True 
     else:
       return False
   
   def has_exact_name(self, name):
     '''
-    Returns True if an exact name is found in the DB.
+    Returns True if an exact name is found in the DB. Returns 'userdb if
+    the name is found in the userdb.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_name('1,2-Dichlorobenzene, C6H4Cl2')
     True
     
@@ -409,7 +323,11 @@ class FragmentTable():
     False
     '''
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
-    if self.database.db_request(req):
+    req_usr = '''SELECT Name FROM userdb.Fragment WHERE Fragment.Name = "{}" '''.format(name)
+    # user modifications have highest priority:
+    if self.database.db_request(req_usr):
+      return 'userdb'
+    elif self.database.db_request(req):
       return True
     else:
       return False
@@ -419,7 +337,7 @@ class FragmentTable():
     Returns True if an exact residue class is found in the DB.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_resi_class('BENZ')
     True
     
@@ -427,12 +345,16 @@ class FragmentTable():
     False
     '''
     req = '''SELECT class FROM Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
-    if self.database.db_request(req):
+    req_usr = '''SELECT class FROM userdb.Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
+    # user modifications have highest priority:
+    if self.database.db_request(req_usr):
+      return True
+    elif self.database.db_request(req):
       return True
     else:
       return False
   
-  def has_index(self, Id):
+  def has_index(self, fragment_id):
     '''
     Returns True if db has index Id
     :param Id: Id of the respective fragment
@@ -448,8 +370,19 @@ class FragmentTable():
     False
     
     '''
+    try:
+      fragment_id = int(fragment_id)
+    except(TypeError):
+      print('Wrong type for database index. Only numbers allowed.')
+      return False
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
-    if self.database.db_request(req, Id):
+    req_usr = '''SELECT Id FROM userdb.Fragment WHERE Id = ?'''
+    if fragment_id < 1000000:
+      rows = self.database.db_request(req, fragment_id)
+    else:
+      fragment_id = fragment_id-1000000
+      rows = self.database.db_request(req_usr, fragment_id)
+    if rows:
       return True
     else:
       return False
@@ -460,31 +393,52 @@ class FragmentTable():
     :rtype: list 
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.get_all_rowids()
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]
+    [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006]
         
     '''
-    ids = []
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
-    rows = self.database.db_request(req)
+    req_usr = '''SELECT Id FROM userdb.Fragment ORDER BY Id'''
+    rows = [i[0] for i in self.database.db_request(req)]
     if not rows:
       return False
-    for i in rows:
-      ids.append(i[0])
-    return ids
+    if self.userdb:
+      rows_usr = self.database.db_request(req_usr)
+      if rows_usr:
+        rows_usr = [i[0]+1000000 for i in rows_usr]
+        rows = rows+rows_usr
+    return rows
   
   def get_all_fragment_names(self):
     '''
     returns all fragment names in the database, sorted by name
     '''
-    req = '''SELECT Fragment.Id, Fragment.name FROM Fragment ORDER BY Name'''
+    req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
+    req_usr = '''SELECT Fragment.Id, Fragment.name FROM userdb.Fragment'''
+    allrows = []
     rows = self.database.db_request(req)
-    if rows:
-      return rows
+    if self.userdb:
+      rows_usr = self.database.db_request(req_usr)
+      if rows_usr:
+        rows_usr = [[i[0]+1000000, i[1]] for i in rows_usr]
+        allrows = allrows+rows+rows_usr
+      else:
+        allrows = rows
+    if allrows:
+      allrows.sort(key=lambda x: x[1])
+      return allrows
     else:
       return False
 
+  def fragid_toint(self, fragment_id):
+    try:
+      int(fragment_id)
+    except ValueError as e:
+      print(e)
+      return
+    return int(fragment_id)
+  
   def _get_fragment(self, fragment_id):
     '''
     returns a full fragment with all atoms, atom types as a tuple.
@@ -492,10 +446,18 @@ class FragmentTable():
     :type fragment_id: int
     :rtype: tuple
     '''
+    fragment_id = self.fragid_toint(fragment_id)   
     req_atoms = '''SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
       Fragment.Id = ?'''
-    atomrows = self.database.db_request(req_atoms, fragment_id)
+    req_atoms_usr = '''SELECT userdb.Atoms.name, userdb.Atoms.element, userdb.Atoms.x, 
+            userdb.Atoms.y, userdb.Atoms.z FROM userdb.Fragment, userdb.Atoms on 
+            userdb.Fragment.Id=userdb.Atoms.FragmentId WHERE Fragment.Id = ?'''
+    if fragment_id < 1000000:
+      atomrows = self.database.db_request(req_atoms, fragment_id)
+    else:
+      fragment_id = fragment_id-1000000
+      atomrows = self.database.db_request(req_atoms_usr, fragment_id)
     return atomrows
 
   def get_fragment_name(self, fragment_id):
@@ -504,13 +466,19 @@ class FragmentTable():
 
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
-    >>> db.get_fragment_name(2)[0]
-    u"2,2'-Bipyridine, C10H8N2, bipy"
+    >>> db.get_fragment_name(8)[0]
+    u'Hexafluorophosphate, PF6'
     
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ?  '''
+    fragment_id = self.fragid_toint(fragment_id)   
+    if fragment_id < 1000000:
+      req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ? '''
+    else:
+      fragment_id = fragment_id-1000000
+      req_name = '''SELECT userdb.Fragment.Name FROM userdb.Fragment WHERE 
+                        Fragment.Id = ? '''
     name = self.database.db_request(req_name, fragment_id)[0]
     return name
   
@@ -523,11 +491,13 @@ class FragmentTable():
     db = FragmentTable(dbfile)    
     pic = db.get_picture(2)
     '''
-    try:
-      int(fragment_id)
-    except ValueError:
-      return False
-    req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
+    fragment_id = self.fragid_toint(fragment_id)
+    if fragment_id < 1000000:
+      req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
+    else:
+      fragment_id = fragment_id-1000000
+      req_picture = '''SELECT Fragment.picture FROM userdb.Fragment WHERE 
+                          Fragment.Id = ? '''  
     try:
       picture = self.database.db_request(req_picture, fragment_id)[0][0]
     except TypeError:
@@ -546,11 +516,17 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     '''
-    req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
+    fragment_id = self.fragid_toint(fragment_id)
+    if fragment_id < 1000000:
+      req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
+    else:
+      fragment_id = fragment_id-1000000
+      req_class = '''SELECT Fragment.class FROM userdb.Fragment WHERE 
+                        Fragment.Id = ?'''
     classname = self.database.db_request(req_class, fragment_id)
     try:
       classname = classname[0][0]
-    except(IndexError):
+    except(IndexError, TypeError):
       print('Could not find residue class.')
       return
     return str(classname) 
@@ -567,8 +543,14 @@ class FragmentTable():
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
     '''
-    req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+    fragment_id = self.fragid_toint(fragment_id)
+    if fragment_id < 1000000:
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
             FROM Restraints WHERE FragmentId = ?'''
+    else:
+      fragment_id = fragment_id-1000000
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+            FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
 
@@ -577,23 +559,28 @@ class FragmentTable():
     returns the reference for Fragment(Id) from the database.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)    
-    >>> db.get_reference(2)
-    u'CCDC DOCYEB'
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')    
+    >>> db.get_reference(4)
+    u'CCDC LIBXUR'
     
     >>> db.get_reference(999)
-    ''
-    
+    'no reference found'
+
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
     '''
-    req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
+    fragment_id = self.fragid_toint(fragment_id)
+    if fragment_id < 1000000:
+      req_ref = '''SELECT Reference FROM Fragment WHERE Fragment.Id = ? '''
+    else:
+      fragment_id = fragment_id-1000000
+      req_ref = '''SELECT Reference FROM userdb.Fragment WHERE Fragment.Id = ? '''
     rows = self.database.db_request(req_ref, fragment_id)
     try:
       ref = rows[0][0]
       return ref
     except(TypeError):
-      return ''
+      return 'no reference found'
 
   def find_fragment_by_name(self, name, selection=5):
     '''
@@ -601,9 +588,9 @@ class FragmentTable():
     selection of (default=5) best hits.
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)
+    >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(3, u'Trifluoroethanol, OCH2CF3-'), (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
+    [[1000003, u'Trifluoroethanol, OCH2CF3-'], (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
@@ -631,7 +618,7 @@ class FragmentTable():
     selected_results = [search_results[i] for i in sorted(search_results)[0:selection]]
     return selected_results
 
-  def store_fragment(self, fragment_name, atoms, resiclass=None, restraints=None,
+  def store_fragment(self, fragment_name=None, atoms=None, resiclass=None, restraints=None,
                      reference=None, comment=None, picture=None):
     '''
     Store a complete new fragment into the database. Minimal requirement is a
@@ -654,16 +641,16 @@ class FragmentTable():
     '''
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
-    FragmentId = self._fill_fragment_table(fragment_name, resiclass, 
+    fragmentid = self._fill_fragment_table(fragment_name, resiclass, 
                                            reference, comment, picture)
-    if not FragmentId:
+    if not fragmentid:
       raise Exception('No Id obtained during fragment storage.')
     # then stores atoms with the previously obtained FragmentId
-    self._fill_atom_table(FragmentId, atoms)
+    self._fill_atom_table(fragmentid, atoms)
     # in case of supplied restraints store them also:
     if restraints:
-      self._fill_restraint_table(FragmentId, restraints)
-    return FragmentId
+      self._fill_restraint_table(fragmentid, restraints)
+    return fragmentid
 
 
   def _fill_fragment_table(self, fragment_name, resiclass=None, 
@@ -676,27 +663,32 @@ class FragmentTable():
     :type comment: str
     :rtype list: last_rowid
     '''
-    picture = sqlite3.Binary(picture)
+    if picture:
+      picture = sqlite3.Binary(picture)
     table = (fragment_name, resiclass, reference, comment, picture)
-    req = '''INSERT INTO Fragment (name, class, reference, comment, picture) 
+    req = '''INSERT INTO userdb.Fragment (name, class, reference, comment, picture) 
                             VALUES(?,     ?,      ?,        ?,       ?   )'''
-    return self.database.db_request(req, table)
+    fragid = self.database.db_request(req, table)
+    return fragid+1000000
 
 
-  def _fill_atom_table(self, FragmentId, atom_table):
+  def _fill_atom_table(self, fragment_id, atom_table):
     '''
     Fills atoms into the Atoms table.
     [('C1', '6', 1.2, -0.023, 3.615), ('C2', '6', 1.203, -0.012, 2.106), ...]
     or
     [('C1 6 1.2 -0.023 3.615'), ('C2 6 1.203 -0.012 2.106'), ...]
-    :param FragmentId: Id of the respective Fragment
-    :type FragmentId: int or str
+    :param fragment_id: Id of the respective Fragment
+    :type fragment_id: int or str
     :param atom_table: list of lits or list of strings
     :type atom_table: list
     '''
     # test wether atom_table is a list or list of list, because we want no string
     # in a list here.
-    if not atom_table or not FragmentId:
+    fragment_id = int(fragment_id)
+    if fragment_id > 1000000:
+      fragment_id = fragment_id-1000000
+    if not atom_table or not fragment_id:
       print('No atoms supplied! Doing nothing')
       return
     if not isinstance(atom_table[0], (list, tuple)):
@@ -710,12 +702,12 @@ class FragmentTable():
         x = line[2]
         y = line[3]
         z = line[4]
-        req = '''INSERT INTO atoms (FragmentId, Name, element, x, y, z) 
+        req = '''INSERT INTO userdb.atoms (FragmentId, Name, element, x, y, z) 
                              VALUES(     ?,      ?,     ?,     ?, ?, ?)'''
-        self.database.db_request(req, (FragmentId, Name, element, x, y, z))
+        self.database.db_request(req, (fragment_id, Name, element, x, y, z))
 
 
-  def _fill_restraint_table(self, FragmentId, restraints_list):
+  def _fill_restraint_table(self, fragment_id, restraints_list):
     '''
     Fills the restraints table with restraints. restraints_list must be a list
     or tuple of string lists like:
@@ -728,6 +720,9 @@ class FragmentTable():
     :type restraints_list:
     '''
     # test if restraint_list is a list of strings. we dont want list of list here.
+    fragment_id = int(fragment_id)
+    if fragment_id > 1000000:
+      fragment_id = fragment_id-1000000
     try:
       restraints_list[0] # is there even one restraint?
     except KeyError:
@@ -744,30 +739,48 @@ class FragmentTable():
     for line in restraints_list:
       restr_table = []
       if line[:4] in SHX_CARDS:
-        restr_table.append(str(FragmentId))
+        restr_table.append(str(fragment_id))
         restr_table.append(line[:4])
         restr_table.append(line[5:])
-        req = '''INSERT INTO Restraints (FragmentId, ShelxName, atoms)
+        req = '''INSERT INTO userdb.Restraints (FragmentId, ShelxName, atoms)
                   VALUES(?, ?, ?)'''
         self.database.db_request(req, restr_table)
 
 
-class Restraints():
-  def __init__(self, dbfile):
-    self.database = DatabaseRequest(dbfile)
 
+class Restraints():
+  def __init__(self, dbfile, userdb):
+    self.database = DatabaseRequest(dbfile, userdb)
+
+  def fragid_toint(self, fragment_id):
+    try:
+      int(fragment_id)
+    except ValueError as e:
+      print(e)
+      return
+    return int(fragment_id)
+  
   def get_restraints_from_fragmentId(self, fragment_id):
     '''
     returns the restraints from a database entry
     
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> res = Restraints(dbfile)    
+    >>> res = Restraints(dbfile, 'tests/tst-usr.sqlite')    
     >>> res.get_restraints_from_fragmentId(7)
     [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
     
+    >>> res.get_restraints_from_fragmentId(1000001)
+    [(u'SADI', u'0.02 C1 C2 C2 C3 C3 C4 C4 C5 C5 C6 C6 C1'), (u'SADI', u'0.04 C1 C5 C1 C5 C4 C2 C4 C6 C6 C2 C5 C3'), (u'FLAT', u'C1 > C6'), (u'SIMU', u'C1 > C6'), (u'RIGU', u'C1 > C6')]
+    
     '''
-    req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
-      FROM Restraints WHERE FragmentId = ?'''
+    fragment_id = self.fragid_toint(fragment_id)
+    if fragment_id < 1000000:
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+                      FROM Restraints WHERE FragmentId = ?'''
+    else:
+      fragment_id = fragment_id-1000000
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
+                      FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
 
@@ -778,16 +791,26 @@ class Restraints():
 
 if __name__ == '__main__':
   import doctest
-  failed, attempted = doctest.testmod()
+  failed, attempted = doctest.testmod()#verbose=True)
   if failed == 0:
-    print('passed all tests!')
+    print('passed all {} tests!'.format(attempted))
 
   # import cProfile
-  dbfile = 'tests/tst1.sqlite'
+  dbname = 'tst.sqlite'
+  dbfile = os.path.abspath('tests/{}').format(dbname)
+  print(dbfile)
+  
+  #dbfile = 'tst.sqlite'
 #  call_profile(dbfile)
-  db = FragmentTable(dbfile)
-  db.get_picture(2)
-
+ # db = FragmentTable(dbfile, userdb='tests/tst-usr.sqlite')
+ # picture = db.get_picture(2)
+ # print(db.get_residue_class(1000005))
+ # names = db.get_all_fragment_names()
+ # print(db[1000005])
+  #for i in names:
+  #  print(i)
+    
+  sys.exit()
   atoms = [[u'C1', u'6', 1.2, -0.023, 3.615], (u'C2', u'6', 1.203, -0.012, 2.106), (u'C3', u'6', 0.015, -0.011, 1.39), (u'C4', u'6', 0.015, -0.001, 0.005), (u'C5', u'6', 1.208, 0.008, -0.688), (u'C6', u'6', 2.398, 0.006, 0.009), (u'C7', u'6', 2.394, -0.004, 1.394)]
   #atoms = ['C1 6 1.2 -0.023 3.615', 'C2 6 1.203 -0.012 2.106', 'C3 6 0.015 -0.011 1.39', 'C4 6 0.015 -0.001 0.005', 'C5 6 1.208 0.008 -0.688', 'C6 6 2.398 0.006 0.009', 'C7 6 2.394 -0.004 1.394']
   table = ['sBenzene', 'super Benzene',
@@ -807,10 +830,30 @@ if __name__ == '__main__':
   reference = 'sdfg ayrfgrawg adrgaegh ef'
   fragment_name=table[1]
   comment = 'asfgagr'
+  resiclass = 'bnzr'
   
-  id = False
-  #id = db.store_fragment(fragment_name, atoms, restraints2, reference, comment)
-  if id:
-    print('stored', id)
-
+  #database = DatabaseRequest(dbfile)
+  #database.table_info('userdb.')
+  #database.table_info('')
+  #database.values_in_col('Fragment')
+  idf = db.has_index('1') 
+  print(idf)
+  #print(db[1])
+  print(db.has_name('Benzene'))
+  
+  # fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
+  # if fid:
+  #   print('stored', fid)
+  # print(db[5])
+ 
+  dbfile = "fragment-database.sqlite"
+  def call_profile(dbfile):
+    import cProfile
+    import pstats
+    cp = cProfile.Profile()
+    db=FragmentTable(dbfile)
+    cp.runcall(db._get_fragment, 17)
+    pstats.Stats(cp).strip_dirs().sort_stats('time').print_stats(20)
+  
+  call_profile(dbfile)  
  
