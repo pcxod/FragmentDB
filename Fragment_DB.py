@@ -11,17 +11,14 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- use "mode match" instead of "mode fit".
+- use InputFragment "mode match" instead of "mode fit".
 
 - Checkbox for "use DFIX"
 
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 
-- a working SAME_resiclass atomlist would be great for repeating residues!
-  SADI -i atoms names
-  
-- If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
-  and the restraints like SIMU N1 C1 C2 C3 C4 break.
+- If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen 
+  gets deleted and the restraints like SIMU N1 C1 C2 C3 C4 break.
   I need to replace target positions, or no atom!
   
 - If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for 
@@ -34,10 +31,8 @@ Fragen und Ideen:
 - can the state of the plugin be updated after fit to initialize e.g. the 
   residue number again?
   -Y Yes with "mode -e fit"
-  
-- ask oleg about the combo-box to implement that it can start the search "onenter".  
-  "onedit=spy.FragmentDB.search_fragments(~value~),
-  
+
+- get help messages to work.  
 '''
 
 
