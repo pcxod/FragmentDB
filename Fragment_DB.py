@@ -11,7 +11,7 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- use InputFragment "mode match" instead of "mode fit".
+- use ImportFrag and "mode match" instead of "mode fit".
 
 - Checkbox for "use DFIX"
 
@@ -162,6 +162,23 @@ class FragmentDB(PT):
     #olx.html.SetValue('LIST_FRAGMENTS', '{}<-{}'.format(selected_results[0][1], 
     #                                                    selected_results[0][0]))
 
+  def format_atoms_for_importfrag(self, atoms):
+    '''
+    format the input atoms to use them with importfarg
+    '''
+    newlist = []
+    finallist = []
+    for i in atoms:
+      newlist.append('{:4.4s} {:4.2s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(*i))
+    atoms = '\n'.join(newlist)
+    finallist.append('FRAG')
+    finallist.append('\n'+atoms)
+    finallist.append('\nFEND')
+    text = ' '.join(finallist)
+    OV.write_to_olex('fragment.txt', text)
+    return True
+    #fl = OlexVFS.read_from_olex('fragment.txt')
+    #print(fl)
 
   def fit_db_fragment(self, fragId=None):
     '''
@@ -181,6 +198,10 @@ class FragmentDB(PT):
     atoms = []
     labeldict = OrderedDict()
     # adding atoms to structure:
+    atoms2 = [ i for i in self.db[fragId]]
+    self.format_atoms_for_importfrag(atoms2)
+    OV.cmd('ImportFrag fragment.txt')
+    return   
     for i in self.db[fragId]:
       label = str(i[0])
       trans = 10.0

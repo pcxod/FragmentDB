@@ -836,10 +836,10 @@ if __name__ == '__main__':
   #database.table_info('userdb.')
   #database.table_info('')
   #database.values_in_col('Fragment')
-  idf = db.has_index('1') 
-  print(idf)
+  #idf = db.has_index('1') 
+  #print(idf)
   #print(db[1])
-  print(db.has_name('Benzene'))
+  #print(db.has_name('Benzene'))
   
   # fid = db.store_fragment(fragment_name, atoms, resiclass, restraints, reference, comment, picture=False)
   # if fid:
