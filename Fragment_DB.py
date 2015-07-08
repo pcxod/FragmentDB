@@ -169,16 +169,28 @@ class FragmentDB(PT):
     newlist = []
     finallist = []
     for i in atoms:
-      newlist.append('{:4.4s} {:4.2s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(*i))
+      # atoms without sfac:
+      newlist.append('{:4.4s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(i[0], i[2], i[3], i[4]))
     atoms = '\n'.join(newlist)
     finallist.append('FRAG')
     finallist.append('\n'+atoms)
     finallist.append('\nFEND')
     text = ' '.join(finallist)
-    OV.write_to_olex('fragment.txt', text)
-    return True
-    #fl = OlexVFS.read_from_olex('fragment.txt')
-    #print(fl)
+    return text
+
+
+  def insert_frag_test(self, fragId):
+    '''
+    input a fragment with ImportFrag
+    :param fragId: FragmentId
+    :type fragId: int
+    '''
+    atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
+    with open(instance_path+'/fragment.txt', 'w') as f:
+      f.write(atoms)
+    OV.cmd(r'ImportFrag C:\Users\daniel\AppData\Roaming\Olex2Data\6ad61b8aca83f613f017cbc029337284\fragment.txt')
+    return
+
 
   def fit_db_fragment(self, fragId=None):
     '''
@@ -198,10 +210,7 @@ class FragmentDB(PT):
     atoms = []
     labeldict = OrderedDict()
     # adding atoms to structure:
-    atoms2 = [ i for i in self.db[fragId]]
-    self.format_atoms_for_importfrag(atoms2)
-    OV.cmd('ImportFrag fragment.txt')
-    return   
+    #self.insert_frag_test(fragId)
     for i in self.db[fragId]:
       label = str(i[0])
       trans = 10.0
@@ -230,11 +239,12 @@ class FragmentDB(PT):
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("mode fit")
+    OV.cmd("mode fit -a=6")
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     return atoms
+
 
   def is_near_atoms(self):
     '''
