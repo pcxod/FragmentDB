@@ -185,10 +185,11 @@ class FragmentDB(PT):
     :param fragId: FragmentId
     :type fragId: int
     '''
+    fragpath = os.sep.join(['.olex', 'fragment.txt'])
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
-    with open(instance_path+'/fragment.txt', 'w') as f:
+    with open(fragpath, 'w') as f:
       f.write(atoms)
-    OV.cmd(r'ImportFrag C:\Users\daniel\AppData\Roaming\Olex2Data\6ad61b8aca83f613f017cbc029337284\fragment.txt')
+    OV.cmd(r'ImportFrag {}'.format(fragpath))
     return
 
 
@@ -208,9 +209,13 @@ class FragmentDB(PT):
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     atoms = []
-    labeldict = OrderedDict()
-    # adding atoms to structure:
-    #self.insert_frag_test(fragId)
+    labeldict = OrderedDict()  
+    ###############################
+    '''
+    # adding atoms with ImportFrag to structure:
+    self.insert_frag_test(fragId)
+    return'''
+    #################################
     for i in self.db[fragId]:
       label = str(i[0])
       trans = 10.0
