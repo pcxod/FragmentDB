@@ -11,6 +11,8 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
+- make delete of distributed fragments impossible
+
 - use ImportFrag and "mode match" instead of "mode fit".
 
 - Checkbox for "use DFIX"
@@ -566,16 +568,17 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 530, 650
+    width, height = 540, 660
     path = "{}/inputfrag.htm".format(self.p_path)
-    olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
-              x=box_x, y=box_y)
+    olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, 
+              h=height, x=box_x, y=box_y)
     if blank:
       self.blank_state()
       return
     else:
-      self.get_frag_for_gui()
-      self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
+      frag = self.get_frag_for_gui()
+      if frag:
+        self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
   
   def set_frag_name(self, enable_check=True):
@@ -835,7 +838,7 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     at = self.prepare_atoms_list(fragId)
     if not at:
-      return
+      return False
     name = self.prepare_fragname(fragId)
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
@@ -853,6 +856,7 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
     OV.SetParam('fragment_DB.new_fragment.frag_reference', reference)
+    return True
     
       
   def store_new_fragment(self, atlines, restraints, resiclass, reference):
