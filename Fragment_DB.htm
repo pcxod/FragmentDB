@@ -1,8 +1,11 @@
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
-$SetVar(name1, "foo bar: mark down")
+$SetVar(fdb_chooser, "Choose the desired fragment from the list in the drop-down menu. Do an unsharp search with a partial name and hit enter. For example cf3 finds all the fragments containing cf3 their name.")
+$SetVar(fdb_picture, "Displays a picture of the fragment. User defined fragments only have pictures if the user provided one.")
+$SetVar(fdb_props, "Define PART, free variables (FVAR) and the occupancy here. A free variable of 3 and an occupancy of 1 means 21.0 in SHELXL notation. All parameters will be displayed in the molecule labels simultaneously.")
+$SetVar(fdb_resi, "Define residue number and residue class. The number must be uniq. The plugin automatically chooses the next unused residue number. So it is best to leave it untouched. The residue class has to start with a letter and can be up to four characters. Usually the class provided by the database is sufficient.")
+$SetVar(fdb_fit, "The button Fit! starts the fit of the Fragment into the structure. You can edit or create a new fragment with the Edit button. The reference field shows the origin of the fragment.")
 
-
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB; help_ext=fragdb1;1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
   <td halign='left' width='20%'>
     <b>%Fragment:%</b> 
   </td>
@@ -28,7 +31,7 @@ $SetVar(name1, "foo bar: mark down")
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_1a; help_ext=FragmentDB_1a;1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment picture; help_ext=Fragment picture;helpTxt=$GetVar(fdb_picture);1; -->
   <td width="100%" align="center" >
   <zimg name="FDBMOLEPIC" 
         border="2" 
@@ -41,7 +44,7 @@ $SetVar(name1, "foo bar: mark down")
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
-<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Frag-FVAR-1;1 -->
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Define Properies;helpTxt=$GetVar(fdb_props);1 -->
   <td width='15%' align='left'><b>%PART:%</b>
   </td>
   <td align='left' width='15%'>
@@ -97,7 +100,7 @@ $SetVar(name1, "foo bar: mark down")
   </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_RESI_1';help_ext=Frag-Resi-1;1 -->
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue definition;helpTxt=$GetVar(fdb_resi);1 -->
   <td width='32%' align='left'>
    <b>%Uniq Residue Number:%</b>
   </td>
@@ -144,7 +147,7 @@ $SetVar(name1, "foo bar: mark down")
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=FragmentDB_3; help_ext=FragmentDB_3;1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons; help_ext=Fit the Fragment;helpTxt=$GetVar(fdb_fit);1; -->
   <td width='35%' align='left'>
     $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
     &nbsp;
