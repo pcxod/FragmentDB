@@ -272,6 +272,10 @@ class FragmentDB(PT):
     '''
     applies restraints to atoms
     '''
+    dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
+    if dfix:
+      print('calculating restraints is not implemented.')
+      return
     restraints = self.db.get_restraints(fragId)
     if not restraints:
       return

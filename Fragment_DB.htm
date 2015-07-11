@@ -141,7 +141,9 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     $+
     html.Snippet("gui/snippets/input-checkbox",
     "name=dfixornot",
-    "value=")
+    "checked=spy.GetParam('fragment_DB.fragment.use_dfix')",
+    "onclick=spy.SetParam('fragment_DB.fragment.use_dfix', html.GetState('~name~'))"
+    )
     $-
   </td>
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->

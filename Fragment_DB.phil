@@ -37,6 +37,10 @@ fragment_DB{
     errormessage = ""
       .type = str
       .help = error messages from FragmentDB plugin
+    
+    use_dfix = False
+      .type = bool
+      .help = Enables DFIX/DANG/FLAT restraints calculated from fragments geometry.
     }
   
   new_fragment{
