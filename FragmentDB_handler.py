@@ -260,7 +260,9 @@ class FragmentTable():
       print('Wrong type. Expected integer.')
     # actually delete the item:
     if fragment_id < 1000000:
-      deleted = self.database.db_request(req, fragment_id)
+      print('can not delete fragment of main database.')
+      return False
+      #deleted = self.database.db_request(req, fragment_id)
     else:
       fragment_id = fragment_id-1000000
       deleted = self.database.db_request(req_usr, fragment_id)
@@ -421,6 +423,7 @@ class FragmentTable():
     if self.userdb:
       rows_usr = self.database.db_request(req_usr)
       if rows_usr:
+        rows_usr = [[i[0], i[1]+'  *user*'] for i in rows_usr]
         rows_usr = [[i[0]+1000000, i[1]] for i in rows_usr]
         allrows = allrows+rows+rows_usr
       else:

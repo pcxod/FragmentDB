@@ -817,7 +817,7 @@ class FragmentDB(PT):
       return
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
-                                reference, picture=pic_data)
+                                      reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())

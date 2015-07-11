@@ -6,10 +6,10 @@ $SetVar(fdb_resi, "Define residue number and residue class. The number must be u
 $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment into the structure. <br>~Reference~<br>The reference field shows the origin of the fragment.<br> ~Edit~ <br>Edit or create new fragments:<br>*Open Picture:* Select a picture for the fragment. Use at least 600dpi pictures.<br>*Name:* Name of the fragment<br>*Unit cell:* cell parameters of the fragment. Use 1 1 1 90 90 90 for cartesian coordinates.<br>*Atoms:* insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also directly copy atoms from SHELX files.<br>*Use selected atoms:* uses the selected atoms for the Atoms field and creates a picture from the fragment.<br>*Restraints:* type any SHELX compatible restraint here. Each restraint has to be in a new line.<br>*Residue:* Define the residue class of the fragment (only four characters). <br>*Reference* define the origin of the fragment.")
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
-  <td halign='left' width='20%'>
+  <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
   </td>
-  <td halign='left' width='60%'>
+  <td halign='left' width='65%'>
     $+
     html.Snippet("gui/snippets/input-combo",
     "name=LIST_FRAGMENTS",
