@@ -274,7 +274,7 @@ class FragmentDB(PT):
     '''
     dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
     if dfix:
-      print('calculating restraints is not implemented.')
+      print('calculating DFIX restraints is not implemented in FragmentDB.')
       return
     restraints = self.db.get_restraints(fragId)
     if not restraints:
