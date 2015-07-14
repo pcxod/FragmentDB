@@ -11,12 +11,6 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- make delete of distributed fragments impossible
-
-- use ImportFrag and "mode match" instead of "mode fit".
-
-- Checkbox for "use DFIX"
-
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen 
@@ -34,7 +28,6 @@ Fragen und Ideen:
   residue number again?
   -Y Yes with "mode -e fit"
 
-- get help messages to work.  
 '''
 
 
