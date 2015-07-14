@@ -28,6 +28,7 @@ Fragen und Ideen:
   residue number again?
   -Y Yes with "mode -e fit"
 
+- Write a proposal how ImportFrag() should behave with FragmentDB.
 '''
 
 
@@ -174,7 +175,12 @@ class FragmentDB(PT):
     return text
 
 
-  def insert_frag_with_ImportFrag(self, fragId):
+  def insert_frag_with_ImportFrag(self, fragId, 
+                                  part=None, 
+                                  fvar=None, 
+                                  occ=None, 
+                                  resi=None, 
+                                  resi_class=None):
     '''
     input a fragment with ImportFrag
     :param fragId: FragmentId
@@ -207,7 +213,7 @@ class FragmentDB(PT):
     labeldict = OrderedDict()  
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       # adding atoms with ImportFrag and DFIX to structure:
-      self.insert_frag_with_ImportFrag(fragId)
+      self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
       return
     # or regular restraints from the db:
     for i in self.db[fragId]:
