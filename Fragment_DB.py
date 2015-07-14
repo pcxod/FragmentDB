@@ -11,17 +11,10 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- use "mode match" instead of "mode fit".
-
-- Checkbox for "use DFIX"
-
 - How should I handle hydrogen atoms from water? They should get constraints for vibrations!
 
-- a working SAME_resiclass atomlist would be great for repeating residues!
-  SADI -i atoms names
-  
-- If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen is not fitted
-  and the restraints like SIMU N1 C1 C2 C3 C4 break.
+- If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen 
+  gets deleted and the restraints like SIMU N1 C1 C2 C3 C4 break.
   I need to replace target positions, or no atom!
   
 - If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for 
@@ -34,12 +27,7 @@ Fragen und Ideen:
 - can the state of the plugin be updated after fit to initialize e.g. the 
   residue number again?
   -Y Yes with "mode -e fit"
-  
-- ask oleg about the combo-box to implement that it can start the search "onenter".  
-  "onedit=spy.FragmentDB.search_fragments(~value~),
-  
-- get help messages to work.
-  
+
 '''
 
 
@@ -169,6 +157,36 @@ class FragmentDB(PT):
     #olx.html.SetValue('LIST_FRAGMENTS', '{}<-{}'.format(selected_results[0][1], 
     #                                                    selected_results[0][0]))
 
+  def format_atoms_for_importfrag(self, atoms):
+    '''
+    format the input atoms to use them with importfarg
+    '''
+    newlist = []
+    finallist = []
+    for i in atoms:
+      # atoms without sfac:
+      newlist.append('{:4.4s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(i[0], i[2], i[3], i[4]))
+    atoms = '\n'.join(newlist)
+    finallist.append('FRAG')
+    finallist.append('\n'+atoms)
+    finallist.append('\nFEND')
+    text = ' '.join(finallist)
+    return text
+
+
+  def insert_frag_with_ImportFrag(self, fragId):
+    '''
+    input a fragment with ImportFrag
+    :param fragId: FragmentId
+    :type fragId: int
+    '''
+    fragpath = os.sep.join(['.olex', 'fragment.txt'])
+    atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
+    with open(fragpath, 'w') as f:
+      f.write(atoms)
+    OV.cmd(r'ImportFrag -d {}'.format(fragpath))
+    return
+
 
   def fit_db_fragment(self, fragId=None):
     '''
@@ -186,8 +204,12 @@ class FragmentDB(PT):
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     atoms = []
-    labeldict = OrderedDict()
-    # adding atoms to structure:
+    labeldict = OrderedDict()  
+    if OV.GetParam('fragment_DB.fragment.use_dfix'):
+      # adding atoms with ImportFrag and DFIX to structure:
+      self.insert_frag_with_ImportFrag(fragId)
+      return
+    # or regular restraints from the db:
     for i in self.db[fragId]:
       label = str(i[0])
       trans = 10.0
@@ -216,11 +238,12 @@ class FragmentDB(PT):
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("mode fit")
+    OV.cmd("mode fit -a=6")
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     return atoms
+
 
   def is_near_atoms(self):
     '''
@@ -241,6 +264,10 @@ class FragmentDB(PT):
     '''
     applies restraints to atoms
     '''
+    dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
+    if dfix:
+      print('calculating DFIX restraints is not implemented in FragmentDB.')
+      return
     restraints = self.db.get_restraints(fragId)
     if not restraints:
       return
@@ -537,16 +564,17 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 530, 650
+    width, height = 540, 660
     path = "{}/inputfrag.htm".format(self.p_path)
-    olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, h=height,
-              x=box_x, y=box_y)
+    olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width, 
+              h=height, x=box_x, y=box_y)
     if blank:
       self.blank_state()
       return
     else:
-      self.get_frag_for_gui()
-      self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
+      frag = self.get_frag_for_gui()
+      if frag:
+        self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
   
   def set_frag_name(self, enable_check=True):
@@ -785,7 +813,7 @@ class FragmentDB(PT):
       return
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
-                                reference, picture=pic_data)
+                                      reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
@@ -806,7 +834,7 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     at = self.prepare_atoms_list(fragId)
     if not at:
-      return
+      return False
     name = self.prepare_fragname(fragId)
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
@@ -824,6 +852,7 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
     OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
     OV.SetParam('fragment_DB.new_fragment.frag_reference', reference)
+    return True
     
       
   def store_new_fragment(self, atlines, restraints, resiclass, reference):
