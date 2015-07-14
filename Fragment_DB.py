@@ -181,7 +181,7 @@ class FragmentDB(PT):
     return text
 
 
-  def insert_frag_test(self, fragId):
+  def insert_frag_with_ImportFrag(self, fragId):
     '''
     input a fragment with ImportFrag
     :param fragId: FragmentId
@@ -191,7 +191,7 @@ class FragmentDB(PT):
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
-    OV.cmd(r'ImportFrag {}'.format(fragpath))
+    OV.cmd(r'ImportFrag -d {}'.format(fragpath))
     return
 
 
@@ -212,12 +212,11 @@ class FragmentDB(PT):
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     atoms = []
     labeldict = OrderedDict()  
-    ###############################
-    '''
-    # adding atoms with ImportFrag to structure:
-    self.insert_frag_test(fragId)
-    return'''
-    #################################
+    if OV.GetParam('fragment_DB.fragment.use_dfix'):
+      # adding atoms with ImportFrag and DFIX to structure:
+      self.insert_frag_with_ImportFrag(fragId)
+      return
+    # or regular restraints from the db:
     for i in self.db[fragId]:
       label = str(i[0])
       trans = 10.0
