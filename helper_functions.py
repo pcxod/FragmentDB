@@ -89,7 +89,7 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     # only the first 4 characters, because SADI_TOL would be bad:
     if line2[0] not in SHX_CARDS:  
       status = False
-      print('Bad line in header of database entry "{}" found!'.format(n, fragment_name))
+      print('Invalid line in header of database entry "{}" found!'.format(n, fragment_name))
       print(line)
     if line[:4] in RESTRAINT_CARDS:
       line = line[5:].split()
