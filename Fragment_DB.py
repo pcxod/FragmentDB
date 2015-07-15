@@ -176,9 +176,9 @@ class FragmentDB(PT):
 
 
   def insert_frag_with_ImportFrag(self, fragId, 
-                                  part=None, 
+                                  part=1, 
                                   fvar=None, 
-                                  occ=None, 
+                                  occ=1, 
                                   resi=None, 
                                   resi_class=None):
     '''
@@ -190,7 +190,8 @@ class FragmentDB(PT):
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
-    OV.cmd(r'ImportFrag -d {}'.format(fragpath))
+    OV.cmd(r'ImportFrag -p={} -o={} -d {}'.format(part, occ, fragpath))
+    #print(part, fvar, occ, resi, resi_class)
     return
 
 
@@ -230,7 +231,7 @@ class FragmentDB(PT):
       olx.xf.au.SetAtomOccu(at_id, occupancy)
       name = olx.xf.au.GetAtomName(at_id)
       labeldict[name.upper()] = at_id
-      print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], at_id, x, y, z))
+      #print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], at_id, x, y, z))
       atoms.append(at_id)
     olx.xf.EndUpdate()
     # now residues and otgher stuff:
@@ -268,7 +269,12 @@ class FragmentDB(PT):
 
   def make_restraints(self, labeldict, fragId):
     '''
-    applies restraints to atoms
+    Applies restraints to atoms.
+    :param labeldict: a dictionary where the keys are atom names and the 
+                      values are Olex2 atom Ids
+    :type labeldict: dictionary
+    :param fragId: the database Id of the fragment
+    :type fragId: integer
     '''
     dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
     if dfix:
@@ -463,7 +469,7 @@ class FragmentDB(PT):
     '''
     returns a list of residue numbers in the structure
     '''
-    import olex_core
+    import olex_core  # @UnresolvedImport
     residues = []
     # get the properties of the atoms:
     for r in olex_core.GetRefinementModel(True)['aunit']['residues']:
@@ -816,6 +822,7 @@ class FragmentDB(PT):
       coords.append(line)
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
+      print('Please remove non-existent atoms from the restraint list!')
       return
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
@@ -946,7 +953,6 @@ class FragmentDB(PT):
     creates a picture from the currently selected fragment in Olex2 and 
     stores it in 'storepic.png' as well as 'displaypic.png'
     '''
-    import ImageTools
     # "select with mouse"
     if not olex.f("sel()").split():
       return
@@ -961,10 +967,12 @@ class FragmentDB(PT):
     OV.cmd("sel -i")
     OV.cmd("sel atom bonds -i")
     OV.cmd('label -a')
+    OV.cmd('pers')
     OV.cmd("pict fdb_tmp.png -nbg")
     OV.cmd('kill labels')
     OV.cmd("showP -m")
     OV.cmd("showh a True")
+    OV.cmd('telp 50')
     im = Image.open(picfile)
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
