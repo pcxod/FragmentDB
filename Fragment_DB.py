@@ -29,6 +29,11 @@ Fragen und Ideen:
   -Y Yes with "mode -e fit"
 
 - Write a proposal how ImportFrag() should behave with FragmentDB.
+
+- get rid of sfac number in atoms list. just ignore it if it is there and delete ist after safe.
+
+- , check_same_thread=False ?
+
 '''
 
 
