@@ -152,6 +152,7 @@ class FragmentDB(PT):
     '''
     performs a search for an unsharp name in a list
     '''
+    selected_list = ''
     if not search_string:
       selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
     else:
@@ -159,9 +160,11 @@ class FragmentDB(PT):
       selected_list = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
     # propagate the smaller list to the combo-box:
     olx.html.SetItems('LIST_FRAGMENTS', selected_list)
-    # Does not work:
-    #olx.html.SetValue('LIST_FRAGMENTS', '{}<-{}'.format(selected_results[0][1], 
-    #                                                    selected_results[0][0]))
+    # show the first result in combo box ans intialize the fragment:
+    olx.html.SetValue('LIST_FRAGMENTS', '{}'.format(selected_results[0][1])) 
+    frag_id = selected_results[0][0]
+    olx.SetVar('fragment_ID', frag_id)
+    self.init_plugin()
 
   def format_atoms_for_importfrag(self, atoms):
     '''
@@ -195,7 +198,7 @@ class FragmentDB(PT):
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
-    OV.cmd(r'ImportFrag -p={} -o={} -d {}'.format(part, occ, fragpath))
+    OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
     #print(part, fvar, occ, resi, resi_class)
     return
 

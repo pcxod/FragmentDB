@@ -17,10 +17,10 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     "value='select and search fragments here'",
     "height=GetVar('HtmlComboHeight')",
     "width=100%",
+    "onreturn=spy.FragmentDB.search_fragments(html.GetValue(~name~))",
     "onchange=SetVar(fragment_ID, html.GetValue(~name~))
               >>spy.FragmentDB.init_plugin()",
-    "onenter=spy.FragmentDB.search_fragments(html.GetValue(~name~))",
-    "readonly=false",
+    "readonly=False",
     "manage=False")
     $-
   </td>
