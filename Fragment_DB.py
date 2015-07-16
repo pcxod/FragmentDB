@@ -11,8 +11,6 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- How should I handle hydrogen atoms from water? They should get constraints for vibrations!
-
 - If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen 
   gets deleted and the restraints like SIMU N1 C1 C2 C3 C4 break.
   I need to replace target positions, or no atom!
@@ -27,8 +25,6 @@ Fragen und Ideen:
 - can the state of the plugin be updated after fit to initialize e.g. the 
   residue number again?
   -Y Yes with "mode -e fit"
-
-- Write a proposal how ImportFrag() should behave with FragmentDB.
 
 - get rid of sfac number in atoms list. just ignore it if it is there and delete ist after safe.
 
