@@ -22,7 +22,7 @@ class DatabaseRequest():
     :type dbfile: str
     '''
     # open the database
-    self.con = sqlite3.connect(dbfile)
+    self.con = sqlite3.connect(dbfile, check_same_thread=False)
     if userdb_path:
       self.con.execute('ATTACH "{}" AS userdb'.format(userdb_path))
     self.con.execute("PRAGMA foreign_keys = ON")
