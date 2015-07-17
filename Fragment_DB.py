@@ -654,6 +654,7 @@ class FragmentDB(PT):
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split('\n')
+      # remove empty lines:
       atoms = [i for i in atoms if i ]
       atoms = [i.split() for i in atoms]
     except AttributeError:
@@ -669,7 +670,7 @@ class FragmentDB(PT):
     :param atoms: line of atoms
     :type atoms: list
     '''
-    # go through all atoms and cut their line to 5 list elements At SFAC x y z:
+    # go through all atoms and cut their line to 4 list elements At  x y z:
     for num, line in enumerate(atoms):
       if len(line) > 4 and len(line[1]) < 3:
         atoms[num] = [line[0]]+line[2:5]
@@ -680,6 +681,7 @@ class FragmentDB(PT):
       if len(line) < 4:
         # too short, parameters missing
         print('Invalid atom line found!! Parameter(s) missing.')
+        del atoms[num]
         continue
       for x in line[1:4]:
         # check if each is a rea number except for the atom:
@@ -690,8 +692,19 @@ class FragmentDB(PT):
           for i in x:
             if not i.isdigit() and i != '.':
               print('Invalid charachter {} in line.'.format(i))
+              del atoms[num]
               continue
           print('Invalid atom line found!')
+          del atoms[num]
+          continue
+    # now rename all the atoms that have no number:
+    atomnames = [i[0] for i in atoms]
+    for num, line in enumerate(atoms):
+      if len(line[0]) == 1:
+        # make sure no name is doubled
+        while line[0] in atomnames:
+          num = num+1
+          line[0] = line[0]+str(num)
     return atoms
 
 
@@ -843,7 +856,7 @@ class FragmentDB(PT):
         return
       if len(frac_coord) < 3:
         print('Coordinate value missing in "{}".'.format(' '.join(line)))
-        return
+        continue
       coord = self.frac_to_cart(frac_coord, self.frag_cell)
       line[1:4] = coord
       coords.append(line)
