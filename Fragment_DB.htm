@@ -9,7 +9,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
   <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
   </td>
-  <td VALIGN='center' ALIGN='left' colspan=1 width='65%'>
+  <td VALIGN='center' ALIGN='left' colspan=1 width='75%'>
       <input
         type='combo'
         name='LIST_FRAGMENTS'
@@ -24,10 +24,9 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
         manage="False"
       >
   </td>
-  <td align='right' width='20%'>
-  <a href="spy.FragmentDB.search_fragments(html.GetValue('LIST_FRAGMENTS'))"> search</a>
+  <td align='left' width='20%'>
   &nbsp;
-  <a href="html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments()))"> clear</a>
+  <a align='left' href="html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments()))"> reset</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
