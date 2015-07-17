@@ -682,11 +682,13 @@ class FragmentDB(PT):
     # go through all atoms and cut their line to 5 list elements At SFAC x y z:
     for num, line in enumerate(atlines):
       if len(line) > 5:
-        atlines[num] = line[:5]
-      if len(line) < 5:
+        atlines[num] = line[0]+line[2:4]
+      if len(line) == 4:
+        atlines[num] = line[:4]
+      if len(line) < 4:
         # too short, parameters missing
         print('Invalid atom line found!! Parameter(s) missing.')
-      for x in line[1:5]:
+      for x in line[1:4]:
         # check if each is a rea number except for the atom:
         try:
           float(x)
@@ -746,7 +748,7 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:5.4s} {:<3} {:>8.4f} {:>8.4f} {:>8.4f}'.format(*i))
+      atlist.append('{:5.4s}   {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
     at = ' \n'.join(atlist)
     return at
 
@@ -811,19 +813,7 @@ class FragmentDB(PT):
     except TypeError:
       print('No picture found')
       pic_data = ''
-    coords = []
-    for line in atlines:
-      try:
-        frac_coord = [ float(i) for i in line[2:5] ]
-      except(ValueError):
-        print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
-        return
-      if len(frac_coord) < 3:
-        print('Coordinate value missing in "{}".'.format(' '.join(line)))
-        return
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
-      line[2:5] = coord
-      coords.append(line)
+    coords = self.prepare_coords_for_storage(atlines)
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
       print('Please remove non-existent atoms from the restraint list!')
@@ -843,6 +833,27 @@ class FragmentDB(PT):
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
 
+  
+  def prepare_coords_for_storage(self, atlines):
+    '''
+    transform the string formated atoms into a list of atoms lists
+    :param atlines: texte lines with atoms from the input field
+    :type atlines: string
+    '''
+    coords = []
+    for line in atlines:
+      try:
+        frac_coord = [ float(i) for i in line[1:4] ]
+      except(ValueError):
+        print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
+        return
+      if len(frac_coord) < 3:
+        print('Coordinate value missing in "{}".'.format(' '.join(line)))
+        return
+      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      line[1:4] = coord
+      coords.append(line)
+    return coords
   
   def get_frag_for_gui(self):
     '''
@@ -885,15 +896,7 @@ class FragmentDB(PT):
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
       pic_data = ''
-    coords = []
-    for line in atlines:
-      frac_coord = [ float(i) for i in line[2:5] ]
-      if len(frac_coord) < 3:
-        print('Coordinate value missing in "{}"!!!'.format(' '.join(line)))
-        continue
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
-      line[2:5] = coord
-      coords.append(line)
+    coords = self.prepare_coords_for_storage(atlines)
     print('Adding fragment "{0}" to the database.'.format(fragname))
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
