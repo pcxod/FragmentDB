@@ -26,9 +26,9 @@ Fragen und Ideen:
   residue number again?
   -Y Yes with "mode -e fit"
 
-- get rid of sfac number in atoms list. just ignore it if it is there and delete ist after safe.
+- check_same_thread=False ?
 
-- , check_same_thread=False ?
+- Can I get the restraints that are involved with selected atoms?
 
 '''
 
@@ -186,9 +186,14 @@ class FragmentDB(PT):
                                   resi=None, 
                                   resi_class=None):
     '''
-    input a fragment with ImportFrag
+    Input a fragment with ImportFrag
+    fvar and resi things are currently not possible in ImportFrag! 
     :param fragId: FragmentId
-    :type fragId: int
+    :param part: SHELX part
+    :param fvar: free variable
+    :param occ: occupancy
+    :param resi: residue number
+    :param resi_class: residue class
     '''
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
@@ -280,10 +285,10 @@ class FragmentDB(PT):
     :param fragId: the database Id of the fragment
     :type fragId: integer
     '''
-    dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
-    if dfix:
-      print('calculating DFIX restraints is not implemented in FragmentDB.')
-      return
+    #dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
+    #if dfix:
+    #  print('calculating DFIX restraints is not implemented in FragmentDB.')
+    #  return
     restraints = self.db.get_restraints(fragId)
     if not restraints:
       return
@@ -410,8 +415,6 @@ class FragmentDB(PT):
     '''
     resolves the atom names of ranges like "C1 > C5"
     works for each restraint line separately.
-    TODO:
-    - does not work for SAME! 
     :param restraintat: atoms with a range definition
     :type restraintat: list
     :param atom_names: names of atoms in the fragment
@@ -515,6 +518,7 @@ class FragmentDB(PT):
     if not edit:
       olx.html.SetValue('REFERENCE', ref)
     else:
+      # reference of the edit window
       olx.html.SetValue('REFERENCE_edit', ref)
   
   def get_selected_atoms(self):
@@ -598,20 +602,12 @@ class FragmentDB(PT):
     handles the name of a new/edited fragment
     '''
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
-    if self.check_name(fragname) and enable_check:
+    if self.db.has_exact_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
       return False
     else:
       OV.SetParam('fragment_DB.new_fragment.frag_name', fragname)
       return True
-    
-  def check_name(self, name):
-    '''
-    check if name is already present in the db
-    '''
-    if self.db.has_exact_name(name):
-      return True
-    return False
   
   def set_frag_cell(self):
     '''
@@ -650,7 +646,6 @@ class FragmentDB(PT):
     -returns a list of lists:
      [['C4', '1', '0.282212', '0.368636', '0.575493'], ...]
     '''
-    atlines = []  # @UnusedVariable
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split('\n')
@@ -714,15 +709,16 @@ class FragmentDB(PT):
     '''
     restraints = []  # @UnusedVariable
     restr = OV.GetParam('fragment_DB.new_fragment.frag_restraints')
-    if restr:
-      line = restr.split()
-    else:
+    try:
+      restr = restr.split('\n')
+      # remove empty lines:
+      restr = [i.upper() for i in restr if i ]
+      restr = [i.split() for i in restr]
+    except AttributeError, e:  # @UnusedVariable
+      #print(e)
+      restr = None
       return
-    for n, i in enumerate(line):
-      if i[:4] in SHX_CARDS:
-        line[n] = '\n'+line[n]
-    restraints = ' '.join(line).strip().split('\n')
-    return restraints
+    return restr
 
 
   def prepare_residue_class(self):
@@ -822,8 +818,7 @@ class FragmentDB(PT):
       pic_data = ''
     coords = self.prepare_coords_for_storage(atlines)
     if not check_restraints_consistency(restraints, atlines, fragname):
-      print('Fragment was not added to the database!')
-      print('Please remove non-existent atoms from the restraint list!')
+      print('\nFragment was not added to the database!')
       return
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints, 
