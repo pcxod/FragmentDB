@@ -70,7 +70,7 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     print('No restraints found!')
     return True
   status = True
-  atoms = [i[0].upper() for i in atoms]
+  atoms = [i[0].upper() for i in atoms if i]
   # check for duplicates:
   if len(set(atoms)) != len(atoms):
             c1 = Counter(atoms)

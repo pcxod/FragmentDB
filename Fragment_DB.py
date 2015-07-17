@@ -654,10 +654,8 @@ class FragmentDB(PT):
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split('\n')
-      print(atoms)
       atoms = [i for i in atoms if i ]
       atoms = [i.split() for i in atoms]
-      print(atoms)
     except AttributeError:
       atoms = None
       return
