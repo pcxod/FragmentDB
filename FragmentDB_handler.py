@@ -701,10 +701,10 @@ class FragmentTable():
         raise Exception('wrong data type "{}" for atom list.'.format(type(atom_table[0])))
     for line in atom_table:
         Name = line[0]
-        element = line[1]
-        x = line[2]
-        y = line[3]
-        z = line[4]
+        element = 999 #line[1]
+        x = line[1]
+        y = line[2]
+        z = line[3]
         req = '''INSERT INTO userdb.atoms (FragmentId, Name, element, x, y, z) 
                              VALUES(     ?,      ?,     ?,     ?, ?, ?)'''
         self.database.db_request(req, (fragment_id, Name, element, x, y, z))

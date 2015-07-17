@@ -537,7 +537,7 @@ class FragmentDB(PT):
     # now I want to remove the residue number:
     #atoms = [ y.split('_')[0] for y in atoms]
     for atom, coord in zip(atoms, crd):
-      atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
+      atlist.append('{:4.4s} {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     self.cell = '1 1 1 90 90 90'
@@ -653,38 +653,27 @@ class FragmentDB(PT):
     atlines = []  # @UnusedVariable
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
-      atoms = atoms.split()
+      atoms = atoms.split('\n')
+      atoms = [i.split() for i in atoms]
     except AttributeError:
       atoms = None
       return
-    return self.atoms_parser(atoms)
-
+    finalatoms = self.atoms_parser(atoms)
+    return finalatoms
 
   def atoms_parser(self, atoms):
     '''
     formats the atoms from shelx as long list to a list of list with
-    exactly fife items: Atom SFAC x y z
+    exactly four items: Atom  x y z
     :param atoms: line of atoms
     :type atoms: list
     '''
-    atline = []
-    atlines = []
-    for num, i in enumerate(atoms):
-      atline.append(i)
-      try:
-        # cut the long list in chuncs of atoms:
-        if num > 3 and atoms[num+1][0].isalpha():
-          atlines.append(atline)
-          atline = []
-      except IndexError:
-        # the last atom has no num+1
-        atlines.append(atline)
     # go through all atoms and cut their line to 5 list elements At SFAC x y z:
-    for num, line in enumerate(atlines):
+    for num, line in enumerate(atoms):
       if len(line) > 5:
-        atlines[num] = line[0]+line[2:4]
+        atoms[num] = line[0]+line[2:4]
       if len(line) == 4:
-        atlines[num] = line[:4]
+        atoms[num] = line[:4]
       if len(line) < 4:
         # too short, parameters missing
         print('Invalid atom line found!! Parameter(s) missing.')
@@ -699,7 +688,7 @@ class FragmentDB(PT):
               print('Invalid charachter {} in line.'.format(i))
               continue
           print('Invalid atom line found!')
-    return atlines
+    return atoms
 
 
   def set_frag_restraints(self):
@@ -740,6 +729,7 @@ class FragmentDB(PT):
     prepare the atom list to display in a multiline edit field
     '''
     atlist = []
+    atoms_list = []
     try:
       atoms_list = self.db[fragId]
     except IndexError:
@@ -748,7 +738,7 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:5.4s}   {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      atlist.append('{:5.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
     at = ' \n'.join(atlist)
     return at
 
