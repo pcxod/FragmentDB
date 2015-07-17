@@ -537,7 +537,7 @@ class FragmentDB(PT):
     # now I want to remove the residue number:
     #atoms = [ y.split('_')[0] for y in atoms]
     for atom, coord in zip(atoms, crd):
-      atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
+      atlist.append('{:4.4s} {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     self.cell = '1 1 1 90 90 90'
@@ -653,40 +653,37 @@ class FragmentDB(PT):
     atlines = []  # @UnusedVariable
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
-      atoms = atoms.split()
+      atoms = atoms.split('\n')
+      # remove empty lines:
+      atoms = [i for i in atoms if i ]
+      atoms = [i.split() for i in atoms]
     except AttributeError:
       atoms = None
       return
-    return self.atoms_parser(atoms)
-
+    finalatoms = self.atoms_parser(atoms)
+    return finalatoms
 
   def atoms_parser(self, atoms):
     '''
     formats the atoms from shelx as long list to a list of list with
-    exactly fife items: Atom SFAC x y z
+    exactly four items: Atom  x y z
     :param atoms: line of atoms
     :type atoms: list
     '''
-    atline = []
-    atlines = []
-    for num, i in enumerate(atoms):
-      atline.append(i)
-      try:
-        # cut the long list in chuncs of atoms:
-        if num > 3 and atoms[num+1][0].isalpha():
-          atlines.append(atline)
-          atline = []
-      except IndexError:
-        # the last atom has no num+1
-        atlines.append(atline)
-    # go through all atoms and cut their line to 5 list elements At SFAC x y z:
-    for num, line in enumerate(atlines):
-      if len(line) > 5:
-        atlines[num] = line[:5]
-      if len(line) < 5:
+    # go through all atoms and cut their line to 4 list elements At  x y z:
+    for num, line in enumerate(atoms):
+      if len(line) > 4 and len(line[1]) < 3:
+        atoms[num] = [line[0]]+line[2:5]
+      if len(line) > 4 and len(line[1]) > 3:
+        atoms[num] = line[:4]
+      if len(line) == 4:
+        atoms[num] = line[:4]
+      if len(line) < 4:
         # too short, parameters missing
         print('Invalid atom line found!! Parameter(s) missing.')
-      for x in line[1:5]:
+        del atoms[num]
+        continue
+      for x in line[1:4]:
         # check if each is a rea number except for the atom:
         try:
           float(x)
@@ -695,9 +692,20 @@ class FragmentDB(PT):
           for i in x:
             if not i.isdigit() and i != '.':
               print('Invalid charachter {} in line.'.format(i))
+              del atoms[num]
               continue
           print('Invalid atom line found!')
-    return atlines
+          del atoms[num]
+          continue
+    # now rename all the atoms that have no number:
+    atomnames = [i[0] for i in atoms]
+    for num, line in enumerate(atoms):
+      if len(line[0]) == 1:
+        # make sure no name is doubled
+        while line[0] in atomnames:
+          num = num+1
+          line[0] = line[0]+str(num)
+    return atoms
 
 
   def set_frag_restraints(self):
@@ -738,6 +746,7 @@ class FragmentDB(PT):
     prepare the atom list to display in a multiline edit field
     '''
     atlist = []
+    atoms_list = []
     try:
       atoms_list = self.db[fragId]
     except IndexError:
@@ -746,7 +755,7 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:5.4s} {:<3} {:>8.4f} {:>8.4f} {:>8.4f}'.format(*i))
+      atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
     at = ' \n'.join(atlist)
     return at
 
@@ -811,19 +820,7 @@ class FragmentDB(PT):
     except TypeError:
       print('No picture found')
       pic_data = ''
-    coords = []
-    for line in atlines:
-      try:
-        frac_coord = [ float(i) for i in line[2:5] ]
-      except(ValueError):
-        print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
-        return
-      if len(frac_coord) < 3:
-        print('Coordinate value missing in "{}".'.format(' '.join(line)))
-        return
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
-      line[2:5] = coord
-      coords.append(line)
+    coords = self.prepare_coords_for_storage(atlines)
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
       print('Please remove non-existent atoms from the restraint list!')
@@ -843,6 +840,27 @@ class FragmentDB(PT):
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
 
+  
+  def prepare_coords_for_storage(self, atlines):
+    '''
+    transform the string formated atoms into a list of atoms lists
+    :param atlines: texte lines with atoms from the input field
+    :type atlines: string
+    '''
+    coords = []
+    for line in atlines:
+      try:
+        frac_coord = [ float(i) for i in line[1:4] ]
+      except(ValueError):
+        print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
+        return
+      if len(frac_coord) < 3:
+        print('Coordinate value missing in "{}".'.format(' '.join(line)))
+        continue
+      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      line[1:4] = coord
+      coords.append(line)
+    return coords
   
   def get_frag_for_gui(self):
     '''
@@ -885,15 +903,7 @@ class FragmentDB(PT):
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
       pic_data = ''
-    coords = []
-    for line in atlines:
-      frac_coord = [ float(i) for i in line[2:5] ]
-      if len(frac_coord) < 3:
-        print('Coordinate value missing in "{}"!!!'.format(' '.join(line)))
-        continue
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
-      line[2:5] = coord
-      coords.append(line)
+    coords = self.prepare_coords_for_storage(atlines)
     print('Adding fragment "{0}" to the database.'.format(fragname))
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')

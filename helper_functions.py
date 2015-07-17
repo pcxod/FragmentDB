@@ -65,11 +65,12 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   :param fragment_name: fragment name
   :type fragment_name: string
   '''
-  if not restraints:
+  print(restraints)
+  if not restraints or len(restraints[0]) < 4:
     print('No restraints found!')
     return True
   status = True
-  atoms = [i[0].upper() for i in atoms]
+  atoms = [i[0].upper() for i in atoms if i]
   # check for duplicates:
   if len(set(atoms)) != len(atoms):
             c1 = Counter(atoms)
