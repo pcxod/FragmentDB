@@ -678,9 +678,9 @@ class FragmentTable():
   def _fill_atom_table(self, fragment_id, atom_table):
     '''
     Fills atoms into the Atoms table.
-    [('C1', '6', 1.2, -0.023, 3.615), ('C2', '6', 1.203, -0.012, 2.106), ...]
+    [('C1', 1.2, -0.023, 3.615), ('C2', 1.203, -0.012, 2.106), ...]
     or
-    [('C1 6 1.2 -0.023 3.615'), ('C2 6 1.203 -0.012 2.106'), ...]
+    [('C1 1.2 -0.023 3.615'), ('C2 1.203 -0.012 2.106'), ...]
     :param fragment_id: Id of the respective Fragment
     :type fragment_id: int or str
     :param atom_table: list of lits or list of strings
@@ -701,10 +701,10 @@ class FragmentTable():
         raise Exception('wrong data type "{}" for atom list.'.format(type(atom_table[0])))
     for line in atom_table:
         Name = line[0]
-        element = line[1]
-        x = line[2]
-        y = line[3]
-        z = line[4]
+        element = 999 #line[1]
+        x = line[1]
+        y = line[2]
+        z = line[3]
         req = '''INSERT INTO userdb.atoms (FragmentId, Name, element, x, y, z) 
                              VALUES(     ?,      ?,     ?,     ?, ?, ?)'''
         self.database.db_request(req, (fragment_id, Name, element, x, y, z))

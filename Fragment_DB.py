@@ -537,7 +537,7 @@ class FragmentDB(PT):
     # now I want to remove the residue number:
     #atoms = [ y.split('_')[0] for y in atoms]
     for atom, coord in zip(atoms, crd):
-      atlist.append('{:4.4s}  1  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
+      atlist.append('{:4.4s}  {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     self.cell = '1 1 1 90 90 90'
@@ -681,8 +681,10 @@ class FragmentDB(PT):
         atlines.append(atline)
     # go through all atoms and cut their line to 5 list elements At SFAC x y z:
     for num, line in enumerate(atlines):
-      if len(line) > 5:
+      if len(line) > 5 and len(line[1]) < 3:
         atlines[num] = line[0]+line[2:4]
+      if len(line) > 5 and len(line[1]) > 3:
+        atlines[num] = line[:4]
       if len(line) == 4:
         atlines[num] = line[:4]
       if len(line) < 4:
@@ -748,7 +750,7 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:5.4s}   {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      atlist.append('{:5.4s}  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
     at = ' \n'.join(atlist)
     return at
 
