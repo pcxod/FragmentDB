@@ -654,7 +654,10 @@ class FragmentDB(PT):
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split('\n')
+      print(atoms)
+      atoms = [i for i in atoms if i ]
       atoms = [i.split() for i in atoms]
+      print(atoms)
     except AttributeError:
       atoms = None
       return
@@ -670,13 +673,16 @@ class FragmentDB(PT):
     '''
     # go through all atoms and cut their line to 5 list elements At SFAC x y z:
     for num, line in enumerate(atoms):
-      if len(line) > 5:
-        atoms[num] = line[0]+line[2:4]
+      if len(line) > 4 and len(line[1]) < 3:
+        atoms[num] = [line[0]]+line[2:5]
+      if len(line) > 4 and len(line[1]) > 3:
+        atoms[num] = line[:4]
       if len(line) == 4:
         atoms[num] = line[:4]
       if len(line) < 4:
         # too short, parameters missing
         print('Invalid atom line found!! Parameter(s) missing.')
+        continue
       for x in line[1:4]:
         # check if each is a rea number except for the atom:
         try:
@@ -738,7 +744,7 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:5.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
     at = ' \n'.join(atlist)
     return at
 

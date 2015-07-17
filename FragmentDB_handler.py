@@ -678,9 +678,9 @@ class FragmentTable():
   def _fill_atom_table(self, fragment_id, atom_table):
     '''
     Fills atoms into the Atoms table.
-    [('C1', '6', 1.2, -0.023, 3.615), ('C2', '6', 1.203, -0.012, 2.106), ...]
+    [('C1', 1.2, -0.023, 3.615), ('C2', 1.203, -0.012, 2.106), ...]
     or
-    [('C1 6 1.2 -0.023 3.615'), ('C2 6 1.203 -0.012 2.106'), ...]
+    [('C1 1.2 -0.023 3.615'), ('C2 1.203 -0.012 2.106'), ...]
     :param fragment_id: Id of the respective Fragment
     :type fragment_id: int or str
     :param atom_table: list of lits or list of strings
