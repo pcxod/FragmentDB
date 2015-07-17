@@ -65,12 +65,11 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   :param fragment_name: fragment name
   :type fragment_name: string
   '''
-  print(restraints)
-  if not restraints or len(restraints[0]) < 4:
+  if not restraints:
     print('No restraints found!')
     return True
   status = True
-  atoms = [i[0].upper() for i in atoms if i]
+  atoms = [i[0].upper() for i in atoms]
   # check for duplicates:
   if len(set(atoms)) != len(atoms):
             c1 = Counter(atoms)
@@ -79,22 +78,20 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
             duplicates = list(diff.elements())
             for i in duplicates:
                 print('\nDuplicate atom "{}" found!\n'.format(duplicates.pop()))
-                status = False
+                status = 'False'
   # check if restraint cards are valid
   restraint_atoms_list = set([])
-  for n, line in enumerate(restraints):
+  for line in restraints:
     if not line:
       continue
-    line = line.upper()
-    line2 = line.split()
+    line = [i.upper() for i in line]
     # only the first 4 characters, because SADI_TOL would be bad:
-    if line2[0] not in SHX_CARDS:  
+    if line[0][:4] not in SHX_CARDS:  
       status = False
-      print('Invalid line in header of database entry "{}" found!'.format(n, fragment_name))
+      print('\nInvalid line in header of database entry "{}" found!'.format(fragment_name))
       print(line)
-    if line[:4] in RESTRAINT_CARDS:
-      line = line[5:].split()
-      for i in line:
+    if line[0][:4].upper() in RESTRAINT_CARDS:
+      for i in line[1:]:
         if i in ('>', '<'):
           continue
         try:
@@ -106,7 +103,8 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     atom = atom.upper()
     if not atom in atoms:
       status = False
-      print('Unknown atom "{}" in restraints of "{}".'.format(atom, fragment_name))
+      print('\nUnknown atom "{}" in restraints of "{}".'.format(atom, fragment_name))
+      print('Please remove non-existent atoms from the restraint list!')
   if not status:
     print('Check database entry.\n')
   return status
