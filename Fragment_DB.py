@@ -156,7 +156,7 @@ class FragmentDB(PT):
       selected_list = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
     # propagate the smaller list to the combo-box:
     olx.html.SetItems('LIST_FRAGMENTS', selected_list)
-    # show the first result in combo box ans intialize the fragment:
+    # show the first result in combo box and intialize the fragment:
     olx.html.SetValue('LIST_FRAGMENTS', '{}'.format(selected_results[0][1])) 
     frag_id = selected_results[0][0]
     olx.SetVar('fragment_ID', frag_id)
