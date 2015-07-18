@@ -18,7 +18,7 @@
             
             <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
-              value="Open picture"
+              value="Change picture"
               onclick="spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg', '')"
               name="picture" 
               width='50%'
@@ -80,8 +80,13 @@
             <td>
             </td>
             <td>
-            <a href='spy.FragmentDB.get_selected_atoms()>>spy.FragmentDB.make_selctions_picture()'><font color="#000000" >
-            <b>Use selected atoms:</b></font></a>
+              <input type="button"
+              bgcolor="$GetVar(HtmlInputBgColour)"
+              value="Use selected atoms:"
+              onclick="spy.FragmentDB.get_selected_atoms()>>spy.FragmentDB.make_selctions_picture()'"
+              name="use_atoms" 
+              width='50%'
+              height="20">
             </td>
           </tr>          
           <tr>
