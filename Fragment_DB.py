@@ -523,7 +523,8 @@ class FragmentDB(PT):
   
   def get_selected_atoms(self):
     '''
-    returns the currently selected atoms for the atoms field
+    returns the currently selected atoms for the atoms field.
+    Hydrogen atoms are discarded.
     '''
     atlist = []
     atoms = []
@@ -596,7 +597,6 @@ class FragmentDB(PT):
       if frag:
         self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
 
-  
   def set_frag_name(self, enable_check=True):
     '''
     handles the name of a new/edited fragment
@@ -644,7 +644,7 @@ class FragmentDB(PT):
     '''
     -handles the fragment atoms of a new/edited fragment
     -returns a list of lists:
-     [['C4', '1', '0.282212', '0.368636', '0.575493'], ...]
+     [['C4', '0.282212', '0.368636', '0.575493'], ...]
     '''
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
@@ -667,8 +667,10 @@ class FragmentDB(PT):
     '''
     # go through all atoms and cut their line to 4 list elements At  x y z:
     for num, line in enumerate(atoms):
+      # line with sfac
       if len(line) > 4 and len(line[1]) < 3:
         atoms[num] = [line[0]]+line[2:5]
+      # line without sfac, but long
       if len(line) > 4 and len(line[1]) > 3:
         atoms[num] = line[:4]
       if len(line) == 4:

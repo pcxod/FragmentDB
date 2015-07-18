@@ -101,8 +101,8 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue definition;helpTxt=$GetVar(fdb_resi);1 -->
-  <td width='32%' align='left'>
-   <b>%Uniq Residue Number:%</b>
+  <td width='25%' align='left'>
+   <b>%Residue Number:%</b>
   </td>
   <td width='10%' align='left'>
       <font size="$GetVar('HtmlFontSizeControls')">
@@ -134,7 +134,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     >
     </font>
   </td>
-  <td width='32%' align='right'>
+  <td width='25%' align='right'>
     <b>%Use DFIX:%</b>
   </td>
     <td halign='left' width='5%'>
@@ -156,7 +156,8 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
   <td width='20%' align='right'>Reference:</td>
-  <td width='45' align="right"><font color="black"> <input
+  <td width='45' align="right"><font color="black"> 
+    <input
     type="text" 
     name="REFERENCE"
     height="$GetVar('HtmlInputHeight')"
