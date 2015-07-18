@@ -9,7 +9,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
   <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
   </td>
-  <td VALIGN='center' ALIGN='left' colspan=1 width='75%'>
+  <td VALIGN='center' ALIGN='left' colspan=1 width='78%'>
       <input
         type='combo'
         name='LIST_FRAGMENTS'
@@ -18,14 +18,15 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         items='spy.FragmentDB.list_fragments()'
         value='select and search fragments here'
-        onchange="SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.init_plugin()"
+        onenter='html.SetValue(~name~, "")'
+        onchange="SetVar(fragment_ID, html.GetValue(~name~))>>
+                  spy.FragmentDB.init_plugin()"
         onreturn="spy.FragmentDB.search_fragments(html.GetValue(~name~))"
         readonly="False"
         manage="False"
       >
   </td>
   <td align='left' width='20%'>
-  &nbsp;
   <a align='left' href="html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments()))"> reset</a>
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -150,7 +151,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons; help_ext=Fit the Fragment;helpTxt=$GetVar(fdb_fit);1; -->
   <td width='35%' align='left'>
-    $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
+    $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()>>html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())')
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
