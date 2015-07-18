@@ -260,7 +260,7 @@ class FragmentTable():
       print('Wrong type. Expected integer.')
     # actually delete the item:
     if fragment_id < 1000000:
-      print('can not delete fragment of main database.')
+      #print('can not delete fragment of main database.')
       return False
       #deleted = self.database.db_request(req, fragment_id)
     else:
