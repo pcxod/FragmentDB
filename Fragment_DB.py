@@ -75,24 +75,6 @@ class FragmentDB(PT):
     self.frag_cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
     
-  def blink_field(self, name, duration=0.1, color='#aa0000', repeat=2):
-    '''
-    lets an input field of Olex2 blink
-    :param name: name of the html item to blink
-    :param duration: time for each blink event
-    :param color: blink color
-    '''
-    startcolor = OV.GetParam(name+'.bgcolor')
-    colorfield = name+'.bgcolor'
-    for n, i in enumerate(range(repeat)):  # @UnusedVariable
-      OV.SetParam(colorfield, color)
-      olx.html.Update(name.split('.')[0])
-      time.sleep(duration)
-      OV.SetParam(colorfield, startcolor)
-      olx.html.Update(name.split('.')[0])
-    OV.SetParam(colorfield, startcolor)
-    olx.html.Update(name.split('.')[0])
-  
   def init_plugin(self):
     '''
     initialize the plugins main form
@@ -837,7 +819,7 @@ class FragmentDB(PT):
       pic_data = ''
     coords = self.prepare_coords_for_storage(atlines)
     if not check_restraints_consistency(restraints, atlines, fragname):
-      #self.blink_field('Inputfrag.restraints')
+      OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       print('\nFragment was not added to the database!')
       return
     self.delete_fragment(reset=False)
@@ -922,6 +904,7 @@ class FragmentDB(PT):
     print('Adding fragment "{0}" to the database.'.format(fragname))
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
+      OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
     at_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
