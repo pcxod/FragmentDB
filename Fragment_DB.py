@@ -195,12 +195,8 @@ class FragmentDB(PT):
     return text
 
 
-  def insert_frag_with_ImportFrag(self, fragId,
-                                  part=1,
-                                  fvar=None,
-                                  occ=1,
-                                  resi=None,
-                                  resi_class=None):
+  def insert_frag_with_ImportFrag(self, fragId, part=1, fvar=None,
+                                  occ=1, resi=None, resi_class=None, dfix=False):
     '''
     Input a fragment with ImportFrag
     fvar and resi things are currently not possible in ImportFrag!
@@ -211,13 +207,24 @@ class FragmentDB(PT):
     :param resi: residue number
     :param resi_class: residue class
     '''
+    import olex_core
+    model = olex_core.GetRefinementModel(True)['aunit']['residues'][0]
+    nums_before = set([i['tag'] for i in model['atoms']])
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
-    OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
+    if dfix:
+      OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
+    else:
+      OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
     #print(part, fvar, occ, resi, resi_class)
-    return
+    model = olex_core.GetRefinementModel(True)['aunit']['residues'][0]
+    nums_after = [i['tag'] for i in model['atoms']]
+    # the differ numbers are the atom Ids of the inserted atoms:
+    differ = [x for x in nums_after if x not in nums_before]
+    return differ
+    
 
 
   def fit_db_fragment(self, fragId=None):
@@ -235,12 +242,18 @@ class FragmentDB(PT):
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    atoms = []
     labeldict = OrderedDict()
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
-      # adding atoms with ImportFrag and DFIX to structure:
-      self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
-      return
+      # adding atomids with ImportFrag and DFIX to structure:
+      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=True)
+    else:
+      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=False)
+    #if isinstance(atomids[0], basestring):
+    atomids = [str(i) for i in atomids]
+    for at_id in atomids:
+      name = olx.xf.au.GetAtomName(at_id)
+      labeldict[name.upper()] = id
+    '''
     # or regular restraints from the db:
     for i in self.db[fragId]:
       label = str(i[0])
@@ -257,29 +270,30 @@ class FragmentDB(PT):
       name = olx.xf.au.GetAtomName(at_id)
       labeldict[name.upper()] = at_id
       #print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], at_id, x, y, z))
-      atoms.append(at_id)
-    olx.xf.EndUpdate()
+      atomids.append(at_id)
+    '''
+    #olx.xf.EndUpdate()
     # now residues and otgher stuff:
     if resiclass and resinum:
-      self.make_residue(atoms, resiclass, resinum)
+      self.make_residue(atomids, resiclass, resinum)
     # Placing restraints:
     self.make_restraints(labeldict, fragId)
-    # select all atoms to do the fit:
+    # select all atomids to do the fit:
     if freevar != 1:
-      OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+      OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
-    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("mode fit -a=6")
+    OV.cmd("sel #c{}".format(' #c'.join(atomids)))
+    #OV.cmd("mode fit -a=6")
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
-    return atoms
+    OV.cmd("sel #c{}".format(' #c'.join(atomids)))
+    return atomids
 
 
   def is_near_atoms(self):
     '''
-
     for atom in olex_core.GetRefinementModel(True)['atoms']:
       coord = atom['crd'][0]
     '''
@@ -329,7 +343,9 @@ class FragmentDB(PT):
         else:
           line.append(at)
       # applies the restraint to atoms in line
-      OV.cmd("{} {}".format(i[0], ' '.join(line)))
+      #OV.cmd("{} {}".format(i[0], ' '.join(line)))
+      olx.xf.rm.NewRestraint(i[0], ' '.join(line))
+      #olx.xf.rm.NewRestraint('sadi', atom ids...)  
 
   def prepare_picture(self, im, max_size=100):
     '''
