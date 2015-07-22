@@ -244,7 +244,7 @@ class FragmentDB(PT):
     # or regular restraints from the db:
     for i in self.db[fragId]:
       label = str(i[0])
-      trans = 10.0
+      trans = 5.0
       #translate molecule unless it is away of everything else:
       # while not is_near_atoms:
       #    translate...
