@@ -223,6 +223,8 @@ class FragmentDB(PT):
     nums_after = [i['tag'] for i in model['atoms']]
     # the differ numbers are the atom Ids of the inserted atoms:
     differ = [x for x in nums_after if x not in nums_before]
+    atomids = [str(i) for i in differ]
+    #print('###', OV.cmd("sel #c{}".format(' #c'.join(atomids))))
     return differ
     
 
