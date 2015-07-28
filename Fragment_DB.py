@@ -201,14 +201,11 @@ class FragmentDB(PT):
     :type atoms:
     '''
     print('Imported atom ids: {}'.format(atoms))
-    resinum = OV.GetParam('fragment_DB.fragment.resinum')
-    resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
-    freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     atoms = atoms.split()
     # define the other properties:
-    self.define_atom_properties(atoms, resinum, resiclass, freevar)
+    self.define_atom_properties(atoms)
     OV.unregisterCallback('onFragmentImport', self.onInport)
-
+  
   def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1,  dfix=False):
     '''
     Input a fragment with ImportFrag
@@ -250,20 +247,17 @@ class FragmentDB(PT):
     else:
       atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=False)
       return atomids
-  
-      
-  def define_atom_properties(self, atomids, resinum, resiclass, freevar, fragId=None):
+
+  def define_atom_properties(self, atomids, fragId=None):
     '''
     Defines the atoms properties of the fitted fragment after ImportFrag
-    :param atomids:
-    :type atomids:
-    :param resinum:
-    :type resinum:
-    :param resiclass:
-    :type resiclass:
-    :param freevar:
-    :type freevar:
+    :param atomids: atomic olex2 ids of the atoms 
+    :type atomids: list
+    :param fragId: fragment id
+    :type fragId: int
     '''
+    resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
+    freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
     print('Applying fragment properties:')
     if not fragId:
       try:
@@ -276,30 +270,24 @@ class FragmentDB(PT):
     dbatom_names = [ i[0] for i in self.db[fragId]]
     for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
-    # now residues and otgher stuff:
-    if resiclass and resinum:
-      self.make_residue(atomids, resiclass, resinum)
     # Placing restraints:
-    self.make_restraints(labeldict, fragId)
+    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
+      self.make_restraints(labeldict, fragId)
     # select all atomids to do the fit:
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atomids)))
-    resinum = self.find_free_residue_num()
-    olx.html.SetValue('RESIDUE', resinum)
-    OV.SetParam('fragment_DB.fragment.resinum', resinum)
-    OV.cmd("sel #c{}".format(' #c'.join(atomids)))
+    resinum = int(olx.html.GetValue('RESIDUE'))
+    if resinum != 0:
+      resinum = self.find_free_residue_num()
+      olx.html.SetValue('RESIDUE', resinum)
+      OV.SetParam('fragment_DB.fragment.resinum', resinum)
+      # now residues and other stuff:
+      if resiclass and resinum:
+        self.make_residue(atomids, resiclass, resinum)
     return atomids
-
-
-  def is_near_atoms(self):
-    '''
-    for atom in olex_core.GetRefinementModel(True)['atoms']:
-      coord = atom['crd'][0]
-    '''
-    pass
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
@@ -317,10 +305,6 @@ class FragmentDB(PT):
     :param fragId: the database Id of the fragment
     :type fragId: integer
     '''
-    #dfix = OV.GetParam('fragment_DB.fragment.use_dfix')
-    #if dfix:
-    #  print('calculating DFIX restraints is not implemented in FragmentDB.')
-    #  return
     restraints = self.db.get_restraints(fragId)
     if not restraints:
       return
@@ -339,7 +323,7 @@ class FragmentDB(PT):
           except(KeyError):
             # in this case, an atom name in the restraint does not
             # exist in the fragments atom list!
-            print('\nUnknown restraint found in line {}.\n'.format(num+1))
+            print('\nUnknown restraint found in restraints line {}.\n'.format(num+1))
             # I must exit here!
             return
         else:
