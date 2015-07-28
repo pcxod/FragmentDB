@@ -23,13 +23,7 @@ Fragen und Ideen:
 
 - I would like to replace atoms in 1.3 A around the fitting fragment.
 
-- can the state of the plugin be updated after fit to initialize e.g. the
-  residue number again?
-  -Y Yes with "mode -e fit"
-
 - check_same_thread=False ?
-
-- Can I get the restraints that are involved with selected atoms?
 
 '''
 
