@@ -194,22 +194,33 @@ class FragmentDB(PT):
     text = ' '.join(finallist)
     return text
 
+  def onInport(self, atoms):
+    '''
+    Function is called when ImportFrag exits  
+    :param atoms:
+    :type atoms:
+    '''
+    print('Imported atom ids: {}'.format(atoms))
+    resinum = OV.GetParam('fragment_DB.fragment.resinum')
+    resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
+    freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
+    atoms = atoms.split()
+    # define the other properties:
+    self.define_atom_properties(atoms, resinum, resiclass, freevar)
+    OV.unregisterCallback('onFragmentImport', self.onInport)
 
-  def insert_frag_with_ImportFrag(self, fragId, part=1, fvar=None,
-                                  occ=1, resi=None, resi_class=None, dfix=False):
+  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1,  dfix=False):
     '''
     Input a fragment with ImportFrag
     fvar and resi things are currently not possible in ImportFrag!
     :param fragId: FragmentId
     :param part: SHELX part
-    :param fvar: free variable
     :param occ: occupancy
-    :param resi: residue number
-    :param resi_class: residue class
+    :param dfix: generate dfix restraints or not after fit.
     '''
-    import olex_core
-    model = olex_core.GetRefinementModel(True)['aunit']['residues'][0]
-    nums_before = set([i['tag'] for i in model['atoms']])
+    # this callback runs in the moment when ImportFrag is finished. onInport
+    # then defines the further properties of the fragment:
+    OV.registerCallback('onFragmentImport', self.onInport)
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
@@ -218,17 +229,8 @@ class FragmentDB(PT):
       OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
     else:
       OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
-    #print(part, fvar, occ, resi, resi_class)
-    model = olex_core.GetRefinementModel(True)['aunit']['residues'][0]
-    nums_after = [i['tag'] for i in model['atoms']]
-    # the differ numbers are the atom Ids of the inserted atoms:
-    differ = [x for x in nums_after if x not in nums_before]
-    atomids = [str(i) for i in differ]
-    #print('###', OV.cmd("sel #c{}".format(' #c'.join(atomids))))
-    return differ
+    return
     
-
-
   def fit_db_fragment(self, fragId=None):
     '''
     fit a molecular fragment from the database into olex2
@@ -239,41 +241,41 @@ class FragmentDB(PT):
       except(RuntimeError):
         # no fragment chosen-> do nothing
         return
-    resinum = OV.GetParam('fragment_DB.fragment.resinum')
-    resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    labeldict = OrderedDict()
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       # adding atomids with ImportFrag and DFIX to structure:
       atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=True)
+      return atomids
     else:
       atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=False)
-    #if isinstance(atomids[0], basestring):
+      return atomids
+  
+      
+  def define_atom_properties(self, atomids, resinum, resiclass, freevar, fragId=None):
+    '''
+    Defines the atoms properties of the fitted fragment after ImportFrag
+    :param atomids:
+    :type atomids:
+    :param resinum:
+    :type resinum:
+    :param resiclass:
+    :type resiclass:
+    :param freevar:
+    :type freevar:
+    '''
+    print('applying properties')
+    if not fragId:
+      try:
+        fragId = olx.GetVar('fragment_ID')
+      except(RuntimeError):
+        # no fragment chosen-> do nothing
+        return
+    labeldict = OrderedDict()
     atomids = [str(i) for i in atomids]
     for at_id in atomids:
       name = olx.xf.au.GetAtomName(at_id)
-      labeldict[name.upper()] = id
-    '''
-    # or regular restraints from the db:
-    for i in self.db[fragId]:
-      label = str(i[0])
-      trans = 5.0
-      #translate molecule unless it is away of everything else:
-      # while not is_near_atoms:
-      #    translate...
-      x, y, z = olx.xf.au.Fractionalise(i[2]+trans,i[3]+trans,i[4]+trans).split(',')
-      at_id = olx.xf.au.NewAtom(label, x, y, z, False)
-      olx.xf.au.SetAtomPart(at_id, partnum)
-      # if label is H... then SetAtomU == -1.3
-      olx.xf.au.SetAtomU(at_id, 0.045)
-      olx.xf.au.SetAtomOccu(at_id, occupancy)
-      name = olx.xf.au.GetAtomName(at_id)
       labeldict[name.upper()] = at_id
-      #print('adding {}, Id: {}, coords: {} {} {}'.format(i[0], at_id, x, y, z))
-      atomids.append(at_id)
-    '''
     #olx.xf.EndUpdate()
     # now residues and otgher stuff:
     if resiclass and resinum:
@@ -339,7 +341,7 @@ class FragmentDB(PT):
           except(KeyError):
             # in this case, an atom name in the restraint does not
             # exist in the fragments atom list!
-            print('\nUnknown restraint found in line {}.\n'.format(num))
+            print('\nUnknown restraint found in line {}.\n'.format(num+1))
             # I must exit here!
             return
         else:
