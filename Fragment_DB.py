@@ -251,7 +251,8 @@ class FragmentDB(PT):
     :type fragId: int
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
-    freevar = OV.GetParam('fragment_DB.fragment.frag_fvar')
+    freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
+    resinum = int(olx.html.GetValue('RESIDUE'))
     print('Applying fragment properties:')
     if not fragId:
       try:
@@ -273,7 +274,6 @@ class FragmentDB(PT):
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atomids)))
-    resinum = int(olx.html.GetValue('RESIDUE'))
     if resinum != 0:
       resinum = self.find_free_residue_num()
       olx.html.SetValue('RESIDUE', resinum)
