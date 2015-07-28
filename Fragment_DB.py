@@ -264,7 +264,7 @@ class FragmentDB(PT):
     :param freevar:
     :type freevar:
     '''
-    print('applying properties')
+    print('Applying fragment properties:')
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
@@ -273,10 +273,9 @@ class FragmentDB(PT):
         return
     labeldict = OrderedDict()
     atomids = [str(i) for i in atomids]
-    for at_id in atomids:
-      name = olx.xf.au.GetAtomName(at_id)
+    dbatom_names = [ i[0] for i in self.db[fragId]]
+    for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
-    #olx.xf.EndUpdate()
     # now residues and otgher stuff:
     if resiclass and resinum:
       self.make_residue(atomids, resiclass, resinum)
@@ -288,7 +287,6 @@ class FragmentDB(PT):
       OV.cmd("fvar {}".format(freevar))
     # select again, because fvar deselects the fragment
     OV.cmd("sel #c{}".format(' #c'.join(atomids)))
-    #OV.cmd("mode fit -a=6")
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
@@ -334,7 +332,7 @@ class FragmentDB(PT):
         restraint_atoms = self.range_resolver(restraint_atoms.split(), labeldict.keys())
       line = []
       for at in restraint_atoms.split():
-        # is it a potential atom:
+        # is it a potential atom (starts with alphabetic character):
         if at[0].isalpha():
           try:
             line.append('#c'+labeldict[at])
@@ -347,9 +345,9 @@ class FragmentDB(PT):
         else:
           line.append(at)
       # applies the restraint to atoms in line
-      #OV.cmd("{} {}".format(i[0], ' '.join(line)))
-      olx.xf.rm.NewRestraint(i[0], ' '.join(line))
-      #olx.xf.rm.NewRestraint('sadi', atom ids...)  
+      OV.cmd("{} {}".format(i[0], ' '.join(line)))
+      #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
+
 
   def prepare_picture(self, im, max_size=100):
     '''
