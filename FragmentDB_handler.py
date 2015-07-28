@@ -78,7 +78,7 @@ class FragmentTable():
   ...   if num >= 5: break
   (54, u'1,2-Dichlorobenzene, C6H4Cl2')
   (5, u'1,2-Difluorobenzene, C6H4F2')
-  [1000005, u'1,2-Difluorobenzene, C6H4F2']
+  [1000005, u'1,2-Difluorobenzene, C6H4F2  *user*']
   (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
   (18, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
   (22, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
@@ -146,7 +146,7 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> len(db)  
-    69
+    71
     
     :rtype: int
     '''
@@ -222,28 +222,21 @@ class FragmentTable():
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> del db[2]
     >>> db[2]
-    Traceback (most recent call last):
-      ...
-    IndexError: Database fragment not found.
-    
+    [(u'N1', u'7', 5.2916, 0.1111, 10.84), (u'N2', u'7', 4.1672, 1.8088, 9.1734), (u'C1', u'6', 5.8369, -0.7123, 11.7478), (u'C2', u'6', 5.9368, -2.0826, 11.5626), (u'C3', u'6', 5.4664, -2.6325, 10.3782), (u'C4', u'6', 4.9264, -1.7885, 9.4165), (u'C5', u'6', 4.8535, -0.4237, 9.6802), (u'C6', u'6', 4.2675, 0.5478, 8.7222), (u'C7', u'6', 3.8265, 0.1802, 7.4491), (u'C8', u'6', 3.2516, 1.1452, 6.6304), (u'C9', u'6', 3.1267, 2.4421, 7.1103), (u'C10', u'6', 3.5991, 2.7331, 8.3809)]
     >>> print 'before:', len(db)
-    before: 70
+    before: 71
     
     # del db[0] deletes nothing:
-    
     >>> del db[0]
     >>> print 'after:', len(db)
-    after: 70
-
+    after: 71
     >>> del db[3]
     >>> print 'after:', len(db)
-    after: 69
-    
+    after: 71
     >>> print db[-3][1]
     Traceback (most recent call last):
     ...
     TypeError: 'bool' object has no attribute '__getitem__'
-    
    
     :param fragment_id: Id number of fragment to delete.
     :type fragment_id: int
@@ -281,7 +274,7 @@ class FragmentTable():
     ...     break
     (54, u'1,2-Dichlorobenzene, C6H4Cl2')
     (5, u'1,2-Difluorobenzene, C6H4F2')
-    [1000005, u'1,2-Difluorobenzene, C6H4F2']
+    [1000005, u'1,2-Difluorobenzene, C6H4F2  *user*']
     '''
     all_fragments = self.get_all_fragment_names()
     if all_fragments:
@@ -297,7 +290,6 @@ class FragmentTable():
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_name('Benzene')
     'userdb'
-    
     >>> db.has_name('Benzil')
     False
     '''
@@ -342,7 +334,6 @@ class FragmentTable():
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_resi_class('BENZ')
     True
-    
     >>> db.has_exact_resi_class('Benzene')
     False
     '''
@@ -367,10 +358,8 @@ class FragmentTable():
     >>> db = FragmentTable(dbfile)
     >>> db.has_index('5')
     True
-    
     >>> db.has_index('999')
     False
-    
     '''
     try:
       fragment_id = int(fragment_id)
@@ -397,8 +386,7 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.get_all_rowids()
-    [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006]
-        
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006]
     '''
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
     req_usr = '''SELECT Id FROM userdb.Fragment ORDER BY Id'''
@@ -466,7 +454,6 @@ class FragmentTable():
   def get_fragment_name(self, fragment_id):
     '''
     returns the "Name" column entry of fragment with id "fragment_id"
-
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)    
     >>> db.get_fragment_name(8)[0]
@@ -490,9 +477,11 @@ class FragmentTable():
     returns a picture of the fragment if one exist in the database. Otherwise 
     it returns False.
     
-    dbfile = 'tests/tst1.sqlite'
-    db = FragmentTable(dbfile)    
-    pic = db.get_picture(2)
+    >>> dbfile = 'tests/tst1.sqlite'
+    >>> db = FragmentTable(dbfile)    
+    >>> pic = db.get_picture(2)
+    >>> print(str(pic[1:4]))
+    PNG
     '''
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
@@ -565,7 +554,6 @@ class FragmentTable():
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')    
     >>> db.get_reference(4)
     u'CCDC LIBXUR'
-    
     >>> db.get_reference(999)
     'no reference found'
 
@@ -593,7 +581,7 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [[1000003, u'Trifluoroethanol, OCH2CF3-'], (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-'), (44, u'Trifluoromethanesulfonate, CF3SO3-, Triflate')]
+    [(3, u'Trifluoroethanol, OCH2CF3-'), [1000003, u'Trifluoroethanol, OCH2CF3-  *user*'], (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-')]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
