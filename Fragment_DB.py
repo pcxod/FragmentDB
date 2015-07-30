@@ -25,6 +25,14 @@ Fragen und Ideen:
 
 - check_same_thread=False ?
 
+- It should be possible to define the residue on ImportFrag() to prevent massive atom 
+  renaming even if not neccesary.
+
+- Why not also the free variable
+
+- I need to have a connection between atom names from the DB, the names in the restraints 
+  and the new names/Ids of the olex atoms to apply restraints.
+
 '''
 
 
@@ -200,7 +208,7 @@ class FragmentDB(PT):
     self.define_atom_properties(atoms)
     OV.unregisterCallback('onFragmentImport', self.onInport)
   
-  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1,  dfix=False):
+  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
     '''
     Input a fragment with ImportFrag
     fvar and resi things are currently not possible in ImportFrag!
@@ -216,7 +224,7 @@ class FragmentDB(PT):
     atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
-    if dfix:
+    if OV.GetParam('fragment_DB.fragment.use_dfix'):
       OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
     else:
       OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
@@ -236,10 +244,10 @@ class FragmentDB(PT):
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       # adding atomids with ImportFrag and DFIX to structure:
-      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=True)
+      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
       return atomids
     else:
-      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=False)
+      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
       return atomids
 
   def define_atom_properties(self, atomids, fragId=None):
@@ -252,7 +260,7 @@ class FragmentDB(PT):
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
-    resinum = int(olx.html.GetValue('RESIDUE'))
+    resinum = int(OV.GetParam('fragment_DB.fragment.resinum'))
     print('Applying fragment properties:')
     if not fragId:
       try:
@@ -272,13 +280,7 @@ class FragmentDB(PT):
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
-    # select again, because fvar deselects the fragment
-    OV.cmd("sel #c{}".format(' #c'.join(atomids)))
     if resinum != 0:
-      resinum = self.find_free_residue_num()
-      olx.html.SetValue('RESIDUE', resinum)
-      OV.SetParam('fragment_DB.fragment.resinum', resinum)
-      # now residues and other stuff:
       if resiclass and resinum:
         self.make_residue(atomids, resiclass, resinum)
     return atomids
