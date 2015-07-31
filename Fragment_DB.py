@@ -26,7 +26,7 @@ Fragen und Ideen:
 - check_same_thread=False ?
 
 - It should be possible to define the residue on ImportFrag() to prevent massive atom 
-  renaming even if not neccesary.
+  renaming even if not neccesary. olx.Name('#c'+id, name)
 
 - Why not also the free variable
 
@@ -234,6 +234,7 @@ class FragmentDB(PT):
     '''
     fit a molecular fragment from the database into olex2
     '''
+    OV.cmd(r'labels')
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
@@ -249,6 +250,16 @@ class FragmentDB(PT):
     else:
       atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
       return atomids
+
+  def atomrenamer(self, labeldict):
+    '''
+    Renames atoms according to the database names after ImportFrag.
+    :param labeldict: dictionary with names and ids of the atoms
+    :type labeldict: dict
+    '''
+    for at in labeldict:
+      olx.Name('#c'+labeldict[at], at)
+    
 
   def define_atom_properties(self, atomids, fragId=None):
     '''
@@ -273,9 +284,6 @@ class FragmentDB(PT):
     dbatom_names = [ i[0] for i in self.db[fragId]]
     for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
-    # Placing restraints:
-    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
-      self.make_restraints(labeldict, fragId)
     # select all atomids to do the fit:
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
@@ -283,15 +291,26 @@ class FragmentDB(PT):
     if resinum != 0:
       if resiclass and resinum:
         self.make_residue(atomids, resiclass, resinum)
+        self.atomrenamer(labeldict)
+      if not resiclass and resinum:
+        self.make_residue(atomids, resiclass, resinum)
+        self.atomrenamer(labeldict)
+    # Placing restraints:
+    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
+      self.make_restraints(labeldict, fragId)
     return atomids
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
     '''
-    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("RESI {} {}".format(resiclass, resinum))
-
+    if resiclass:
+      OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+      OV.cmd("RESI {} {}".format(resiclass, resinum))
+    else:
+      OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+      OV.cmd("RESI {}".format(resinum))
+      
   def make_restraints(self, labeldict, fragId):
     '''
     Applies restraints to atoms.
