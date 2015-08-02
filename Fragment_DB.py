@@ -289,10 +289,7 @@ class FragmentDB(PT):
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
     if resinum != 0:
-      if resiclass and resinum:
-        self.make_residue(atomids, resiclass, resinum)
-        self.atomrenamer(labeldict)
-      if not resiclass and resinum:
+      if resiclass and resinum or not resiclass and resinum:
         self.make_residue(atomids, resiclass, resinum)
         self.atomrenamer(labeldict)
     # Placing restraints:
