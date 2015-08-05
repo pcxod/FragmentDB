@@ -221,7 +221,7 @@ class FragmentDB(PT):
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onInport)
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
-    atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
+    atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
@@ -234,13 +234,18 @@ class FragmentDB(PT):
     '''
     fit a molecular fragment from the database into olex2
     '''
-    OV.cmd(r'labels')
+    OV.cmd("labels false")
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
       except(RuntimeError):
         # no fragment chosen-> do nothing
         return
+    try:
+      int(fragId)
+    except(ValueError):
+      print('Please select a fragment first, or hit Enter key to search.')
+      return
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
@@ -1003,6 +1008,7 @@ class FragmentDB(PT):
       return
     picfile = "fdb_tmp.png"
     OV.cmd("sel atom bonds")
+    OV.cmd("labels false")
     OV.cmd("showh a False")
     OV.cmd("sel -i")
     OV.cmd("hide")
