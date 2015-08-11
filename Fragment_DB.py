@@ -167,8 +167,10 @@ class FragmentDB(PT):
     performs a search for an unsharp name in a list
     '''
     selected_list = ''
+    
     if not search_string:
-      selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
+      print("Empty search string.")
+      return
     else:
       selected_results = self.db.find_fragment_by_name(search_string, 7)
       selected_list = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
