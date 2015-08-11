@@ -3,7 +3,8 @@ from collections import OrderedDict
 from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
-from helper_functions import check_restraints_consistency, initialize_user_db
+from helper_functions import check_restraints_consistency, initialize_user_db,\
+  RESTRAINT_CARDS, DIST_RESTRAINT_CARDS
 import time
 
 OV = OlexFunctions()
@@ -25,6 +26,8 @@ Fragen und Ideen:
 
 - check_same_thread=False ?
 
+- "mode -e fit"
+
 - It should be possible to define the residue on ImportFrag() to prevent massive atom 
   renaming even if not neccesary. olx.Name('#c'+id, name)
 
@@ -32,6 +35,9 @@ Fragen und Ideen:
 
 - I need to have a connection between atom names from the DB, the names in the restraints 
   and the new names/Ids of the olex atoms to apply restraints.
+
+- Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
+  intuitiv!!!
 
 '''
 
@@ -279,6 +285,7 @@ class FragmentDB(PT):
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     resinum = int(OV.GetParam('fragment_DB.fragment.resinum'))
+    partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
     if not fragId:
       try:
@@ -301,8 +308,21 @@ class FragmentDB(PT):
         self.atomrenamer(labeldict)
     # Placing restraints:
     if not OV.GetParam('fragment_DB.fragment.use_dfix'):
-      self.make_restraints(labeldict, fragId)
+      self.make_restraints(labeldict, fragId, resinum, resiclass)
+    if partnum >= 0:
+      self.make_part(atomids, partnum)
     return atomids
+  
+  def make_part(self, atoms, partnum):
+    '''
+    Assign part number to a fragment
+    :param atoms: list of atoms
+    :type atoms: list
+    :param partnum: SHELX part number
+    :type partnum: integer
+    '''
+    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+    OV.cmd("PART {}".format(partnum))
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
@@ -315,7 +335,7 @@ class FragmentDB(PT):
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
       OV.cmd("RESI {}".format(resinum))
       
-  def make_restraints(self, labeldict, fragId):
+  def make_restraints(self, labeldict, fragId, resinum=0, resiclass=''):
     '''
     Applies restraints to atoms.
     :param labeldict: a dictionary where the keys are atom names and the
@@ -348,7 +368,10 @@ class FragmentDB(PT):
         else:
           line.append(at)
       # applies the restraint to atoms in line
-      OV.cmd("{} {}".format(i[0], ' '.join(line)))
+      if i[0] in DIST_RESTRAINT_CARDS and resinum != 0 and resiclass:
+        OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
+      else:
+        OV.cmd("{} {}".format(i[0], ' '.join(line)))
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
 
 
