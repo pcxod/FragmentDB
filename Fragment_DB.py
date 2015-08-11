@@ -25,6 +25,14 @@ Fragen und Ideen:
 
 - check_same_thread=False ?
 
+- It should be possible to define the residue on ImportFrag() to prevent massive atom 
+  renaming even if not neccesary. olx.Name('#c'+id, name)
+
+- Why not also the free variable
+
+- I need to have a connection between atom names from the DB, the names in the restraints 
+  and the new names/Ids of the olex atoms to apply restraints.
+
 '''
 
 
@@ -159,8 +167,10 @@ class FragmentDB(PT):
     performs a search for an unsharp name in a list
     '''
     selected_list = ''
+    
     if not search_string:
-      selected_results = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
+      print("Empty search string.")
+      return
     else:
       selected_results = self.db.find_fragment_by_name(search_string, 7)
       selected_list = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
@@ -200,7 +210,7 @@ class FragmentDB(PT):
     self.define_atom_properties(atoms)
     OV.unregisterCallback('onFragmentImport', self.onInport)
   
-  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1,  dfix=False):
+  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
     '''
     Input a fragment with ImportFrag
     fvar and resi things are currently not possible in ImportFrag!
@@ -213,10 +223,10 @@ class FragmentDB(PT):
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onInport)
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
-    atoms = self.format_atoms_for_importfrag([ i for i in self.db[fragId]])
+    atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
       f.write(atoms)
-    if dfix:
+    if OV.GetParam('fragment_DB.fragment.use_dfix'):
       OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
     else:
       OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
@@ -226,21 +236,37 @@ class FragmentDB(PT):
     '''
     fit a molecular fragment from the database into olex2
     '''
+    OV.cmd("labels false")
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
       except(RuntimeError):
         # no fragment chosen-> do nothing
         return
+    try:
+      int(fragId)
+    except(ValueError):
+      print('Please select a fragment first, or hit Enter key to search.')
+      return
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       # adding atomids with ImportFrag and DFIX to structure:
-      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=True)
+      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
       return atomids
     else:
-      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy, dfix=False)
+      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
       return atomids
+
+  def atomrenamer(self, labeldict):
+    '''
+    Renames atoms according to the database names after ImportFrag.
+    :param labeldict: dictionary with names and ids of the atoms
+    :type labeldict: dict
+    '''
+    for at in labeldict:
+      olx.Name('#c'+labeldict[at], at)
+    
 
   def define_atom_properties(self, atomids, fragId=None):
     '''
@@ -252,7 +278,7 @@ class FragmentDB(PT):
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
-    resinum = int(olx.html.GetValue('RESIDUE'))
+    resinum = int(OV.GetParam('fragment_DB.fragment.resinum'))
     print('Applying fragment properties:')
     if not fragId:
       try:
@@ -265,31 +291,30 @@ class FragmentDB(PT):
     dbatom_names = [ i[0] for i in self.db[fragId]]
     for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
-    # Placing restraints:
-    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
-      self.make_restraints(labeldict, fragId)
     # select all atomids to do the fit:
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
-    # select again, because fvar deselects the fragment
-    OV.cmd("sel #c{}".format(' #c'.join(atomids)))
     if resinum != 0:
-      resinum = self.find_free_residue_num()
-      olx.html.SetValue('RESIDUE', resinum)
-      OV.SetParam('fragment_DB.fragment.resinum', resinum)
-      # now residues and other stuff:
-      if resiclass and resinum:
+      if resiclass and resinum or not resiclass and resinum:
         self.make_residue(atomids, resiclass, resinum)
+        self.atomrenamer(labeldict)
+    # Placing restraints:
+    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
+      self.make_restraints(labeldict, fragId)
     return atomids
 
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
     '''
-    OV.cmd("sel #c{}".format(' #c'.join(atoms)))
-    OV.cmd("RESI {} {}".format(resiclass, resinum))
-
+    if resiclass:
+      OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+      OV.cmd("RESI {} {}".format(resiclass, resinum))
+    else:
+      OV.cmd("sel #c{}".format(' #c'.join(atoms)))
+      OV.cmd("RESI {}".format(resinum))
+      
   def make_restraints(self, labeldict, fragId):
     '''
     Applies restraints to atoms.
@@ -985,6 +1010,7 @@ class FragmentDB(PT):
       return
     picfile = "fdb_tmp.png"
     OV.cmd("sel atom bonds")
+    OV.cmd("labels false")
     OV.cmd("showh a False")
     OV.cmd("sel -i")
     OV.cmd("hide")
