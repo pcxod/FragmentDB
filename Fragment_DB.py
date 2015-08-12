@@ -92,7 +92,7 @@ class FragmentDB(PT):
     except(RuntimeError, ValueError):
       return
     self.get_resi_class()
-    self.set_fragment_picture(100)
+    self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
     self.show_reference()
     resinum = self.find_free_residue_num()
@@ -405,7 +405,7 @@ class FragmentDB(PT):
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
 
 
-  def prepare_picture(self, im, max_size=100):
+  def prepare_picture(self, im, max_size=150):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -439,7 +439,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, max_size=100):
+  def set_fragment_picture(self, max_size=150):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -458,7 +458,7 @@ class FragmentDB(PT):
     im = Image.open(StringIO.StringIO(pic))
     # save it as raw and small pic:
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    im = self.prepare_picture(im, max_size=100)
+    im = self.prepare_picture(im, max_size)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
 
   def display_image(self, zimgname, image_file):
@@ -494,10 +494,9 @@ class FragmentDB(PT):
       print('No valid picture found!')
       return
     im = Image.open(picfile)
-    #im = self.prepare_picture(im, max_size=100)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
-    im = self.prepare_picture(im, max_size=100)
+    im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
 
@@ -675,7 +674,7 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 550, 670
+    width, height = 550, 710
     path = "{}/inputfrag.htm".format(self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width,
               h=height, x=box_x, y=box_y)
@@ -923,7 +922,7 @@ class FragmentDB(PT):
     else:
       print('Something is wrong with fragment storage.')
     self.get_frag_for_gui()
-    self.set_fragment_picture(100)
+    self.set_fragment_picture()
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
@@ -1075,7 +1074,7 @@ class FragmentDB(PT):
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
-    im = self.prepare_picture(im, max_size=100)
+    im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
     try:
