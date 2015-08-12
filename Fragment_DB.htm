@@ -115,7 +115,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
         min='0'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
-        onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))>>labels -rn"
+        onchange="spy.FragmentDB.set_resinum(html.GetValue('~name~'))>>labels -rn"
   >
   </td>
   <td width='25%' align='right'>
