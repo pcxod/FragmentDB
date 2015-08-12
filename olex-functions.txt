@@ -1,3 +1,11 @@
+htmlTools.py:
+433:
++      ws = olx.GetWindowSize('gl')
++      ws_y = int(ws.split(',')[3])
++      if (ws_y - boxHeight) < boxHeight:
++        y = ws_y-boxHeight
+
+
 spy.currentResultFilesHtmlMaker
 currentResultFilesHtmlMaker arguments [any]
 
