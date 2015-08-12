@@ -1,9 +1,95 @@
+<html>
+  <body>
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
-$SetVar(fdb_chooser, "Choose the desired fragment from the list in the drop-down menu. Do an unsharp search with a partial name and hit enter. For example cf3 finds all the fragments containing cf3 their name.")
-$SetVar(fdb_picture, "Displays a picture of the fragment. User defined fragments only have pictures if the user provided one.")
-$SetVar(fdb_props, "Define PART, free variables (FVAR) and the occupancy here. A free variable of 3 and an occupancy of 1 means 21.0 in SHELXL notation. All parameters will be displayed in the molecule labels simultaneously.")
-$SetVar(fdb_resi, "Define residue number and residue class. The number must be uniq. The plugin automatically chooses the next unused residue number. So it is best to leave it untouched. The residue class has to start with a letter and can be up to four characters. Usually the class provided by the database is sufficient.")
-$SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment into the structure. <br>~Reference~<br>The reference field shows the origin of the fragment.<br> ~Edit~ <br>Edit or create new fragments:<br>*Open Picture:* Select a picture for the fragment. Use at least 600dpi pictures.<br>*Name:* Name of the fragment<br>*Unit cell:* cell parameters of the fragment. Use 1 1 1 90 90 90 for cartesian coordinates.<br>*Atoms:* insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also directly copy atoms from SHELX files.<br>*Use selected atoms:* uses the selected atoms for the Atoms field and creates a picture from the fragment.<br>*Restraints:* type any SHELX compatible restraint here. Each restraint has to be in a new line.<br>*Residue:* Define the residue class of the fragment (only four characters). <br>*Reference* define the origin of the fragment.")
+$+
+SetVar(fdb_chooser, 
+        "Choose the desired fragment from the list in the drop-down menu. 
+        Do an unsharp search with a partial name and hit enter. For example cf3 finds all 
+        the fragments containing cf3 their name.
+        <br>
+        Fragments created or changed by the user will get a (asterisk)user(asterisk) at 
+        the end of their names.
+        <br>
+        The database is write protected, but you can add and change as many fragments you like. 
+        ")
+$-
+$+
+SetVar(fdb_picture, 
+        "Displays a picture of the fragment. User defined fragments 
+        only have pictures if the user provided one.")
+$-
+$+
+SetVar(fdb_props, 
+        "Define PART, free variables (FVAR) and the occupancy here.
+        <br>
+        A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
+        <br>
+        All parameters will be displayed with atomic labels simultaneously.")
+$-
+$+
+SetVar(fdb_resi, 
+        "Define *residue number* and *residue class*. 
+        <br>
+        The number must be uniq.
+        The plugin automatically chooses the next unused residue number. So it is best 
+        to leave it untouched. The residue class has to start with a letter and can be 
+        up to four characters. Usually, the class provided by the database is sufficient.
+        <br>
+        *Use DFIX:*
+        <br> 
+        Generates DFIX/DANG restraints from the geometry of the fragment.
+        ")
+$-
+$+
+SetVar(fdb_fit, 
+        "~Fit!~
+        <br> 
+        The button *Fit!* starts the fit of the Fragment into the structure. 
+        <br>
+        ~Edit~
+        <br>
+        Edit or create new fragments:
+        <br>
+        *Change Picture:* 
+        Select a picture for the fragment. Use at least 600dpi pictures.
+        <br>
+        *Drawstyle:* 
+        Save a style file for chemdraw to draw molecular pictures that look
+        exactly like the predefined.
+        <br>
+        *Name:* 
+        Name of the fragment
+        <br>
+        *Unit cell:* 
+        Cell parameters of the structure, where the fragment comes from. 
+        Use 1 1 1 90 90 90 for cartesian coordinates. The cell and coordinates 
+        are automatically converted to cartesian during adding to the database.
+        <br>
+        *Use selected atoms:* 
+        Uses the selected atoms for the Atoms field and creates a picture from the 
+        fragment.
+        <br>
+        *Atoms:* 
+        insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also 
+        directly copy atoms from SHELX files or copy coordiinates from Avogadro.
+        <br>
+        *Restraints:* 
+        Type any SHELX compatible restraint here (except SAME). Each restraint 
+        has to be in a new line. The length of a line is unlimited.
+        <br>
+        *Residue:* 
+        Define the residue class of the fragment (up to four characters, the first has to be a letter). 
+        <br>
+        *Reference* 
+        Define the origin of the fragment.
+        <br>
+        ~Reference~
+        <br>
+        The reference field shows the origin of the fragment.
+        ")
+        
+$-
+
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
   <td halign='left' width='16%'>
@@ -12,19 +98,17 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
   <td VALIGN='center' ALIGN='left' colspan=1 width='78%'>
       <input
         type='combo'
-        name='LIST_FRAGMENTS'
+        name="LIST_FRAGMENTS"
         width="100%"
         height="$GetVar(HtmlComboHeight)"
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         items='spy.FragmentDB.list_fragments()'
         value='select and search fragments here'
         onenter='html.SetValue(~name~, "")'
-        onchange="SetVar(fragment_ID, html.GetValue(~name~))>>
-                  spy.FragmentDB.init_plugin()"
+        onchange="SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.init_plugin()"
         onreturn="spy.FragmentDB.search_fragments(html.GetValue(~name~))"
         readonly="False"
-        manage="False"
-      >
+        manage="False" >
   </td>
   <td align='left' width='20%'>
   <a align='left' href="html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments()))"> reset</a>
@@ -36,18 +120,17 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
   <zimg name="FDBMOLEPIC" 
         border="2" 
         src="blank.png" 
-        height=100 
-        width=100 
-        align="center"
-  >
+        height=150 
+        width=150 
+        align="center">
   </td>
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Define Properies;helpTxt=$GetVar(fdb_props);1 -->
-  <td width='15%' align='left'><b>%PART:%</b>
+  <td width='23%' align='left'><b>%PART:%</b>
   </td>
-  <td align='left' width='15%'>
+  <td align='right' width='12%'>
     <font size="$GetVar('HtmlFontSizeControls')">
       <input
         type="spin"
@@ -63,7 +146,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     </font>
   </td>
 
-  <td width='25%' align="right"><b>%Free Variable:%</b>
+  <td width='22%' align="right"><b>%Free Variable:%</b>
   </td>
   <td align='left' width='15%'>
     <font size="$GetVar('HtmlFontSizeControls')">
@@ -81,7 +164,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     </font>
   </td>
 
-  <td width='20%' align='right'><b>%Occupancy:%</b>
+  <td width='18%' align='right'><b>%Occupancy:%</b>
   </td>
   <td align='right' width='10%'>
     <font size="$GetVar('HtmlFontSizeControls')">
@@ -101,30 +184,32 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue definition;helpTxt=$GetVar(fdb_resi);1 -->
-  <td width='25%' align='left'>
+  <td width='23%' align='left'>
    <b>%Residue Number:%</b>
   </td>
-  <td width='10%' align='left'>
+  <td width='12%' align='right'>
       <font size="$GetVar('HtmlFontSizeControls')">
       <input
         type="spin"
         name="RESIDUE"
         width="100%"
-        height="17"
+        height="$GetVar('HtmlInputHeight')"
         max='99'
         min='0'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
-        onchange="spy.SetParam(fragment_DB.fragment.resinum, html.GetValue('~name~'))>>labels -rn"
+        onchange="spy.FragmentDB.set_resinum(html.GetValue('~name~'))>>labels -rn"
   >
   </td>
-  <td width='25%' align='right'>
+  
+  <td width='22%' align='right'>
   <b>%Residue Class:%</b>
   </td>
-  <td width='13%' align='right'>
+  <td width='11%' align='right'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
+      align="right"
       height="$GetVar('HtmlInputHeight')"
       width="100%"
       bgcolor="$GetVar('HtmlInputBgColour')"
@@ -134,10 +219,11 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     >
     </font>
   </td>
-  <td width='25%' align='right'>
+  
+  <td width='22%' align='right'>
     <b>%Use DFIX:%</b>
   </td>
-    <td halign='left' width='5%'>
+    <td align='left' width='6%'>
     $+
     html.Snippet("gui/snippets/input-checkbox",
     "name=dfixornot",
@@ -155,8 +241,8 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
-  <td width='20%' align='right'>Reference:</td>
-  <td width='45' align="right"><font color="black"> 
+  <td width='15%' align='right'>Reference:</td>
+  <td width='50' align="right"><font color="black"> 
     <input
     type="text" 
     name="REFERENCE"
@@ -164,7 +250,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
     value=""
     bgcolor="$GetVar(HtmlTableBgColour)"
     fgcolor="$GetVar(HtmlFontColour)"
-    width="100%" />
+    width="100%" >
   </font>
   </td>
 
@@ -173,5 +259,7 @@ $SetVar(fdb_fit, "~Fit!~ <br> The button *Fit!* starts the fit of the Fragment i
 
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
+</body>
+</html>
 
 

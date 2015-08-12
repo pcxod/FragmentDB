@@ -2,19 +2,17 @@
 <html>
 <body>
 
-<table border="0" cellpadding="0" cellspacing="5" width="100%"> 
-  <tr>
+<table border="0" cellpadding="0" cellspacing="5" width="100%" > 
+  <tr >
   <!-- Left boxes and buttons -->
-    <td width="70%"><b>Create and edit molecular fragments:</b>  </td>
-
     <tr>
       <td>
         
         <table border="0" cellpadding="0" cellspacing="5" width="100%">
-          <tr>
-            <td width='20%'> </td>
+          <tr >
+            <td width='10%' align='right'> </td>
             
-            <td width='80%'>
+            <td width='90%'>
             
             <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
@@ -22,7 +20,7 @@
               onclick="spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg', '')"
               name="picture" 
               width='50%'
-              height="20">
+              height="24">
             
             <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
@@ -30,41 +28,41 @@
               onclick="spy.FragmentDB.get_chemdrawstyle()"
               name="chemdraw_style" 
               width='50%'
-              height="20">
+              height="24">
             </td>
           
           </tr>
 
-          <tr>
-            <td>
-            </td>
+          <tr >
+            <td width='10%' align='right'> </td>
             <td width="100%" align="center" bgcolor="$GetVar(HtmlTableBgColour)">
             <zimg name="MOLEPIC2" 
             border="2" 
             src="blank.png" 
-            height=100 
-            width=100 
+            height=150 
+            width=150 
             align="center"
             > </zimg>
             </td>
           </tr>
           
           <tr>
-            <td width='15%'> Name: </td>
-            <td width='80%'>
+            <td width='10%' align='right'> <b> Name: </b></td>
+            <td width='90%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
               name="set_name" 
               width="100%" 
               onchange='spy.SetParam(fragment_DB.new_fragment.frag_name, html.GetValue(~name~))'
               multiline="False"
-            >
+            ></font>
             </td>
           </tr>
           
           <tr>
-            <td width='15%'> Unit cell: </td>
-            <td width='80%'>
+            <td width='10%' align='right'><b> Unit cell: </b></td>
+            <td width='90%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
@@ -79,19 +77,20 @@
           <tr>
             <td>
             </td>
-            <td>
+            <td><b>
               <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
               value="Use selected atoms:"
               onclick="spy.FragmentDB.get_selected_atoms()>>spy.FragmentDB.make_selctions_picture()'"
               name="use_atoms" 
               width='50%'
-              height="20">
+              height="24">
+            </b>
             </td>
           </tr>          
           <tr>
-            <td width='10%'>Atoms: <br><br></td>
-            <td width='80%'>
+            <td width='10%' align='right'><b>Atoms: </b></td>
+            <td width='90%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
@@ -107,8 +106,8 @@
           </tr>
                                 
           <tr>
-            <td width='15%'>restraints:</td>
-            <td width='80%'>
+            <td width='10%' align='right'><b> restraints: </b></td>
+            <td width='90%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
             <input type="text"
               bgcolor="$GetVar(HtmlInputBgColour)"
@@ -123,10 +122,8 @@
          </tr>
           
           <tr>
-            <td width='15%'>
-              residue:
-            </td>
-            <td>
+            <td width='10%' align='right'><b>  residue:  </b> </td>
+            <td width='90%'>
               <table align='left' border="0" cellpadding="0" cellspacing="0" width="100%">
               <tr>
               <td align="left" width='15%'>
@@ -137,7 +134,7 @@
                   onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)'
                   multiline="False">
                 </td>
-              <td width='15%'> reference: </td>
+              <td width='15%'> <b>reference: </b> </td>
               <td width='60%'>
               <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
               <input type="text"
@@ -155,9 +152,8 @@
             
                  
           <tr>
-            <td width='15%'>
-            </td>
-            <td width='85%'>
+            <td width='10%'> </td>
+            <td width='90%'>
               <table  border="0" cellpadding="10" cellspacing="0" width="100%">
                 <tr>
                   <td><input type="button" name="UpdateFragment"

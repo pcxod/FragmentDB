@@ -92,7 +92,7 @@ class FragmentDB(PT):
     except(RuntimeError, ValueError):
       return
     self.get_resi_class()
-    self.set_fragment_picture(100)
+    self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
     self.show_reference()
     resinum = self.find_free_residue_num()
@@ -124,6 +124,9 @@ class FragmentDB(PT):
     if ',' in occ:
       occ = occ.replace(',', '.')
     try:
+      # do not throw the warning below in case of empty number:
+      if occ == '':
+        return
       float(occ)
     except(SyntaxError, NameError, ValueError):
       print('Invalid value for occupancy provided')
@@ -134,6 +137,24 @@ class FragmentDB(PT):
     # position:
     #olx.html.SetValue('FRAG_OCCUPANCY', OV.GetParam(varname))
 
+  def set_resinum(self, resinum):
+    '''
+    Set the residue number and check if it is already used.
+    :param resinum: residue number
+    :type resinum: integer
+    '''
+    used = self.get_residue_numbers()
+    try:
+      resinum = int(resinum)
+    except:
+      print('Wrong value. Only Numbers allowed for residue numbers.')
+      return
+    if resinum in used and not resinum == 0:
+      print('\nResidue number already occupied.')
+    else:
+      olx.html.SetValue('RESIDUE', resinum)
+      OV.SetParam('fragment_DB.fragment.resinum', resinum)
+    
   def set_resiclass(self, resiclass, name):
     '''
     sets the residue class and ensures that it is of len(4)
@@ -144,10 +165,18 @@ class FragmentDB(PT):
       varname = 'fragment_DB.fragment.resi_class'
     if name.upper() == 'Inputfrag.residue'.upper():
       varname = 'fragment_DB.new_fragment.frag_resiclass'
+    if resiclass is None:
+      resiclass = ''
     if not resiclass:
       return
     if not resiclass[0].isalpha():
+      if not resiclass[1:]:
+        print('The residue class has to start with a letter.')
+        OV.SetParam(varname, '')
+        olx.html.SetValue(name, '')
+        return
       # resiclass does not start with a char:
+      print('The residue class has to start with a letter.')
       OV.SetParam('fragment_DB.fragment.resi_class', resiclass[1:].upper())
       olx.html.SetValue(name, OV.GetParam(varname))
     # force 4 characters:
@@ -233,6 +262,7 @@ class FragmentDB(PT):
     with open(fragpath, 'w') as f:
       f.write(atoms)
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
+      print('Applying DFIX restraints')
       OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
     else:
       OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
@@ -375,7 +405,7 @@ class FragmentDB(PT):
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
 
 
-  def prepare_picture(self, im, max_size=100):
+  def prepare_picture(self, im, max_size=150):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -409,7 +439,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, max_size=100):
+  def set_fragment_picture(self, max_size=150):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -428,7 +458,7 @@ class FragmentDB(PT):
     im = Image.open(StringIO.StringIO(pic))
     # save it as raw and small pic:
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    im = self.prepare_picture(im, max_size=100)
+    im = self.prepare_picture(im, max_size)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
 
   def display_image(self, zimgname, image_file):
@@ -464,10 +494,9 @@ class FragmentDB(PT):
       print('No valid picture found!')
       return
     im = Image.open(picfile)
-    #im = self.prepare_picture(im, max_size=100)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
-    im = self.prepare_picture(im, max_size=100)
+    im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
 
@@ -645,7 +674,7 @@ class FragmentDB(PT):
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
     box_x = int(screen_width*0.1)
     box_y = int(screen_height*0.1)
-    width, height = 540, 660
+    width, height = 550, 710
     path = "{}/inputfrag.htm".format(self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width,
               h=height, x=box_x, y=box_y)
@@ -782,7 +811,6 @@ class FragmentDB(PT):
       return
     return restr
 
-
   def prepare_residue_class(self):
     '''
     set the residue class of a new fragment
@@ -894,7 +922,7 @@ class FragmentDB(PT):
     else:
       print('Something is wrong with fragment storage.')
     self.get_frag_for_gui()
-    self.set_fragment_picture(100)
+    self.set_fragment_picture()
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
@@ -948,7 +976,6 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_reference', reference)
     return True
 
-
   def store_new_fragment(self, atlines, restraints, resiclass, reference):
     '''
     add a new fragment to the database
@@ -957,7 +984,6 @@ class FragmentDB(PT):
     # store fragment with a new number
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
     self.set_frag_cell()
-    #self.frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
@@ -976,11 +1002,6 @@ class FragmentDB(PT):
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', at_id)
     self.init_plugin()
-    #olx.html.SetValue('RESIDUE_CLASS', '')
-    #self.get_resi_class()
-    #olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    #self.get_frag_for_gui()
-
 
   def blank_state(self):
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
@@ -1053,7 +1074,7 @@ class FragmentDB(PT):
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
-    im = self.prepare_picture(im, max_size=100)
+    im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
     try:
@@ -1095,6 +1116,7 @@ OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
 OV.registerFunction(fdb.get_frag_for_gui,False,"FragmentDB")
 OV.registerFunction(fdb.set_occu,False,"FragmentDB")
 OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
+OV.registerFunction(fdb.set_resinum,False,"FragmentDB")
 OV.registerFunction(fdb.store_new_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
 OV.registerFunction(fdb.get_chemdrawstyle,False,"FragmentDB")
