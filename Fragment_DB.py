@@ -26,15 +26,12 @@ Fragen und Ideen:
 
 - check_same_thread=False ?
 
-- "mode -e fit"
+- "mode -e fit": execute after fit
 
 - It should be possible to define the residue on ImportFrag() to prevent massive atom 
-  renaming even if not neccesary. olx.Name('#c'+id, name)
+  renaming even if not necessary. olx.Name('#c'+id, name)
 
 - Why not also the free variable
-
-- I need to have a connection between atom names from the DB, the names in the restraints 
-  and the new names/Ids of the olex atoms to apply restraints.
 
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
@@ -286,13 +283,9 @@ class FragmentDB(PT):
       return
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    if OV.GetParam('fragment_DB.fragment.use_dfix'):
-      # adding atomids with ImportFrag and DFIX to structure:
-      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
-      return atomids
-    else:
-      atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
-      return atomids
+    atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
+    return atomids
+
 
   def atomrenamer(self, labeldict):
     '''
