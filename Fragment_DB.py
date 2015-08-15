@@ -13,15 +13,6 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- If I fit a fragment (e.g. tert-butyl-n) to an already existing nitrogen, the new nitrogen
-  gets deleted and the restraints like SIMU N1 C1 C2 C3 C4 break.
-  I need to replace target positions, or no atom!
-
-- If placing a fragment (e.g. toluene) into a negative part the restraints should kept integral for
-  this fragment and not expand to symmetry equivalent atoms like
-  EQIV $4 -1+X,1+Y,+Z
-  DFIX 1.509 0.011 C1 C1_$1 C1_$2 C1_$3 C1_$4 C2 C2_$1 C2_$2 C2_$3 C2_$4
-
 - I would like to replace atoms in 1.3 A around the fitting fragment.
 
 - check_same_thread=False ?
@@ -31,10 +22,10 @@ Fragen und Ideen:
 - It should be possible to define the residue on ImportFrag() to prevent massive atom 
   renaming even if not necessary. olx.Name('#c'+id, name)
 
-- Why not also the free variable
-
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
+
+-how can I import the content of a html file in the same directory?
 
 '''
 
