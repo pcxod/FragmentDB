@@ -86,23 +86,6 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
-
-  def blink_field(self, name, duration=0.1, colour='#aa0000', repeat=5):
-    '''
-    lets an input field of Olex2 blink
-    :param name: name of the html item to blink
-    :param duration: time for each blink event
-    :param colour: blink colour
-    '''
-    startcolour = OV.GetParam(name+'.bgcolor')
-    colorfield = name#+'.bgcolor'
-    # this does not work:
-    for n, i in enumerate(range(repeat)):  # @UnusedVariable
-      olx.html.SetBG(colorfield,'#aa0000')
-      time.sleep(duration)
-      olx.html.SetBG(colorfield,'#0000aa')
-      time.sleep(duration)
-    olx.html.SetBG(colorfield, startcolour)
     
   def set_occu(self, occ):
     '''
@@ -121,9 +104,7 @@ class FragmentDB(PT):
       return
     varname = 'fragment_DB.fragment.frag_occ'
     OV.SetParam(varname, occ)
-    # I want to do this, but it immediately forces the cursor to the left
-    # position:
-    #olx.html.SetValue('FRAG_OCCUPANCY', OV.GetParam(varname))
+
 
   def set_resinum(self, resinum):
     '''
@@ -221,30 +202,29 @@ class FragmentDB(PT):
     text = ' '.join(finallist)
     return text
 
-  def onInport(self, atoms):
+  def onImport(self, atoms):
     '''
-    Function is called when ImportFrag exits  
-    :param atoms:
-    :type atoms:
+    Function is called when ImportFrag terminates after import 
+    :param atoms: list of atoms as olex2 atom ids
+    :type atoms: string
     '''
     print('Imported atom ids: {}'.format(atoms))
     atoms = atoms.split()
     # define the other properties:
     self.define_atom_properties(atoms)
-    OV.unregisterCallback('onFragmentImport', self.onInport)
+    OV.unregisterCallback('onFragmentImport', self.onImport)
   
   def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
     '''
     Input a fragment with ImportFrag
-    fvar and resi things are currently not possible in ImportFrag!
     :param fragId: FragmentId
     :param part: SHELX part
     :param occ: occupancy
     :param dfix: generate dfix restraints or not after fit.
     '''
-    # this callback runs in the moment when ImportFrag is finished. onInport
+    # this callback runs in the moment when ImportFrag is finished. onImport
     # then defines the further properties of the fragment:
-    OV.registerCallback('onFragmentImport', self.onInport)
+    OV.registerCallback('onFragmentImport', self.onImport)
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
     atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
     with open(fragpath, 'w') as f:
@@ -308,7 +288,7 @@ class FragmentDB(PT):
         # no fragment chosen-> do nothing
         return
     labeldict = OrderedDict()
-    atomids = [str(i) for i in atomids]
+    atomids = [str(x) for x in atomids]
     dbatom_names = [ i[0] for i in self.db[fragId]]
     for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
@@ -613,7 +593,7 @@ class FragmentDB(PT):
     atoms.sort()
     crd = [ olx.Crd(x) for x in atoms ]
     # now I want to remove the residue number:
-    #atoms = [ y.split('_')[0] for y in atoms]
+    atoms = [ y.split('_')[0] for y in atoms]
     for atom, coord in zip(atoms, crd):
       atlist.append('{:4.4s} {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
