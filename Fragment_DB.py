@@ -27,6 +27,8 @@ Fragen und Ideen:
 
 -how can I import the content of a html file in the same directory?
 
+- show a really large picture with click on picture
+
 '''
 
 
@@ -1017,6 +1019,7 @@ class FragmentDB(PT):
     if not olex.f("sel()").split():
       return
     picfile = "fdb_tmp.png"
+    OV.cmd("ShowQ a false")
     OV.cmd("sel atom bonds")
     OV.cmd("labels false")
     OV.cmd("showh a False")
