@@ -41,6 +41,10 @@ fragment_DB{
     use_dfix = False
       .type = bool
       .help = Enables DFIX/DANG/FLAT restraints calculated from fragments geometry.
+      
+    invert = False
+      .type = bool
+      .help = Inverts the fragment geometry.
     }
   
   new_fragment{

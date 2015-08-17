@@ -111,7 +111,22 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     print('Check database entry.\n')
   return status
 
-
+def invert_atomlist_coordinates(atomst):
+    '''
+    Inverts atom coordinates
+    :param atoms: list of atom list
+    '''
+    atoms = []
+    for line in atomst:
+        line = list(line)
+        try:
+            inv_coord = [ -float(i) for i in line[2:] ]
+        except:
+            print('Unable to invert fragment coordinates.')
+            return False
+        line[2:] = inv_coord
+        atoms.append(line)
+    return atoms
 
 
 def initialize_user_db(user_dbpath):

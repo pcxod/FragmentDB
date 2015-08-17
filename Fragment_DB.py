@@ -4,7 +4,7 @@ from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
-  RESTRAINT_CARDS, DIST_RESTRAINT_CARDS
+  RESTRAINT_CARDS, DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
 import time
 
 OV = OlexFunctions()
@@ -194,6 +194,8 @@ class FragmentDB(PT):
     '''
     newlist = []
     finallist = []
+    if OV.GetParam('fragment_DB.fragment.invert'):
+      atoms = invert_atomlist_coordinates(atoms)
     for i in atoms:
       # atoms without sfac:
       newlist.append('{:4.4s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(i[0], i[2], i[3], i[4]))

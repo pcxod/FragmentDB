@@ -2,10 +2,6 @@
 <html>
   <body>
 
-<!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
-
-
-
 $+
 SetVar(fdb_chooser, 
     "Choose the desired fragment from the list in the drop-down menu. 
@@ -95,6 +91,9 @@ SetVar(fdb_fit,
         
 $-
 
+
+
+<!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
@@ -234,10 +233,23 @@ $-
     </font>
   </td>
   
-  <td width='22%' align='right'>
+  <td width='11%' align='right'>
+    <b>%Invert:%</b>
+  </td>
+    <td align='left' width='5%'>
+    $+
+    html.Snippet("gui/snippets/input-checkbox",
+    "name=invert",
+    "checked=spy.GetParam('fragment_DB.fragment.invert')",
+    "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))"
+    )
+    $-
+  </td>
+  
+  <td width='13%' align='right'>
     <b>%Use DFIX:%</b>
   </td>
-    <td align='left' width='6%'>
+    <td align='left' width='5%'>
     $+
     html.Snippet("gui/snippets/input-checkbox",
     "name=dfixornot",
