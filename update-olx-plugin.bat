@@ -8,6 +8,7 @@ set GIT="D:\GitHub\DSR-db"
 
 
 xcopy /Y %GIT%\Fragment_DB.htm %FDBDIR%
+xcopy /Y %GIT%\helptext.htm %FDBDIR%
 xcopy /Y %GIT%\inputfrag.htm %FDBDIR% 
 xcopy /Y %GIT%\Fragment_DB.phil %FDBDIR%
 
@@ -22,6 +23,7 @@ del %FDBDIR%\*.pyc
 rem ##########################################
 
 xcopy /Y %GIT%\Fragment_DB.htm %FDBDIR2%
+xcopy /Y %GIT%\helptext.htm %FDBDIR2%
 xcopy /Y %GIT%\inputfrag.htm %FDBDIR2% 
 xcopy /Y %GIT%\Fragment_DB.phil %FDBDIR2%
 

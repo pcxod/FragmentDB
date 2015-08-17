@@ -2,99 +2,11 @@
 <html>
   <body>
 
+<!-- #include helptext $GetVar(FragmentDB_plugin_path)/helptext.htm;1; -->
+
+<br>
+
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
-
-
-
-$+
-SetVar(fdb_chooser, 
-    "Choose the desired fragment from the list in the drop-down menu. 
-    Do an unsharp search with a partial name and hit enter. For example cf3 finds all 
-    the fragments containing cf3 their name.
-    <br>
-    Fragments created or changed by the user will get a **user* at 
-    the end of their names.
-    <br>
-    The database is write protected, but you can add and change as many fragments you like. 
-    ")
-$-
-$+
-SetVar(fdb_picture, 
-    "Displays a picture of the fragment. User defined fragments 
-    only have pictures if the user provided one.")
-$-
-$+
-SetVar(fdb_props, 
-    "Define PART, free variables (FVAR) and the occupancy here.
-    <br>
-    A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
-    <br>
-    All parameters will be displayed with atomic labels simultaneously.")
-$-
-$+
-SetVar(fdb_resi, 
-    "Define *residue number* and *residue class*. 
-    <br>
-    The number must be uniq.
-    The plugin automatically chooses the next unused residue number. So it is best 
-    to leave it untouched. The residue class has to start with a letter and can be 
-    up to four characters. Usually, the class provided by the database is sufficient.
-    <br>
-    *Use DFIX:*
-    <br> 
-    Generates DFIX/DANG restraints from the geometry of the fragment.
-    ")
-$-
-$+
-SetVar(fdb_fit, 
-    "~Fit!~
-    <br> 
-    The button *Fit!* starts the fit of the Fragment into the structure. 
-    <br>
-    ~Edit~
-    <br>
-    Edit or create new fragments:
-    <br>
-    *Change Picture:* 
-    Select a picture for the fragment. Use at least 600dpi pictures.
-    <br>
-    *Drawstyle:* 
-    Save a style file for chemdraw to draw molecular pictures that look
-    exactly like the predefined.
-    <br>
-    *Name:* 
-    Name of the fragment
-    <br>
-    *Unit cell:* 
-    Cell parameters of the structure, where the fragment comes from. 
-    Use 1 1 1 90 90 90 for cartesian coordinates. The cell and coordinates 
-    are automatically converted to cartesian during adding to the database.
-    <br>
-    *Use selected atoms:* 
-    Uses the selected atoms for the Atoms field and creates a picture from the 
-    fragment.
-    <br>
-    *Atoms:* 
-    insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also 
-    directly copy atoms from SHELX files or copy coordiinates from Avogadro.
-    <br>
-    *Restraints:* 
-    Type any SHELX compatible restraint here (except SAME). Each restraint 
-    has to be in a new line. The length of a line is unlimited.
-    <br>
-    *Residue:* 
-    Define the residue class of the fragment (up to four characters, the first has to be a letter). 
-    <br>
-    *Reference* 
-    Define the origin of the fragment.
-    <br>
-    ~Reference~
-    <br>
-    The reference field shows the origin of the fragment.
-    ")
-        
-$-
-
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
@@ -234,10 +146,23 @@ $-
     </font>
   </td>
   
-  <td width='22%' align='right'>
+  <td width='11%' align='right'>
+    <b>%Invert:%</b>
+  </td>
+    <td align='left' width='5%'>
+    $+
+    html.Snippet("gui/snippets/input-checkbox",
+    "name=invert",
+    "checked=spy.GetParam('fragment_DB.fragment.invert')",
+    "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))"
+    )
+    $-
+  </td>
+  
+  <td width='13%' align='right'>
     <b>%Use DFIX:%</b>
   </td>
-    <td align='left' width='6%'>
+    <td align='left' width='5%'>
     $+
     html.Snippet("gui/snippets/input-checkbox",
     "name=dfixornot",
