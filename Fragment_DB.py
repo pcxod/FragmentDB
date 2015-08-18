@@ -1021,8 +1021,8 @@ class FragmentDB(PT):
     if not olex.f("sel()").split():
       return
     picfile = "fdb_tmp.png"
-    OV.cmd("ShowQ a false")
     OV.cmd("sel atom bonds")
+    OV.cmd("ShowQ a false")
     OV.cmd("labels false")
     OV.cmd("showh a False")
     OV.cmd("sel -i")
