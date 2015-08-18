@@ -19,15 +19,14 @@ Fragen und Ideen:
 
 - "mode -e fit": execute after fit
 
-- It should be possible to define the residue on ImportFrag() to prevent massive atom 
-  renaming even if not necessary. olx.Name('#c'+id, name)
-
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
 
--how can I import the content of a html file in the same directory?
-
 - show a really large picture with click on picture
+
+- <!-- #include helptext $GetVar(FragmentDB_plugin_path)/helptext.htm
+  does not work, because supposedly the $+ SetVar(fdb_chooser, ... -$ get
+  not executed in the first place.
 
 '''
 
