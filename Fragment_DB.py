@@ -463,6 +463,7 @@ class FragmentDB(PT):
       print('No valid picture found!')
       return
     im = Image.open(picfile)
+    # TODO: better use set_fragment_picture() here 
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
     im = self.prepare_picture(im)
@@ -1064,6 +1065,7 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
+    OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
