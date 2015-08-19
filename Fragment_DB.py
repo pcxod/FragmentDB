@@ -22,12 +22,6 @@ Fragen und Ideen:
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
 
-- show a really large picture with click on picture
-
-- <!-- #include helptext $GetVar(FragmentDB_plugin_path)/helptext.htm
-  does not work, because supposedly the $+ SetVar(fdb_chooser, ... -$ get
-  not executed in the first place.
-
 '''
 
 
