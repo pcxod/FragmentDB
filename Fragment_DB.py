@@ -388,7 +388,7 @@ class FragmentDB(PT):
         print('This picture is too small.')
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
-    ratio = float(max_size) / float(max(im.size))
+    ratio = abs(float(max_size) / float(max(im.size)))
     # just an empirical value:
     if float(max_size) / float(max(im.size)) > 0.6:
       ratio = 0.6
@@ -422,11 +422,13 @@ class FragmentDB(PT):
     if not pic:
       print('No fragment picture found.')
       return False
-    im = Image.open(StringIO.StringIO(pic))
+    imo = Image.open(StringIO.StringIO(pic))
     # save it as raw and small pic:
-    OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    im = self.prepare_picture(im, max_size)
+    OlexVFS.save_image_to_olex(imo, 'storepic.png', 0)
+    im = self.prepare_picture(imo, max_size)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
+    iml = self.prepare_picture(imo, max_size=450)
+    OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
 
   def display_image(self, zimgname, image_file):
     '''
@@ -645,13 +647,34 @@ class FragmentDB(PT):
     path = "{}/inputfrag.htm".format(self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width,
               h=height, x=box_x, y=box_y)
+    frag = self.get_frag_for_gui()
+    if frag:
+      self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
     if blank:
-      self.blank_state()
-      return
-    else:
-      frag = self.get_frag_for_gui()
-      if frag:
-        self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
+      self.display_image('Inputfrag.MOLEPIC2', 'blank.png')
+
+  def display_large_image(self):
+    '''
+    display the current fragment image in large to read the labels
+    '''
+    pop_name = "View Fragment"
+    screen_height = int(olx.GetWindowSize('gl').split(',')[3])
+    screen_width = int(olx.GetWindowSize('gl').split(',')[2])
+    box_x = int(screen_width*0.1)
+    box_y = int(screen_height*0.1)
+    width, height = 500, 520
+    html = """
+    <zimg name="LMOLEPIC" 
+        border="0" 
+        src="largefdbimg.png" 
+        height=450 
+        width=450 
+        align="center">
+    """
+    OV.write_to_olex('large_fdb_image.htm', html)
+    olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
+              h=height, x=box_x, y=box_y)
+
 
   def set_frag_name(self, enable_check=True):
     '''
@@ -1091,5 +1114,6 @@ OV.registerFunction(fdb.get_chemdrawstyle,False,"FragmentDB")
 OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")

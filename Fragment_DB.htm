@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html>
-  <body>
+
 
 $+
 SetVar(fdb_chooser, 
@@ -102,11 +100,11 @@ $-
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
-
+<!--
   <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
-  </td>
-  <td VALIGN='center' ALIGN='left' colspan=1 width='78%'>
+  </td> -->
+  <td VALIGN='center' ALIGN='left' colspan=1 width='85%'>
       <input
         type='combo'
         name="LIST_FRAGMENTS"
@@ -121,7 +119,7 @@ $-
         readonly="False"
         manage="False" >
   </td>
-  <td align='right' width='6%'>
+  <td align='right' width='10%'>
   $spy.MakeHoverButton('small-reset@bitmap', 'html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())')
 
   </td>
@@ -131,12 +129,14 @@ $-
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture; help_ext=Fragment picture;helpTxt=$GetVar(fdb_picture);1; -->
 
   <td width="100%" align="center">
+  <a target="" href="spy.FragmentDB.display_large_image()"> 
   <zimg name="FDBMOLEPIC" 
-        border="2" 
+        border="0" 
         src="blank.png" 
         height=150 
         width=150 
         align="center">
+  </a>
   </td>
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -293,7 +293,5 @@ $-
 
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
-</body>
-</html>
 
 
