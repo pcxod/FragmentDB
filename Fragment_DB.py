@@ -372,7 +372,7 @@ class FragmentDB(PT):
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
 
 
-  def prepare_picture(self, im, max_size=150):
+  def prepare_picture(self, im, max_size=120):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -406,7 +406,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, max_size=150):
+  def set_fragment_picture(self, max_size=120):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -658,6 +658,10 @@ class FragmentDB(PT):
     '''
     display the current fragment image in large to read the labels
     '''
+    try:
+      olx.GetVar('fragment_ID')
+    except RuntimeError:
+      return
     pop_name = "View Fragment"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])

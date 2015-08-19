@@ -3,10 +3,20 @@
 $+
 SetVar(fdb_chooser, 
     "Choose the desired fragment from the list in the drop-down menu. 
-    Do an unsharp search with a partial name and hit enter. For example cf3 finds all 
-    the fragments containing cf3 their name.
     <br>
-    Fragments created or changed by the user will get a **user* at 
+    ~Searching~
+    <br>
+    Do an unsharp search with a partial name and *hit enter key*. 
+    <br>
+    For example a search for cf3 finds all the fragments containing cf3 in their 
+    name and similar. <br>
+    The search results in a shortened drop down menue.
+    <br>
+    ~Reset~
+    <br>
+    The reset button restores the full fragment list after a search.
+    <br>
+    Fragments created or changed by the user will get a #user# at 
     the end of their names.
     <br>
     The database is write protected, but you can add and change as many fragments you like. 
@@ -14,8 +24,12 @@ SetVar(fdb_chooser,
 $-
 $+
 SetVar(fdb_picture, 
-    "Displays a picture of the fragment. User defined fragments 
-    only have pictures if the user provided one.")
+    "
+    Displays a picture of the fragment. User defined fragments 
+    only have pictures if the user provided one.
+    <br>
+    Click on the picture to display a magnified version of the picture.
+    ")
 $-
 $+
 SetVar(fdb_props, 
@@ -29,14 +43,18 @@ $+
 SetVar(fdb_resi, 
     "Define *residue number* and *residue class*. 
     <br>
-    The number must be uniq.
+    The residue number must be uniqe.
+    <br>
     The plugin automatically chooses the next unused residue number. So it is best 
     to leave it untouched. The residue class has to start with a letter and can be 
     up to four characters. Usually, the class provided by the database is sufficient.
     <br>
     *DFIX:*
     <br> 
-    Generates DFIX/DANG restraints from the geometry of the fragment.
+    The supplied fragment normally have predefines restraints like
+    SADI, FLAT and others. 
+    DFIX Generates DFIX/DANG restraints from the geometry of the fragment and
+    replaces the predefined restraints.
     <br>
     *Invert:*
     <br>
@@ -133,8 +151,8 @@ $-
   <zimg name="FDBMOLEPIC" 
         border="0" 
         src="blank.png" 
-        height=150 
-        width=150 
+        height=120 
+        width=120 
         align="center">
   </a>
   </td>
