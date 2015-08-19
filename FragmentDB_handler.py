@@ -632,6 +632,8 @@ class FragmentTable():
     '''
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
+    if not fragment_name or fragment_name == '':
+      return None
     fragmentid = self._fill_fragment_table(fragment_name, resiclass, 
                                            reference, comment, picture)
     if not fragmentid:
