@@ -4,8 +4,7 @@ from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
-  RESTRAINT_CARDS, DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
-import time
+ DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -30,7 +29,7 @@ import olex
 import gui
 import olx
 import OlexVFS
-from FragmentDB_handler import FragmentTable, SHX_CARDS
+from FragmentDB_handler import FragmentTable
 
 
 instance_path = OV.DataDir()
@@ -680,6 +679,8 @@ class FragmentDB(PT):
     handles the name of a new/edited fragment
     '''
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    if fragname == '':
+      return False
     if self.db.has_exact_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
       return False
@@ -751,7 +752,7 @@ class FragmentDB(PT):
       # line without sfac, but long
       if len(line) > 4 and len(line[1]) > 3:
         atoms[num] = line[:4]
-      if len(line) == 4:
+      if len(line) == 4: # name and x,y,z
         atoms[num] = line[:4]
       if len(line) < 4:
         # too short, parameters missing
@@ -830,7 +831,10 @@ class FragmentDB(PT):
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      try:
+        atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      except(UnicodeEncodeError):
+        print('Invalid atomline found. Non-ASCII character in line.')
     at = ' \n'.join(atlist)
     return at
 
@@ -889,7 +893,6 @@ class FragmentDB(PT):
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
-    # frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
@@ -897,8 +900,6 @@ class FragmentDB(PT):
       pic_data = ''
     coords = self.prepare_coords_for_storage(atlines)
     if not check_restraints_consistency(restraints, atlines, fragname):
-      #self.blink_field('Inputfrag.restraints')
-      #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'IROK')
       print('\nFragment was not added to the database!')
       return
     self.delete_fragment(reset=False)
@@ -942,7 +943,10 @@ class FragmentDB(PT):
     '''
     get the fragment to display in the multiline edit field
     '''
-    fragId = olx.GetVar('fragment_ID')
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      return False
     at = self.prepare_atoms_list(fragId)
     if not at:
       return False
@@ -1072,23 +1076,6 @@ class FragmentDB(PT):
       os.remove(picfile)
     except:
       pass
-
-  def write_text_on_image(self, text):
-    '''
-    write a text on an image to display it in an olex2 zimg
-    :param text: text to draw
-    :type text: string
-    :param zimg_name:
-    :type zimg_name:
-    '''
-    imsize = (600, 600)
-    bg_color = self.params.html.table_bg_colour.rgb
-    grey_IM = Image.new("RGB", imsize, bg_color) # Create new white image
-    draw = ImageDraw.Draw(grey_IM)
-    IT = ImageTools()
-    IT.write_text_to_draw(draw, text, font_size=60)
-    OlexVFS.save_image_to_olex(grey_IM, 'fdb_intro.png', 0)
-    #self.display_image(zimg_name, 'fdb_intro.png')
 
 
 
