@@ -1,49 +1,73 @@
-<!DOCTYPE html>
-<html>
-  <body>
+
 
 $+
 SetVar(fdb_chooser, 
     "Choose the desired fragment from the list in the drop-down menu. 
-    Do an unsharp search with a partial name and hit enter. For example cf3 finds all 
-    the fragments containing cf3 their name.
     <br>
-    Fragments created or changed by the user will get a **user* at 
-    the end of their names.
+    ~Searching~
     <br>
-    The database is write protected, but you can add and change as many fragments you like. 
+    Do an unsharp search with a partial name and *hit enter key*. 
+    <br>
+    For example a search for cf3 finds all the fragments containing cf3 in their 
+    name and similar. <br>
+    The search results in a shortened drop down menue.
+    <br>
+    ~Reset~
+    <br>
+    The reset button restores the full fragment list after a search.
+    <br>
+    ~User Defined Database~
+    <br>
+    The main database is write protected, but you can add and change as many 
+    fragments you like. They will be stored in a separate database.
+    <br>
+    Fragments created or changed by the user will get a #user# at 
+    the end of their names.  
     ")
 $-
 $+
 SetVar(fdb_picture, 
-    "Displays a picture of the fragment. User defined fragments 
-    only have pictures if the user provided one.")
+    "
+    Displays a picture of the fragment. User defined fragments 
+    only have pictures if the user provided one.
+    <br>
+    Click on the picture to display a magnified version of the picture.
+    ")
 $-
 $+
 SetVar(fdb_props, 
     "Define PART, free variables (FVAR) and the occupancy here.
     <br>
     A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
+    -31.0 On the other hand is set with a free variable of -3.
     <br>
-    All parameters will be displayed with atomic labels simultaneously.")
+    <br>
+    All parameters will be displayed simultaneously with atomic labels.")
 $-
 $+
 SetVar(fdb_resi, 
-    "Define *residue number* and *residue class*. 
+    "
+    Define *residue number* and *residue class*. 
+    Usually it is not nessecary to change anything here.
     <br>
-    The number must be uniq.
-    The plugin automatically chooses the next unused residue number. So it is best 
-    to leave it untouched. The residue class has to start with a letter and can be 
-    up to four characters. Usually, the class provided by the database is sufficient.
+    *Disable* residues with a residue number *0*.  
     <br>
-    *DFIX:*
+    The residue number must be uniqe. The plugin automatically chooses the next 
+    unused residue number. So it is best to leave it untouched. The residue class 
+    has to start with a letter and can be up to four characters. Usually, 
+    the class provided by the database is sufficient.
+    <br>
+    ~DFIX~
     <br> 
-    Generates DFIX/DANG restraints from the geometry of the fragment.
+    The supplied fragment normally has predefines restraints like
+    SADI, FLAT and others. 
+    *DFIX* Generates DFIX/DANG restraints from the geometry of the fragment and 
+    replaces the predefined restraints.
     <br>
-    *Invert:*
+    ~Invert~
     <br>
-    Inverts the coordinates of the fragment. Useful to fit the inverted geometry of
-    the fragment.
+    Inverts the coordinates of the fragment. Useful to fit the inverted geometry 
+    of the fragment.
     ")
 $-
 $+
@@ -60,16 +84,17 @@ SetVar(fdb_fit,
     Select a picture for the fragment. Use at least 600dpi pictures.
     <br>
     *Drawstyle:* 
-    Save a style file for chemdraw to draw molecular pictures that look
-    exactly like the predefined.
+    Save a style file for chemdraw to draw molecular pictures that look 
+    the same as the predefined.
     <br>
     *Name:* 
     Name of the fragment
     <br>
     *Unit cell:* 
     Cell parameters of the structure, where the fragment comes from. 
-    Use 1 1 1 90 90 90 for cartesian coordinates. The cell and coordinates 
-    are automatically converted to cartesian during adding to the database.
+    Use 1 1 1 90 90 90 for cartesian coordinates. The cell constants and the 
+    coordinates are converted into Cartesian coordinates during the adding to 
+    the database.
     <br>
     *Use selected atoms:* 
     Uses the selected atoms for the Atoms field and creates a picture from the 
@@ -80,8 +105,8 @@ SetVar(fdb_fit,
     directly copy atoms from SHELX files or copy coordiinates from Avogadro.
     <br>
     *Restraints:* 
-    Type any SHELX compatible restraint here (except SAME). Each restraint 
-    has to be in a new line. The length of a line is unlimited.
+    Type any SHELX compatible restraint here (except SAME). 
+    The length of a line is unlimited.
     <br>
     *Residue:* 
     Define the residue class of the fragment (up to four characters, the first has to be a letter). 
@@ -102,11 +127,11 @@ $-
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
-
+<!--
   <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
-  </td>
-  <td VALIGN='center' ALIGN='left' colspan=1 width='78%'>
+  </td> -->
+  <td VALIGN='center' ALIGN='left' colspan=1 width='85%'>
       <input
         type='combo'
         name="LIST_FRAGMENTS"
@@ -121,8 +146,9 @@ $-
         readonly="False"
         manage="False" >
   </td>
-  <td align='right' width='6%'>
-  <a href="html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments()))"> reset</a>
+  <td align='right' width='10%'>
+  $spy.MakeHoverButton('small-reset@bitmap', 'html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())')
+
   </td>
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -130,12 +156,14 @@ $-
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture; help_ext=Fragment picture;helpTxt=$GetVar(fdb_picture);1; -->
 
   <td width="100%" align="center">
+  <a target="" href="spy.FragmentDB.display_large_image()"> 
   <zimg name="FDBMOLEPIC" 
-        border="2" 
+        border="0" 
         src="blank.png" 
-        height=150 
-        width=150 
+        height=120 
+        width=120 
         align="center">
+  </a>
   </td>
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -223,7 +251,7 @@ $-
   <td width='22%' align='right'>
   <b>%Residue Class:%</b>
   </td>
-  <td width='9%' align='right'>
+  <td width='12%' align='right'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
@@ -238,7 +266,7 @@ $-
     </font>
   </td>
   
-  <td width='12%' align='right'>
+  <td width='10%' align='right'>
     <b>%Invert:%</b>
   </td>
     <td align='left' width='4%'>
@@ -251,10 +279,10 @@ $-
     $-
   </td>
   
-  <td width='13%' align='right'>
+  <td width='10%' align='right'>
     <b>%DFIX:%</b>
   </td>
-    <td align='right' width='4%'>
+    <td align='left' width='4%'>
     $+
     html.Snippet("gui/snippets/input-checkbox",
     "name=dfixornot",
@@ -292,7 +320,5 @@ $-
 
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
-</body>
-</html>
 
 

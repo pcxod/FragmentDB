@@ -4,8 +4,7 @@ from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
-  RESTRAINT_CARDS, DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
-import time
+ DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -22,12 +21,6 @@ Fragen und Ideen:
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
 
-- show a really large picture with click on picture
-
-- <!-- #include helptext $GetVar(FragmentDB_plugin_path)/helptext.htm
-  does not work, because supposedly the $+ SetVar(fdb_chooser, ... -$ get
-  not executed in the first place.
-
 '''
 
 
@@ -36,7 +29,7 @@ import olex
 import gui
 import olx
 import OlexVFS
-from FragmentDB_handler import FragmentTable, SHX_CARDS
+from FragmentDB_handler import FragmentTable
 
 
 instance_path = OV.DataDir()
@@ -229,7 +222,10 @@ class FragmentDB(PT):
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onImport)
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
-    atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
+    try:
+      atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
+    except(IndexError):
+      return
     with open(fragpath, 'w') as f:
       f.write(atoms)
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
@@ -372,7 +368,7 @@ class FragmentDB(PT):
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
 
 
-  def prepare_picture(self, im, max_size=150):
+  def prepare_picture(self, im, max_size=120):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -388,7 +384,7 @@ class FragmentDB(PT):
         print('This picture is too small.')
     im = im.convert(mode="RGBA")
     img_w, img_h = im.size
-    ratio = float(max_size) / float(max(im.size))
+    ratio = abs(float(max_size) / float(max(im.size)))
     # just an empirical value:
     if float(max_size) / float(max(im.size)) > 0.6:
       ratio = 0.6
@@ -406,7 +402,7 @@ class FragmentDB(PT):
     IM.paste(im, offset)
     return IM
 
-  def set_fragment_picture(self, max_size=150):
+  def set_fragment_picture(self, max_size=120):
     '''
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
@@ -422,11 +418,13 @@ class FragmentDB(PT):
     if not pic:
       print('No fragment picture found.')
       return False
-    im = Image.open(StringIO.StringIO(pic))
+    imo = Image.open(StringIO.StringIO(pic))
     # save it as raw and small pic:
-    OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    im = self.prepare_picture(im, max_size)
+    OlexVFS.save_image_to_olex(imo, 'storepic.png', 0)
+    im = self.prepare_picture(imo, max_size)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
+    iml = self.prepare_picture(imo, max_size=450)
+    OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
 
   def display_image(self, zimgname, image_file):
     '''
@@ -461,6 +459,7 @@ class FragmentDB(PT):
       print('No valid picture found!')
       return
     im = Image.open(picfile)
+    # TODO: better use set_fragment_picture() here 
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     # display it.
     im = self.prepare_picture(im)
@@ -645,19 +644,46 @@ class FragmentDB(PT):
     path = "{}/inputfrag.htm".format(self.p_path)
     olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width,
               h=height, x=box_x, y=box_y)
+    frag = self.get_frag_for_gui()
+    if frag:
+      self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
     if blank:
-      self.blank_state()
+      self.display_image('Inputfrag.MOLEPIC2', 'blank.png')
+
+  def display_large_image(self):
+    '''
+    display the current fragment image in large to read the labels
+    '''
+    try:
+      olx.GetVar('fragment_ID')
+    except RuntimeError:
       return
-    else:
-      frag = self.get_frag_for_gui()
-      if frag:
-        self.display_image('Inputfrag.MOLEPIC2', 'displayimg.png')
+    pop_name = "View Fragment"
+    screen_height = int(olx.GetWindowSize('gl').split(',')[3])
+    screen_width = int(olx.GetWindowSize('gl').split(',')[2])
+    box_x = int(screen_width*0.1)
+    box_y = int(screen_height*0.1)
+    width, height = 500, 520
+    html = """
+    <zimg name="LMOLEPIC" 
+        border="0" 
+        src="largefdbimg.png" 
+        height=450 
+        width=450 
+        align="center">
+    """
+    OV.write_to_olex('large_fdb_image.htm', html)
+    olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
+              h=height, x=box_x, y=box_y)
+
 
   def set_frag_name(self, enable_check=True):
     '''
     handles the name of a new/edited fragment
     '''
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    if fragname == '':
+      return False
     if self.db.has_exact_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
       return False
@@ -672,10 +698,10 @@ class FragmentDB(PT):
     '''
     self.frag_cell = ''
     try:
-      frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell').split()
+      frag_cell = olx.html.GetValue('Inputfrag.set_cell').split()
     except(AttributeError):
       print('No unit cell defined. You nedd to define unit cell parameters!')
-      return False
+      return
     if frag_cell:
       if len(frag_cell) < 6:
         print('\nUnknown unit cell. Only {} values instead of 6.'.format(len(frag_cell)))
@@ -729,7 +755,7 @@ class FragmentDB(PT):
       # line without sfac, but long
       if len(line) > 4 and len(line[1]) > 3:
         atoms[num] = line[:4]
-      if len(line) == 4:
+      if len(line) == 4: # name and x,y,z
         atoms[num] = line[:4]
       if len(line) < 4:
         # too short, parameters missing
@@ -803,12 +829,16 @@ class FragmentDB(PT):
     try:
       atoms_list = self.db[fragId]
     except IndexError:
-      print('Database Fragment {} not found.'.format(fragId))
+      return
+      #print('Database Fragment {} not found.'.format(fragId))
     if not atoms_list:
       return
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
-      atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      try:
+        atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      except(UnicodeEncodeError):
+        print('Invalid atomline found. Non-ASCII character in line.')
     at = ' \n'.join(atlist)
     return at
 
@@ -867,7 +897,6 @@ class FragmentDB(PT):
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
-    # frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell')
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
     except TypeError:
@@ -875,8 +904,6 @@ class FragmentDB(PT):
       pic_data = ''
     coords = self.prepare_coords_for_storage(atlines)
     if not check_restraints_consistency(restraints, atlines, fragname):
-      #self.blink_field('Inputfrag.restraints')
-      #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'IROK')
       print('\nFragment was not added to the database!')
       return
     self.delete_fragment(reset=False)
@@ -920,7 +947,10 @@ class FragmentDB(PT):
     '''
     get the fragment to display in the multiline edit field
     '''
-    fragId = olx.GetVar('fragment_ID')
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      return
     at = self.prepare_atoms_list(fragId)
     if not at:
       return False
@@ -991,6 +1021,7 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    olx.SetVar('fragment_ID', '')
     # Now delete the fields:
     if reset:
       self.blank_state()
@@ -1041,6 +1072,7 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
+    OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
@@ -1049,23 +1081,6 @@ class FragmentDB(PT):
       os.remove(picfile)
     except:
       pass
-
-  def write_text_on_image(self, text):
-    '''
-    write a text on an image to display it in an olex2 zimg
-    :param text: text to draw
-    :type text: string
-    :param zimg_name:
-    :type zimg_name:
-    '''
-    imsize = (600, 600)
-    bg_color = self.params.html.table_bg_colour.rgb
-    grey_IM = Image.new("RGB", imsize, bg_color) # Create new white image
-    draw = ImageDraw.Draw(grey_IM)
-    IT = ImageTools()
-    IT.write_text_to_draw(draw, text, font_size=60)
-    OlexVFS.save_image_to_olex(grey_IM, 'fdb_intro.png', 0)
-    #self.display_image(zimg_name, 'fdb_intro.png')
 
 
 
@@ -1091,5 +1106,6 @@ OV.registerFunction(fdb.get_chemdrawstyle,False,"FragmentDB")
 OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
 OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
+OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")

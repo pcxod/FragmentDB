@@ -196,10 +196,6 @@ class FragmentTable():
     :type fragment_id: int
     '''
     fragment_id = self.fragid_toint(fragment_id) 
-    # this is too early here:
-    #if fragment_id > 1000000:
-    #  fragment_id = fragment_id-1000000
-    # works only for distribution db:
     if fragment_id < 0:
       print('Only positive index numbers allowed!')
       return False
@@ -426,8 +422,7 @@ class FragmentTable():
     try:
       int(fragment_id)
     except ValueError as e:
-      print(e)
-      return
+      return False
     return int(fragment_id)
   
   def _get_fragment(self, fragment_id):
@@ -632,6 +627,8 @@ class FragmentTable():
     '''
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
+    if not fragment_name or fragment_name == '':
+      return None
     fragmentid = self._fill_fragment_table(fragment_name, resiclass, 
                                            reference, comment, picture)
     if not fragmentid:
