@@ -222,7 +222,10 @@ class FragmentDB(PT):
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onImport)
     fragpath = os.sep.join(['.olex', 'fragment.txt'])
-    atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
+    try:
+      atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
+    except(IndexError):
+      return
     with open(fragpath, 'w') as f:
       f.write(atoms)
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
@@ -695,10 +698,10 @@ class FragmentDB(PT):
     '''
     self.frag_cell = ''
     try:
-      frag_cell = OV.GetParam('fragment_DB.new_fragment.frag_cell').split()
+      frag_cell = olx.html.GetValue('Inputfrag.set_cell').split()
     except(AttributeError):
       print('No unit cell defined. You nedd to define unit cell parameters!')
-      return False
+      return
     if frag_cell:
       if len(frag_cell) < 6:
         print('\nUnknown unit cell. Only {} values instead of 6.'.format(len(frag_cell)))
@@ -826,7 +829,8 @@ class FragmentDB(PT):
     try:
       atoms_list = self.db[fragId]
     except IndexError:
-      print('Database Fragment {} not found.'.format(fragId))
+      return
+      #print('Database Fragment {} not found.'.format(fragId))
     if not atoms_list:
       return
     atoms_list = [[i for i in y] for y in atoms_list]
@@ -946,7 +950,7 @@ class FragmentDB(PT):
     try:
       fragId = olx.GetVar('fragment_ID')
     except(RuntimeError):
-      return False
+      return
     at = self.prepare_atoms_list(fragId)
     if not at:
       return False
@@ -1017,6 +1021,7 @@ class FragmentDB(PT):
     fragId = olx.GetVar('fragment_ID')
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    olx.SetVar('fragment_ID', '')
     # Now delete the fields:
     if reset:
       self.blank_state()

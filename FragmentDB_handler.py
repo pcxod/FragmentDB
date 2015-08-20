@@ -196,10 +196,6 @@ class FragmentTable():
     :type fragment_id: int
     '''
     fragment_id = self.fragid_toint(fragment_id) 
-    # this is too early here:
-    #if fragment_id > 1000000:
-    #  fragment_id = fragment_id-1000000
-    # works only for distribution db:
     if fragment_id < 0:
       print('Only positive index numbers allowed!')
       return False
@@ -426,8 +422,7 @@ class FragmentTable():
     try:
       int(fragment_id)
     except ValueError as e:
-      print(e)
-      return
+      return False
     return int(fragment_id)
   
   def _get_fragment(self, fragment_id):
