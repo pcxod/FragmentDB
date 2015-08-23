@@ -133,7 +133,6 @@ def invert_atomlist_coordinates(atomst):
 def flatten(nested):
   '''
   flattens a nested list
-  
   >>> flatten([['wer', 234, 'brdt5'], ['dfg'], [[21, 34,5], ['fhg', 4]]])
   ['wer', 234, 'brdt5', 'dfg', 21, 34, 5, 'fhg', 4]
   '''
@@ -154,6 +153,8 @@ def get_overlapped_chunks(ring, size):
   '''
   returns a list of chunks of size 'size' which overlap with one field.
   If the last chunk is smaller than size, the last 'size' chunks are returned as last chunk.
+  >>> get_overlapped_chunks(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'], 4)
+  [['a', 'b', 'c', 'd'], ['d', 'e', 'f', 'g'], ['e', 'f', 'g', 'h']]
   '''
   chunks = []
   for i in range(0, len(ring)-size+3, 3):
@@ -165,7 +166,7 @@ def get_overlapped_chunks(ring, size):
 
 def make_flat_restraints(rings):
   '''
-  Ehat I need:
+  What I need:
   -list of rings
   -function to determine which binds which
   
@@ -186,6 +187,7 @@ def make_flat_restraints(rings):
   for ring in list_of_rings:
     for atom in ring:
       # lets see if there is a neighboring atom:
+      ### how can I get neighbors of atoms?
       nb = _G.neighbors(atom)[1:]
       for i in nb:
         if not i in flatten(list_of_rings):
@@ -221,6 +223,7 @@ def is_flat(chunk):
   '''
   tetrahedron_atoms = []
   for atom in chunk:
+    ### how do I get the coordinates of these atoms?
     single_atom_coordinate = coords_dict[atom]
     tetrahedron_atoms.append(single_atom_coordinate)
   a, b, c, d = tetrahedron_atoms
@@ -285,8 +288,8 @@ def vol_tetrahedron(a, b, c, d, cell=None):
   >>> d = (0.674054,   0.430194,   0.280727)
   >>> print('volume of Benzene ring atoms:')
   volume of Benzene ring atoms:
-  >>> print(vol_tetrahedron(a, b, c, d, cell))
-  0.0633528183217
+  >>> print(round(vol_tetrahedron(a, b, c, d, cell), 5))
+  0.06335
   '''
   A = [float(i) for i in a]
   B = [float(i) for i in b]
@@ -423,4 +426,7 @@ def initialize_user_db(user_dbpath):
 
 
 if __name__ == '__main__':
-  pass
+  import doctest
+  failed, attempted = doctest.testmod()#verbose=True)
+  if failed == 0:
+    print('passed all {} tests!'.format(attempted))
