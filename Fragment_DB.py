@@ -4,7 +4,7 @@ from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
- DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
+ DIST_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart
 
 OV = OlexFunctions()
 IT = ImageTools()

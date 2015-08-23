@@ -36,9 +36,9 @@ def dice_coefficient(a, b):
   b = b.lower()
   if not len(a) or not len(b): return 0.0
   if len(a) == 1:
-      a = a+'.'
+    a = a+'.'
   if len(b) == 1:
-      b = b + '.'
+    b = b + '.'
   a_bigram_list = []
   for i in range(len(a)-1):
     a_bigram_list.append(a[i:i+2])
@@ -74,13 +74,13 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   atoms = [i[0].upper() for i in atoms]
   # check for duplicates:
   if len(set(atoms)) != len(atoms):
-            c1 = Counter(atoms)
-            c2 = Counter(set(atoms))
-            diff = c1 - c2
-            duplicates = list(diff.elements())
-            for i in duplicates:
-                print('\nDuplicate atom "{}" found!\n'.format(duplicates.pop()))
-                status = 'False'
+    c1 = Counter(atoms)
+    c2 = Counter(set(atoms))
+    diff = c1 - c2
+    duplicates = list(diff.elements())
+    for i in duplicates:
+      print('\nDuplicate atom "{}" found!\n'.format(duplicates.pop()))
+      status = 'False'
   # check if restraint cards are valid
   restraint_atoms_list = set([])
   for line in restraints:
@@ -118,14 +118,14 @@ def invert_atomlist_coordinates(atomst):
     '''
     atoms = []
     for line in atomst:
-        line = list(line)
-        try:
-            inv_coord = [ -float(i) for i in line[2:] ]
-        except:
-            print('Unable to invert fragment coordinates.')
-            return False
-        line[2:] = inv_coord
-        atoms.append(line)
+      line = list(line)
+      try:
+        inv_coord = [ -float(i) for i in line[2:] ]
+      except:
+        print('Unable to invert fragment coordinates.')
+        return False
+      line[2:] = inv_coord
+      atoms.append(line)
     return atoms
 ############################################################################
 # Experimental:
@@ -145,14 +145,31 @@ def flatten(nested):
     else: raise TypeError
     for sublist in nested:
       for element in flatten(sublist):
-          result.append(element)
+        result.append(element)
   except(TypeError):
     result.append(nested)
   return result
 
-def make_flat_restraints(self):
+def get_overlapped_chunks(ring, size):
   '''
-  searches for rings in the graph G, splits it in 4-member chunks and tests if
+  returns a list of chunks of size 'size' which overlap with one field.
+  If the last chunk is smaller than size, the last 'size' chunks are returned as last chunk.
+  '''
+  chunks = []
+  for i in range(0, len(ring)-size+3, 3):
+    chunk = ring[i:i+size]
+    if len(chunk) < 4:
+      chunk = ring[-size:]
+    chunks.append(chunk)
+  return chunks
+
+def make_flat_restraints(rings):
+  '''
+  Ehat I need:
+  -list of rings
+  -function to determine which binds which
+  
+  splits rings in 4-member chunks and tests if
   they are flat: volume of tetrahedron of chunk < 0.1 A-3.
   returns list of flat chunks.
 
@@ -160,7 +177,7 @@ def make_flat_restraints(self):
   check if original rings are flat, if flat check if ring with neighbor
   is flat, if yes, add this chunk minus first atom
   '''
-  list_of_rings = nx.cycle_basis(self._G)
+  list_of_rings = rings
   #print('The list of rings:', list_of_rings)
   if not list_of_rings:
     return False
@@ -169,42 +186,42 @@ def make_flat_restraints(self):
   for ring in list_of_rings:
     for atom in ring:
       # lets see if there is a neighboring atom:
-      nb = self._G.neighbors(atom)[1:]
+      nb = _G.neighbors(atom)[1:]
       for i in nb:
         if not i in flatten(list_of_rings):
           neighbors.append(i)
-      if len(ring) < 4:
-        continue #wenn ring zu wenig atome hat dann nächsten
-      chunks = get_overlapped_chunks(ring, 4)
-      for chunk in chunks:
+    if len(ring) < 4:
+      continue # if ring has to few atoms, use the next
+    chunks = get_overlapped_chunks(ring, 4)
+    for chunk in chunks:
+      if is_flat(chunk):
+        flats.append(chunk[:])
+    if not flats:
+      return False
+    for chunk in flats:
+      for i in neighbors:
+        for at in chunk:
+          if binds_to(at, i) and i not in chunk:
+            if not binds_to(chunk[0], i):
+              # only delete if not bounded to the beforehand added atom
+              del chunk[0]
+            else:
+              # otherwise delete from the other end
+              del chunk[-1]
+            chunk.append(i)
+            del neighbors[0]
         if is_flat(chunk):
-          flats.append(chunk[:])
-      if not flats:
-        return False
-      for chunk in flats:
-        for i in neighbors:
-          for at in chunk:
-            if binds_to(at, i) and i not in chunk:
-              if not binds_to(chunk[0], i):
-                # only delete if not bounded to the beforehand added atom
-                del chunk[0]
-              else:
-                # otherwise delete from the other end
-                del chunk[-1]
-              chunk.append(i)
-              del neighbors[0]
-        if self.is_flat(chunk):
           if not chunk in flats:
             flats.append(chunk)
   return flats
 
-def is_flat(self, chunk):
+def is_flat(chunk):
   '''
   check if four atoms are flat
   '''
   tetrahedron_atoms = []
   for atom in chunk:
-    single_atom_coordinate = self.coords_dict[atom]
+    single_atom_coordinate = coords_dict[atom]
     tetrahedron_atoms.append(single_atom_coordinate)
   a, b, c, d = tetrahedron_atoms
   volume = (vol_tetrahedron(a, b, c, d))
@@ -214,20 +231,20 @@ def is_flat(self, chunk):
     #print('volume of', chunk, 'too big:', volume)
     return False
 
-def get_formated_flats(self):
+def get_formated_flats():
   '''
   formats the FLAT restraints and removes the part symbol
   '''
-  flats = self.make_flat_restraints()
+  flats = make_flat_restraints()
   if not flats:
     return ['']
   flat_format = []
   for i in flats:
-    i = [misc.remove_partsymbol(x) for x in i]
+    #i = [misc.remove_partsymbol(x) for x in i]
     flat_format.append('FLAT {}\n'.format(' '.join(i)))
   return flat_format
 
-def frac_to_cart(self, frac_coord, cell):
+def frac_to_cart(frac_coord, cell):
   '''
   Converts fractional coordinates to cartesian coodinates
   :param frac_coord: [float, float, float]
@@ -313,9 +330,6 @@ def determinante(a):
   return (a[0][0] * (a[1][1] * a[2][2] - a[2][1] * a[1][2])
          -a[1][0] * (a[0][1] * a[2][2] - a[2][1] * a[0][2])
          +a[2][0] * (a[0][1] * a[1][2] - a[1][1] * a[0][2]))
-
-
-
 
 
 def initialize_user_db(user_dbpath):
