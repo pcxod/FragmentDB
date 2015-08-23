@@ -607,25 +607,6 @@ class FragmentDB(PT):
     return atlist
 
 
-  def frac_to_cart(self, frac_coord, cell):
-    '''
-    Converts fractional coordinates to cartesian coodinates
-    :param frac_coord: [float, float, float]
-    :param cell:       [float, float, float, float, float, float]
-    '''
-    from math import cos, sin, sqrt, radians
-    a, b, c, alpha, beta, gamma = cell
-    x, y, z = frac_coord
-    alpha = radians(alpha)
-    beta  = radians(beta)
-    gamma = radians(gamma)
-    cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
-    sinastar = sqrt(1-cosastar**2)
-    Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
-    Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
-    Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
-    return(round(Xc, 6), round(Yc, 6), round(Zc, 6))
-
   def open_edit_fragment_window(self):
     '''
     opens a new window to input/update a database fragment
@@ -938,7 +919,7 @@ class FragmentDB(PT):
       if len(frac_coord) < 3:
         print('Coordinate value missing in "{}".'.format(' '.join(line)))
         continue
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      coord = frac_to_cart(frac_coord, self.frag_cell)
       line[1:4] = coord
       coords.append(line)
     return coords
