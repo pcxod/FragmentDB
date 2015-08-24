@@ -116,6 +116,9 @@ def invert_atomlist_coordinates(atomst):
     '''
     Inverts atom coordinates
     :param atoms: list of atom list
+    >>> c1 = [['c1', '1', '1', '-2', '3'], ['c1', 2, 1, -2, 3]]
+    >>> invert_atomlist_coordinates(c1)
+    [['c1', '1', -1.0, 2.0, -3.0], ['c1', 2, -1.0, 2.0, -3.0]]
     '''
     atoms = []
     for line in atomst:
@@ -170,6 +173,7 @@ def make_flat_restraints(rings):
   What I need:
   -list of rings
   -function to determine which binds which
+  -get all neighbors of an atom
   
   splits rings in 4-member chunks and tests if
   they are flat: volume of tetrahedron of chunk < 0.1 A-3.
