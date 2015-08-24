@@ -253,6 +253,10 @@ def frac_to_cart(frac_coord, cell):
   Converts fractional coordinates to cartesian coodinates
   :param frac_coord: [float, float, float]
   :param cell:       [float, float, float, float, float, float]
+    >>> cell = (10.5086, 20.9035, 20.5072, 90, 94.13, 90)
+  >>> coord1 = (-0.186843,   0.282708,   0.526803)
+  >>> print(frac_to_cart(coord1, cell))
+  (-2.741505423999065, 5.909586678000002, 10.775200700893734)
   '''
   from math import cos, sin, sqrt, radians
   a, b, c, alpha, beta, gamma = cell
@@ -265,7 +269,7 @@ def frac_to_cart(frac_coord, cell):
   Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
   Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
   Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
-  return(round(Xc, 6), round(Yc, 6), round(Zc, 6))
+  return(Xc, Yc, Zc)
 
 def vol_tetrahedron(a, b, c, d, cell=None):
   '''
