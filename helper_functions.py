@@ -24,7 +24,8 @@ SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
 RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP', 'HFIX', 
                    'SADI', 'CHIV', 'FLAT', 'DEFS', 'ISOR', 'NCSY', 'DANG')
 
-DIST_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG')
+# these are supported by -i option in olex2:
+DIST_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG') 
 
 def dice_coefficient(a, b):
   '''
