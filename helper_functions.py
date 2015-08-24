@@ -6,6 +6,7 @@ Created on 03.05.2015
 here are only functions that are completely independent of olex
 '''
 from collections import Counter
+#import ast
 
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
              'L.S.', 'CGLS', 'BOND', 'FMAP', 'PLAN', 'TEMP', 'ACTA', 'CONF',
@@ -91,7 +92,7 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     if line[0][:4] not in SHX_CARDS:  
       status = False
       print('\nInvalid line in restraints list of "{}" found!'.format(fragment_name))
-      print(line)
+      print(' '.join(line))
     if line[0][:4].upper() in RESTRAINT_CARDS:
       for i in line[1:]:
         if i in ('>', '<'):
