@@ -6,6 +6,7 @@ Created on 03.05.2015
 here are only functions that are completely independent of olex
 '''
 from collections import Counter
+from math import radians, cos, sqrt
 #import ast
 
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
@@ -26,6 +27,36 @@ RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP', 'HFIX
 
 # these are supported by -i option in olex2:
 DIST_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG') 
+#xf.au.GetAtomCrd
+#xf.au.GetCell
+
+
+def atomic_distance(p1, p2, cell):
+    '''
+    p1 and p2 are x, y , z coordinates as list ['x', 'y', 'z']
+    cell are the cell parameters as list: ['a', 'b', 'c', 'alpha', 'beta', 'gamma']
+    returns the distance between the two points.
+    
+    >>> cell = (10.5086, 20.9035, 20.5072, 90, 94.13, 90)
+    >>> coord1 = (-0.186843,   0.282708,   0.526803) 
+    >>> coord2 = (-0.155278,   0.264593,   0.600644) 
+    >>> atomic_distance(coord1, coord2, cell)
+    1.5729229943265979
+    '''
+    cell = [float(y) for y in cell]
+    a , b, c =  cell[:3]
+    al = radians(cell[3])
+    be = radians(cell[4])
+    ga = radians(cell[5])
+    x1, y1, z1 = p1
+    x2, y2, z2 = p2
+    dx = (x1-x2)
+    dy = (y1-y2)
+    dz = (z1-z2)
+    dsq = (a*dx)**2+(b*dy)**2+\
+          (c*dz)**2+2*b*c*cos(al)*dy*dz+\
+          2*dx*dz*a*c*cos(be)+2*dx*dy*a*b*cos(ga)
+    return(sqrt(dsq))
 
 def dice_coefficient(a, b):
   '''

@@ -1063,11 +1063,18 @@ class FragmentDB(PT):
     except:
       pass
 
-
+  def get_fvar_occ(self):
+    var = OV.GetParam('fragment_DB.fragment.frag_fvar')
+    occ = OV.GetParam('fragment_DB.fragment.frag_occ')
+    #print(var, occ)
+    fvar = float(var)*10+float(occ)
+    olx.html.SetValue('FVAROCC', fvar)
+    return fvar
 
 fdb = FragmentDB()
 
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
+OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.show_reference,False,"FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
