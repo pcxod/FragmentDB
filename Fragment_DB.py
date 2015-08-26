@@ -21,6 +21,7 @@ Fragen und Ideen:
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
 
+
 '''
 
 
@@ -606,7 +607,6 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
     return atlist
 
-
   def open_edit_fragment_window(self):
     '''
     opens a new window to input/update a database fragment
@@ -657,7 +657,6 @@ class FragmentDB(PT):
     olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
               h=height, x=box_x, y=box_y)
 
-
   def set_frag_name(self, enable_check=True):
     '''
     handles the name of a new/edited fragment
@@ -701,7 +700,6 @@ class FragmentDB(PT):
       return False
     self.frag_cell = cell
     return True
-
 
   def set_frag_atoms(self):
     '''
@@ -766,7 +764,6 @@ class FragmentDB(PT):
           num = num+1
           line[0] = line[0]+str(num)
     return atoms
-
 
   def set_frag_restraints(self):
     '''
@@ -833,7 +830,6 @@ class FragmentDB(PT):
       name = 'Could not get a name from the database.'
     return name
 
-
   def prepare_restraints(self, fragId):
     '''
     prepare the fragment restraints to display in a multiline edit field
@@ -844,7 +840,6 @@ class FragmentDB(PT):
     restr_list = [[str(i) for i in y] for y in restr_list]
     restr = '\n'.join(['  '.join(i) for i in restr_list])
     return restr
-
 
   def add_new_frag(self):
     '''
@@ -861,7 +856,6 @@ class FragmentDB(PT):
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
     self.store_new_fragment(atoms, restraints, resiclass, reference)
-
 
   def update_fragment(self):
     '''
@@ -1067,7 +1061,10 @@ class FragmentDB(PT):
     var = OV.GetParam('fragment_DB.fragment.frag_fvar')
     occ = OV.GetParam('fragment_DB.fragment.frag_occ')
     #print(var, occ)
-    fvar = float(var)*10+float(occ)
+    if float(var) < 0:
+      fvar = -(float(abs(var))*10+float(occ))
+    else:
+      fvar = float(var)*10+float(occ)
     olx.html.SetValue('FVAROCC', fvar)
     return fvar
 
