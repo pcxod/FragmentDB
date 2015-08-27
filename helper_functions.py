@@ -200,59 +200,7 @@ def get_overlapped_chunks(ring, size):
     chunks.append(chunk)
   return chunks
 
-def make_flat_restraints(rings):
-  '''
-  What I need:
-  -list of rings
-  -function to determine which binds which
-  -get all neighbors of an atom
-  
-  splits rings in 4-member chunks and tests if
-  they are flat: volume of tetrahedron of chunk < 0.1 A-3.
-  returns list of flat chunks.
 
-  first add neighbor atoms to neighbors
-  check if original rings are flat, if flat check if ring with neighbor
-  is flat, if yes, add this chunk minus first atom
-  '''
-  list_of_rings = rings
-  #print('The list of rings:', list_of_rings)
-  if not list_of_rings:
-    return False
-  flats = []
-  neighbors = []
-  for ring in list_of_rings:
-    for atom in ring:
-      # lets see if there is a neighboring atom:
-      ### how can I get neighbors of atoms?
-      nb = _G.neighbors(atom)[1:]
-      for i in nb:
-        if not i in flatten(list_of_rings):
-          neighbors.append(i)
-    if len(ring) < 4:
-      continue # if ring has to few atoms, use the next
-    chunks = get_overlapped_chunks(ring, 4)
-    for chunk in chunks:
-      if is_flat(chunk):
-        flats.append(chunk[:])
-    if not flats:
-      return False
-    for chunk in flats:
-      for i in neighbors:
-        for at in chunk:
-          if binds_to(at, i) and i not in chunk:
-            if not binds_to(chunk[0], i):
-              # only delete if not bounded to the beforehand added atom
-              del chunk[0]
-            else:
-              # otherwise delete from the other end
-              del chunk[-1]
-            chunk.append(i)
-            del neighbors[0]
-        if is_flat(chunk):
-          if not chunk in flats:
-            flats.append(chunk)
-  return flats
 
 def is_flat(chunk):
   '''
