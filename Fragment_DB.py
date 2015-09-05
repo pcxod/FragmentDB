@@ -13,15 +13,10 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- I would like to replace atoms in 1.3 A around the fitting fragment.
-
 - check_same_thread=False ?
-
-- "mode -e fit": execute after fit
 
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
-
 
 '''
 
