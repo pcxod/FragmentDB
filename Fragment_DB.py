@@ -4,7 +4,7 @@ from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
- DIST_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, flatten,\
+ IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, flatten,\
   get_overlapped_chunks, is_flat
 
 OV = OlexFunctions()
@@ -358,7 +358,7 @@ class FragmentDB(PT):
         else:
           line.append(at)
       # applies the restraint to atoms in line
-      if i[0] in DIST_RESTRAINT_CARDS and resinum != 0 and resiclass:
+      if i[0] in IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
         OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
       else:
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
