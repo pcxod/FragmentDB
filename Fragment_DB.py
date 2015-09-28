@@ -18,26 +18,6 @@ Fragen und Ideen:
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
 
-Olex2 renames the atoms in the first residue?: Why?
-
-RESI CLBE 1
-Cl1   Cl     0.92735  1.19856  0.88310  11.00000  0.05000 
-Cl1   Cl     0.82738  0.86564  0.96123  11.00000  0.05000 
-Cl2   C     0.84013  1.06267  0.77129  11.00000  0.05000 
-C1    C     0.79579  0.91857  0.80476  11.00000  0.05000 
-C2    C     0.72684  0.81183  0.71234  11.00000  0.05000 
-C3    C     0.70417  0.85056  0.58693  11.00000  0.05000 
-C4    C     0.75014  0.99479  0.55426  11.00000  0.05000 
-C5    C     0.81688  1.10168  0.64598  11.00000  0.05000 
-RESI CLBE 2
-Cl1   Cl     1.10844  1.84586  0.74613  11.00000  0.05000 
-Cl2   Cl     1.00847  1.51294  0.82426  11.00000  0.05000 
-C1    C     1.02122  1.70997  0.63432  11.00000  0.05000 
-C2    C     0.97688  1.56587  0.66779  11.00000  0.05000 
-C3    C     0.90792  1.45913  0.57537  11.00000  0.05000 
-C4    C     0.88526  1.49785  0.44996  11.00000  0.05000 
-C5    C     0.93123  1.64209  0.41729  11.00000  0.05000 
-C6    C     0.99797  1.74897  0.50901  11.00000  0.05000
 
 '''
 
@@ -99,6 +79,16 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     
+  def clear_mainvalues(self):
+    '''
+    clears the state of the main interface
+    '''
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    resinum = self.find_free_residue_num()
+    olx.html.SetValue('RESIDUE', resinum)
+    olx.SetVar('fragment_ID', 0)
+  
   def set_occu(self, occ):
     '''
     sets the occupancy, even if you enter a comma value instead of point as
@@ -226,6 +216,7 @@ class FragmentDB(PT):
     atoms = atoms.split()
     # define the other properties:
     self.define_atom_properties(atoms)
+    self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
   
   def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
@@ -261,13 +252,17 @@ class FragmentDB(PT):
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
+        if int(fragId) == 0:
+          # in this case the db returned a False
+          print('Please select a fragment first, or type text and hit Enter key to search.')
+          return
       except(RuntimeError):
         # no fragment chosen-> do nothing
         return
     try:
       int(fragId)
     except(ValueError):
-      print('Please select a fragment first, or hit Enter key to search.')
+      print('Please select a fragment first, or type text and hit Enter key to search.')
       return
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
@@ -295,7 +290,8 @@ class FragmentDB(PT):
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
-    resinum = int(OV.GetParam('fragment_DB.fragment.resinum'))
+    resinum = int(olx.html.GetValue('RESIDUE')) 
+    #int(OV.GetParam('fragment_DB.fragment.resinum'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
     if not fragId:
