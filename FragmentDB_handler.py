@@ -171,9 +171,7 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> print(db[0])
-    Traceback (most recent call last):
-      ...
-    IndexError: Database fragment not found.
+    False
     
     >>> print(db[5])
     [(u'C1', u'6', 0.5337, 0.6968, 0.0), (u'C2', u'6', 0.5337, -0.6968, 0.0), (u'C3', u'6', -0.6618, -1.4038, 0.0), (u'C4', u'6', -1.8695, -0.6988, 0.0), (u'C5', u'6', -1.8695, 0.6988, 0.0), (u'C6', u'6', -0.6618, 1.4037, 0.0), (u'F1', u'9', 1.7137, 1.3554, 0.0), (u'F2', u'9', 1.7137, -1.3554, 0.0)]
@@ -198,6 +196,8 @@ class FragmentTable():
     fragment_id = self.fragid_toint(fragment_id) 
     if fragment_id < 0:
       print('Only positive index numbers allowed!')
+      return False
+    elif fragment_id == 0:
       return False
       #fragment_id = len(self)-abs(fragment_id)
     found = self._get_fragment(fragment_id)

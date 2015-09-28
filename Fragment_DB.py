@@ -4,7 +4,8 @@ from ImageTools import ImageTools
 import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
- DIST_RESTRAINT_CARDS, invert_atomlist_coordinates
+ IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, flatten,\
+  get_overlapped_chunks, is_flat
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -12,14 +13,11 @@ IT = ImageTools()
 '''
 Fragen und Ideen:
 
-- I would like to replace atoms in 1.3 A around the fitting fragment.
-
 - check_same_thread=False ?
-
-- "mode -e fit": execute after fit
 
 - Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
   intuitiv!!!
+
 
 '''
 
@@ -81,6 +79,16 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     
+  def clear_mainvalues(self):
+    '''
+    clears the state of the main interface
+    '''
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    resinum = self.find_free_residue_num()
+    olx.html.SetValue('RESIDUE', resinum)
+    olx.SetVar('fragment_ID', 0)
+  
   def set_occu(self, occ):
     '''
     sets the occupancy, even if you enter a comma value instead of point as
@@ -208,6 +216,7 @@ class FragmentDB(PT):
     atoms = atoms.split()
     # define the other properties:
     self.define_atom_properties(atoms)
+    self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
   
   def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
@@ -243,13 +252,17 @@ class FragmentDB(PT):
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
+        if int(fragId) == 0:
+          # in this case the db returned a False
+          print('Please select a fragment first, or type text and hit Enter key to search.')
+          return
       except(RuntimeError):
         # no fragment chosen-> do nothing
         return
     try:
       int(fragId)
     except(ValueError):
-      print('Please select a fragment first, or hit Enter key to search.')
+      print('Please select a fragment first, or type text and hit Enter key to search.')
       return
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
@@ -277,7 +290,8 @@ class FragmentDB(PT):
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
-    resinum = int(OV.GetParam('fragment_DB.fragment.resinum'))
+    resinum = int(olx.html.GetValue('RESIDUE')) 
+    #int(OV.GetParam('fragment_DB.fragment.resinum'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
     if not fragId:
@@ -361,7 +375,7 @@ class FragmentDB(PT):
         else:
           line.append(at)
       # applies the restraint to atoms in line
-      if i[0] in DIST_RESTRAINT_CARDS and resinum != 0 and resiclass:
+      if i[0] in IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
         OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
       else:
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
@@ -606,26 +620,6 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
     return atlist
 
-
-  def frac_to_cart(self, frac_coord, cell):
-    '''
-    Converts fractional coordinates to cartesian coodinates
-    :param frac_coord: [float, float, float]
-    :param cell:       [float, float, float, float, float, float]
-    '''
-    from math import cos, sin, sqrt, radians
-    a, b, c, alpha, beta, gamma = cell
-    x, y, z = frac_coord
-    alpha = radians(alpha)
-    beta  = radians(beta)
-    gamma = radians(gamma)
-    cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
-    sinastar = sqrt(1-cosastar**2)
-    Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
-    Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
-    Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
-    return(round(Xc, 6), round(Yc, 6), round(Zc, 6))
-
   def open_edit_fragment_window(self):
     '''
     opens a new window to input/update a database fragment
@@ -676,7 +670,6 @@ class FragmentDB(PT):
     olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
               h=height, x=box_x, y=box_y)
 
-
   def set_frag_name(self, enable_check=True):
     '''
     handles the name of a new/edited fragment
@@ -720,7 +713,6 @@ class FragmentDB(PT):
       return False
     self.frag_cell = cell
     return True
-
 
   def set_frag_atoms(self):
     '''
@@ -785,7 +777,6 @@ class FragmentDB(PT):
           num = num+1
           line[0] = line[0]+str(num)
     return atoms
-
 
   def set_frag_restraints(self):
     '''
@@ -852,7 +843,6 @@ class FragmentDB(PT):
       name = 'Could not get a name from the database.'
     return name
 
-
   def prepare_restraints(self, fragId):
     '''
     prepare the fragment restraints to display in a multiline edit field
@@ -863,7 +853,6 @@ class FragmentDB(PT):
     restr_list = [[str(i) for i in y] for y in restr_list]
     restr = '\n'.join(['  '.join(i) for i in restr_list])
     return restr
-
 
   def add_new_frag(self):
     '''
@@ -880,7 +869,6 @@ class FragmentDB(PT):
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
     self.store_new_fragment(atoms, restraints, resiclass, reference)
-
 
   def update_fragment(self):
     '''
@@ -938,7 +926,7 @@ class FragmentDB(PT):
       if len(frac_coord) < 3:
         print('Coordinate value missing in "{}".'.format(' '.join(line)))
         continue
-      coord = self.frac_to_cart(frac_coord, self.frag_cell)
+      coord = frac_to_cart(frac_coord, self.frag_cell)
       line[1:4] = coord
       coords.append(line)
     return coords
@@ -1082,11 +1070,76 @@ class FragmentDB(PT):
     except:
       pass
 
+  def get_fvar_occ(self):
+    var = OV.GetParam('fragment_DB.fragment.frag_fvar')
+    occ = OV.GetParam('fragment_DB.fragment.frag_occ')
+    #print(var, occ)
+    if float(var) < 0:
+      fvar = -(float(abs(var))*10+float(occ))
+    else:
+      fvar = float(var)*10+float(occ)
+    olx.html.SetValue('FVAROCC', fvar)
+    return fvar
+
+def make_flat_restraints(rings):
+  '''
+  What I need:
+  -list of rings
+  -function to determine which binds which
+  -get all neighbors of an atom GetRefinementModel
+  
+  splits rings in 4-member chunks and tests if
+  they are flat: volume of tetrahedron of chunk < 0.1 A-3.
+  returns list of flat chunks.
+
+  first add neighbor atoms to neighbors
+  check if original rings are flat, if flat check if ring with neighbor
+  is flat, if yes, add this chunk minus first atom
+  '''
+  list_of_rings = rings
+  #print('The list of rings:', list_of_rings)
+  if not list_of_rings:
+    return False
+  flats = []
+  neighbors = []
+  for ring in list_of_rings:
+    for atom in ring:
+      # lets see if there is a neighboring atom:
+      ### how can I get neighbors of atoms?
+      nb = _G.neighbors(atom)[1:]
+      for i in nb:
+        if not i in flatten(list_of_rings):
+          neighbors.append(i)
+    if len(ring) < 4:
+      continue # if ring has to few atoms, use the next
+    chunks = get_overlapped_chunks(ring, 4)
+    for chunk in chunks:
+      if is_flat(chunk):
+        flats.append(chunk[:])
+    if not flats:
+      return False
+    for chunk in flats:
+      for i in neighbors:
+        for at in chunk:
+          if binds_to(at, i) and i not in chunk:
+            if not binds_to(chunk[0], i):
+              # only delete if not bounded to the beforehand added atom
+              del chunk[0]
+            else:
+              # otherwise delete from the other end
+              del chunk[-1]
+            chunk.append(i)
+            del neighbors[0]
+        if is_flat(chunk):
+          if not chunk in flats:
+            flats.append(chunk)
+  return flats
 
 
 fdb = FragmentDB()
 
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
+OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.show_reference,False,"FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")

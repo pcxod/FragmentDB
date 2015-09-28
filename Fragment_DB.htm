@@ -39,20 +39,21 @@ SetVar(fdb_props,
     "Define PART, free variables (FVAR) and the occupancy here.
     <br>
     A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
-    -31.0 On the other hand is set with a free variable of -3.
+    -31.0 On the other hand is set with a free variable of -3. The corresponding free
+    variable is assigned automatically.
     <br>
     <br>
-    All parameters will be displayed simultaneously with atomic labels.")
+    All parameters will be displayed simultaneously through atomic labels.")
 $-
 $+
 SetVar(fdb_resi, 
     "
     Define *residue number* and *residue class*. 
-    Usually it is not nessecary to change anything here.
+    Usually it is not necessary to change anything here.
     <br>
     *Disable* residues with a residue number *0*.  
     <br>
-    The residue number must be uniqe. The plugin automatically chooses the next 
+    The residue number must be unique. The plugin automatically chooses the next 
     unused residue number. So it is best to leave it untouched. The residue class 
     has to start with a letter and can be up to four characters. Usually, 
     the class provided by the database is sufficient.
@@ -169,9 +170,9 @@ $-
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
-<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Define Properies;helpTxt=$GetVar(fdb_props);1 -->
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Define Properties;helpTxt=$GetVar(fdb_props);1 -->
 
-  <td width='24%' align='left'><b>%PART:%</b>
+  <td width='10%' align='left'><b>%PART:%</b>
   </td>
   <td align='right' width='12%'>
     <font size="$GetVar('HtmlFontSizeControls')">
@@ -202,7 +203,8 @@ $-
         min='-99'
         bgcolor="spy.GetParam(gui.html.input_bg_colour)"
         value="spy.GetParam(fragment_DB.fragment.frag_fvar)"
-        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v'
+        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>
+                  spy.FragmentDB.get_fvar_occ()'
       >
     </font>
   </td>
@@ -220,9 +222,22 @@ $-
       value = "spy.GetParam(fragment_DB.fragment.frag_occ)"
       min='-4'
       max='4'
-      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o'
+      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o>>
+                spy.FragmentDB.get_fvar_occ()'
     >
     </font>
+  </td>
+  <td width='1%' align='left'><b>=></b><td>
+    <td width='10%' align="left"><font color="black"> 
+    <input
+    type="text" 
+    name="FVAROCC"
+    height="$GetVar('HtmlInputHeight')"
+    value=""
+    bgcolor="$GetVar(HtmlTableBgColour)"
+    fgcolor="$GetVar(HtmlFontColour)"
+    width="100%" >
+  </font>
   </td>
 
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
@@ -298,7 +313,7 @@ $-
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons; help_ext=Fit the Fragment;helpTxt=$GetVar(fdb_fit);1; -->
 
   <td width='35%' align='left'>
-    $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()>>html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())')
+    $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
