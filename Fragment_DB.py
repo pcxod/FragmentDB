@@ -235,8 +235,13 @@ class FragmentDB(PT):
       atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
     except(IndexError):
       return
-    with open(fragpath, 'w') as f:
-      f.write(atoms)
+    try:
+      with open(fragpath, 'w') as f:
+        f.write(atoms)
+    except:
+      print('Unable to write fragment to temporary file. Not fit possible!')
+      return
+    OV.cmd("file")
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       print('Applying DFIX restraints')
       OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))

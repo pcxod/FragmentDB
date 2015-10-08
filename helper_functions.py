@@ -27,7 +27,7 @@ RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP', 'HFIX
 
 # these are supported by -i option in olex2:
 IMPL_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG', 'FLAT', 'TRIA',
-                        'CHIV', 'DELU', 'SIMU', 'ISOR', 'RIGU') 
+                        'CHIV', 'DELU', 'SIMU', 'ISOR') 
 #xf.au.GetAtomCrd
 #xf.au.GetCell
 
