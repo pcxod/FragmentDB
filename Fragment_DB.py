@@ -323,6 +323,8 @@ class FragmentDB(PT):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
     if partnum >= 0:
       self.make_part(atomids, partnum)
+    for i in atomids:
+      self.get_neighbours(i)
     return atomids
   
   def make_part(self, atoms, partnum):
@@ -336,6 +338,13 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("PART {}".format(partnum))
 
+  def get_neighbours(self, atom, distance=1.3):
+    '''
+    returns the neighbouring atoms in a certein distance
+    '''
+    OV.cmd("sel #c{}".format(atom))
+    OV.cmd("ENVI {} -h".format(distance)) 
+    
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
