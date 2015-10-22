@@ -640,6 +640,11 @@ class FragmentDB(PT):
     '''
     atlist = []
     atoms = []
+    if not olex.f("sel()").split():
+      return
+    if len(olex.f("sel()").split()) < 3:
+      print('Please select at least three atoms.')
+      return
     atoms_all = olex.f("sel(a)").split()
     if not atoms_all:
       print('No atoms selected!')
@@ -1084,8 +1089,10 @@ class FragmentDB(PT):
     creates a picture from the currently selected fragment in Olex2 and
     stores it in 'storepic.png' as well as 'displaypic.png'
     '''
-    # "select with mouse"
     if not olex.f("sel()").split():
+      return
+    if len(olex.f("sel()").split()) < 3:
+      #print('Please select at least three atoms.')
       return
     picfile = "fdb_tmp.png"
     #OV.cmd('save model "fragdb"') # does not work!
