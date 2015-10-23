@@ -29,6 +29,7 @@ xcopy /Y %GIT%\Fragment_DB.phil %FDBDIR2%
 xcopy /Y %GIT%\Fragment_DB.py %FDBDIR2%
 xcopy /Y %GIT%\helper_functions.py %FDBDIR2% 
 xcopy /Y %GIT%\FragmentDB_handler.py %FDBDIR2%
+xcopy /Y %GIT%\refine_model_tasks.py %FDBDIR2%
 
 xcopy /Y %GIT%\fragment-database.sqlite %FDBDIR2%
 

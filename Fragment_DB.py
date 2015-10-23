@@ -1,3 +1,4 @@
+from __future__ import print_function
 from olexFunctions import OlexFunctions
 from collections import OrderedDict
 from ImageTools import ImageTools
@@ -1221,3 +1222,9 @@ OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
+
+# for testing purposes:
+
+#from refine_model_tasks import Refmod
+#rm = Refmod()
+#OV.registerFunction(rm.get_atoms_list,False,"Refmod")
