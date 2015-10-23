@@ -14,10 +14,34 @@ IT = ImageTools()
 Fragen und Ideen:
 
 - check_same_thread=False ?
+- ask oleg to save/load only graphical things in the model (save model 'fred') 
 
-- Der Umgang mit SADI und drei Atomen ist schwer zu verstehen und schon gar nicht
-  intuitiv!!!
+# records the content of the log while doing some action:
+log = LogListen()
+olex.m("fuse")
+olex.m("pipi")
+res = " ".join(log.endListen())
 
+class LogListen():
+ def __init__(self):
+   self.printed = []
+   OV.registerCallback("onlog", self.onListen)
+
+ def onListen(self, txt):
+   self.printed.append(txt)
+
+ def endListen(self):
+   OV.unregisterCallback("onlog", self.onListen)
+   l = []
+   for item in self.printed:
+     item = item.split('\r\n')
+     for tem in item:
+       if type(tem) == unicode:
+         l.append(tem)
+       else:
+         for em in tem:
+           l.append(em)
+   return l
 
 '''
 
@@ -25,6 +49,7 @@ Fragen und Ideen:
 import os
 import olex
 import gui
+import gui.maps
 import olx
 import OlexVFS
 from FragmentDB_handler import FragmentTable
@@ -84,6 +109,9 @@ class FragmentDB(PT):
     clears the state of the main interface
     '''
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    if olx.fs.Exists('largefdbimg.png') == 'true':
+      im = Image.new('RGBA', (1,1), self.params.html.table_bg_colour.rgb)
+      OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
@@ -323,6 +351,9 @@ class FragmentDB(PT):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
     if partnum >= 0:
       self.make_part(atomids, partnum)
+    # for potential replace mode:
+    #for i in atomids:
+    #  self.get_neighbours(i)
     return atomids
   
   def make_part(self, atoms, partnum):
@@ -336,6 +367,13 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("PART {}".format(partnum))
 
+  def get_neighbours(self, atom, distance=1.3):
+    '''
+    returns the neighbouring atoms in a certein distance
+    '''
+    OV.cmd("sel #c{}".format(atom))
+    OV.cmd("ENVI {} -h".format(distance)) 
+    
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
@@ -602,6 +640,11 @@ class FragmentDB(PT):
     '''
     atlist = []
     atoms = []
+    if not olex.f("sel()").split():
+      return
+    if len(olex.f("sel()").split()) < 3:
+      print('Please select at least three atoms.')
+      return
     atoms_all = olex.f("sel(a)").split()
     if not atoms_all:
       print('No atoms selected!')
@@ -651,11 +694,10 @@ class FragmentDB(PT):
 
   def display_large_image(self):
     '''
-    display the current fragment image in large to read the labels
+    display the current fragment image in large to be able to read the labels
     '''
-    try:
-      olx.GetVar('fragment_ID')
-    except RuntimeError:
+    if olx.fs.Exists("largefdbimg.png") == 'false':
+      print('No larger picture available.')
       return
     pop_name = "View Fragment"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
@@ -1003,15 +1045,22 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', '')
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    if olx.fs.Exists('displayimg.png'):
+    if olx.fs.Exists('displayimg.png') == 'true':
       OV.CopyVFSFile('blank.png', 'displayimg.png')
+    if olx.fs.Exists('largefdbimg.png') == 'true':
+      im = Image.new('RGBA', (1,1), self.params.html.table_bg_colour.rgb)
+      OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
 
   def delete_fragment(self, reset=True):
     '''
     deletes a fragment from the database
     # Todo: reset all fields (oic, atoms, ...) after deltion
     '''
-    fragId = olx.GetVar('fragment_ID')
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      print('Could not delete a fragment. No fragment is selected.')
+      return
     del self.db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     olx.SetVar('fragment_ID', '')
@@ -1040,10 +1089,14 @@ class FragmentDB(PT):
     creates a picture from the currently selected fragment in Olex2 and
     stores it in 'storepic.png' as well as 'displaypic.png'
     '''
-    # "select with mouse"
     if not olex.f("sel()").split():
       return
+    if len(olex.f("sel()").split()) < 3:
+      #print('Please select at least three atoms.')
+      return
     picfile = "fdb_tmp.png"
+    #OV.cmd('save model "fragdb"') # does not work!
+    gui.maps.mu.MapView('off')
     OV.cmd("sel atom bonds")
     OV.cmd("ShowQ a false")
     OV.cmd("labels false")
@@ -1054,7 +1107,7 @@ class FragmentDB(PT):
     OV.cmd("sel -i")
     OV.cmd("mpln -n")
     OV.cmd("sel -i")
-    OV.cmd("sel atom bonds -i")
+    OV.cmd("sel bonds -u")
     OV.cmd('label -a')
     OV.cmd('pers')
     OV.cmd("pict fdb_tmp.png -nbg")
@@ -1065,7 +1118,8 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
+    iml = self.prepare_picture(im, max_size=450)
+    OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
