@@ -165,6 +165,7 @@ def invert_atomlist_coordinates(atomst):
       line[2:] = inv_coord
       atoms.append(line)
     return atoms
+  
 ############################################################################
 # Experimental:
 ######################################################################
