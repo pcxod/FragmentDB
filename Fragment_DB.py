@@ -13,6 +13,7 @@ import gui
 import gui.maps
 import olx
 import OlexVFS
+import olex_core
 from FragmentDB_handler import FragmentTable
 
 OV = OlexFunctions()
@@ -553,7 +554,7 @@ class FragmentDB(PT):
     import olex_core  # @UnresolvedImport
     residues = []
     # get the properties of the atoms:
-    for r in olex_core.GetRefinementModel(True)['aunit']['residues']:
+    for r in olex_core.GetRefinementModel(False)['aunit']['residues']:
       try:
         # atoms in residue 0 have no 'number'
         residues.append(r['number'])
@@ -1116,17 +1117,21 @@ class FragmentDB(PT):
     returns all atoms of the crystal
     if part is defined, only collect atoms of defined part
     '''
-    model = olex_core.GetRefinementModel()  # @UndefinedVariable
+    model = olex_core.GetRefinementModel(False)  # @UndefinedVariable
     asym_unit = model['aunit']
-#    pf = pprint.pformat(model)
-#    print(pf)
+    import pprint
+    pf = pprint.pformat(model)
+    print(pf)
     atoms = {}
     for residue in asym_unit['residues']:
       for atom in residue['atoms']:
         if part: 
           if atom['part'] != part:
             continue
-        atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], residue ]
+        try:
+          atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], residue['number'] ]
+        except KeyError:
+          atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], 0 ]
     return atoms
 
   def find_atoms_to_replace(self, frag_atoms, remdist=1.2):
@@ -1144,7 +1149,7 @@ class FragmentDB(PT):
     '''
     atoms_to_delete = []
     all_atoms = self.get_atoms_list(part=0)
-    frag_coords = self.get_atomcoordinates(frag_atoms)
+    frag_coords = self.get_coordinates(frag_atoms)
     print(all_atoms)
     return
     
