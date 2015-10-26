@@ -17,33 +17,6 @@ Fragen und Ideen:
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (save model 'fred') 
 
-# records the content of the log while doing some action:
-log = LogListen()
-olex.m("fuse")
-olex.m("pipi")
-res = " ".join(log.endListen())
-
-class LogListen():
- def __init__(self):
-   self.printed = []
-   OV.registerCallback("onlog", self.onListen)
-
- def onListen(self, txt):
-   self.printed.append(txt)
-
- def endListen(self):
-   OV.unregisterCallback("onlog", self.onListen)
-   l = []
-   for item in self.printed:
-     item = item.split('\r\n')
-     for tem in item:
-       if type(tem) == unicode:
-         l.append(tem)
-       else:
-         for em in tem:
-           l.append(em)
-   return l
-
 '''
 
 
