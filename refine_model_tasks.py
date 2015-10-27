@@ -8,8 +8,6 @@ import olex_core
 from olexFunctions import OlexFunctions
 import olx
 
-import pprint
-
 OV = OlexFunctions()
 
 class Refmod(object):
@@ -21,8 +19,14 @@ class Refmod(object):
       '''
       Constructor
       '''
-      print('#######################refmodel######################')
-        
+    
+    def open_lst_file(self):
+      '''
+      opens the resulting shelx lst file
+      '''
+      ed = olx.GetVar('defeditor')
+      print(ed)
+    
     def get_bond_list(self):
       pass
     
