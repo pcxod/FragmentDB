@@ -115,9 +115,10 @@ SetVar(fdb_fit,
     *Reference* 
     Define the origin of the fragment.
     <br>
-    ~Reference~
+    ~Replace Mode~
     <br>
-    The reference field shows the origin of the fragment.
+    If enabled, all atoms inside PART 0 lying in a radius of 1.22A arond the atoms of the fitted fragment 
+    will be deleted. This is particular useful to replace atoms of a disordered structure just solved using SHELXT.
     ")
         
 $-
@@ -291,13 +292,13 @@ $-
     "checked=spy.GetParam('fragment_DB.fragment.invert')",
     "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))"
     )
-    $-
-  </td>
+    $- 
+    </td>
   
   <td width='10%' align='right'>
     <b>%DFIX:%</b>
   </td>
-    <td align='left' width='4%'>
+    <td align='right' width='4%'>
     $+
     html.Snippet("gui/snippets/input-checkbox",
     "name=dfixornot",
@@ -317,17 +318,15 @@ $-
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
-  <td width='15%' align='right'>Reference:</td>
-  <td width='50' align="right"><font color="black"> 
-    <input
-    type="text" 
-    name="REFERENCE"
-    height="$GetVar('HtmlInputHeight')"
-    value=""
-    bgcolor="$GetVar(HtmlTableBgColour)"
-    fgcolor="$GetVar(HtmlFontColour)"
-    width="100%" >
-  </font>
+  <td  align='right'><b>Replace Mode:</b></td>
+  <td align='left' width='4%'>
+    $+
+    html.Snippet("gui/snippets/input-checkbox",
+    "name=REPLACE",
+    "checked=spy.GetParam('fragment_DB.fragment.replace')",
+    "onclick=spy.SetParam('fragment_DB.fragment.replace', html.GetState('~name~'))"
+    )
+    $- 
   </td>
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->

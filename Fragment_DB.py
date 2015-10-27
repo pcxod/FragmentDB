@@ -19,17 +19,21 @@ from FragmentDB_handler import FragmentTable
 OV = OlexFunctions()
 IT = ImageTools()
 
-'''
+r'''
 Fragen und Ideen:
 
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (save model 'fred') 
 
 TODO:
-Fragment_DB.py", line 229, in onImport    
-replatoms = self.find_atoms_to_replace(atomids)
-  File "/Users/daniel/Downloads/olex2-gui/util/pyUtil/PluginLib/plugin-Fragment_DB/Fragment_DB.py", line 1154, in find_atoms_to_replace    
-frag_crd_dict[i] = all_atoms_dict[int(i)]KeyError: 124
+- Eine Residue, die schon mal drin war geht nicht mehr:
+- It happens if you fit a fragment, into a residue and delete it immediately.
+
+Applying fragment properties:
+: RESI [MESI], [4] 
+
+ class esdl::TInvalidArgumentException Residue number 4 is already assigned class CCF3 at
+[E:\svn\olex2\branches\1.2\xlib\asymmunit.cpp(xlib::TAsymmUnit::NewResidue):262]
 
 '''
 
@@ -229,13 +233,16 @@ class FragmentDB(PT):
     '''
     print('Imported atom ids: {}'.format(atoms))
     atoms = atoms.split()
+    replatoms = None
+    if OV.GetParam('fragment_DB.fragment.replace'):
+      replatoms = self.find_atoms_to_replace(atoms)
+    if replatoms:
+      OV.cmd("sel u")
+      OV.cmd("sel #c{}".format(' #c'.join(replatoms)))
+      OV.cmd('KILL')
+      print('Deleting: {}'.format(' '.join(replatoms)))
     # define the other properties:
-    atomids = self.define_atom_properties(atoms)
-    replatoms = self.find_atoms_to_replace(atomids)
-    print(replatoms)
-    OV.cmd("sel u")
-    OV.cmd("sel #c{}".format(' #c'.join(replatoms)))
-    OV.cmd('KILL')
+    self.define_atom_properties(atoms)
     self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
   
@@ -277,7 +284,7 @@ class FragmentDB(PT):
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
-        if int(fragId) == 0:
+        if not fragId or int(fragId) == 0:
           # in this case the db returned a False
           print('Please select a fragment first, or type text and hit Enter key to search.')
           return
@@ -320,6 +327,7 @@ class FragmentDB(PT):
     #int(OV.GetParam('fragment_DB.fragment.resinum'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
+    print(fragId, '###################################')
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
@@ -570,13 +578,12 @@ class FragmentDB(PT):
     '''
     returns a list of residue numbers in the structure
     '''
-    import olex_core  # @UnresolvedImport
     residues = []
     # get the properties of the atoms:
-    for r in olex_core.GetRefinementModel(False)['aunit']['residues']:
+    for resi in olex_core.GetRefinementModel(False)['aunit']['residues']:
       try:
         # atoms in residue 0 have no 'number'
-        residues.append(r['number'])
+        residues.append(resi['number'])
       except:
         pass
     residues.sort()
@@ -610,7 +617,9 @@ class FragmentDB(PT):
       return
     ref = self.db.get_reference(fragId)
     if not edit:
-      olx.html.SetValue('REFERENCE', ref)
+      pass
+      # disabled, because replace checkbox is there  
+      #olx.html.SetValue('REFERENCE', ref)
     else:
       # reference of the edit window
       olx.html.SetValue('REFERENCE_edit', ref)
@@ -1165,12 +1174,12 @@ class FragmentDB(PT):
         for f_id in frag_crd_dict:
           at1 = all_atoms_dict[aa_id][1] # coordinates
           at2 = frag_crd_dict[f_id][1] # coordinates
-          resinum1 = all_atoms_dict[aa_id][3]
-          resinum2 = frag_crd_dict[f_id][3]
-          if at1 == at2 and resinum1 == resinum2:
-            # do not delete atoms on exactly the same position
-            # and same residue
-            continue
+          #resinum1 = all_atoms_dict[aa_id][3]
+          #resinum2 = frag_crd_dict[f_id][3]
+          #if at1 == at2 and resinum1 == resinum2:
+          #  # do not delete atoms on exactly the same position
+          #  # and same residue
+          #  continue
           d = atomic_distance(at1, at2, self.get_cell())
           # now get the atom types of the pair atoms and with that
           # the covalence radius. 

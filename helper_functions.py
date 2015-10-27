@@ -29,8 +29,6 @@ RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP', 'HFIX
 # these are supported by -i option in olex2:
 IMPL_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG', 'FLAT', 'TRIA',
                         'CHIV', 'DELU', 'SIMU', 'ISOR') 
-#xf.au.GetAtomCrd
-#xf.au.GetCell
 
 
 def atomic_distance(p1, p2, cell):
@@ -202,8 +200,6 @@ def get_overlapped_chunks(ring, size):
       chunk = ring[-size:]
     chunks.append(chunk)
   return chunks
-
-
 
 def is_flat(chunk):
   '''
