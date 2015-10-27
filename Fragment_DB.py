@@ -248,6 +248,7 @@ class FragmentDB(PT):
     replatoms = None
     if OV.GetParam('fragment_DB.fragment.replace'):
       replatoms = self.find_atoms_to_replace(atoms)
+    # now replace atoms in a certain distance in part 0:
     if replatoms:
       OV.cmd("sel u")
       OV.cmd("sel #c{}".format(' #c'.join(replatoms)))
