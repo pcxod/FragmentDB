@@ -327,7 +327,6 @@ class FragmentDB(PT):
     #int(OV.GetParam('fragment_DB.fragment.resinum'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
-    print(fragId, '###################################')
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
