@@ -1,19 +1,18 @@
 from __future__ import print_function
 from olexFunctions import OlexFunctions
 from collections import OrderedDict
-from ImageTools import ImageTools
+from ImageTools import ImageTools  # @UnresolvedImport
 import StringIO
-from PIL import Image, ImageFile, ImageDraw
+from PIL import Image, ImageFile, ImageDraw  # @UnresolvedImport @UnusedImport
 from helper_functions import check_restraints_consistency, initialize_user_db,\
- IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, flatten,\
-  get_overlapped_chunks, is_flat, atomic_distance
+ IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
-import olex
+import olex  # @UnresolvedImport
 import gui
 import gui.maps
-import olx
-import OlexVFS
-import olex_core
+import olx  # @UnresolvedImport
+import OlexVFS  # @UnresolvedImport
+import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 
 OV = OlexFunctions()
@@ -46,7 +45,7 @@ p_scope = "fragment_DB"
 p_htm = "Fragment_DB"
 p_img = [("FragmentDB",'h1')]
 
-from PluginTools import PluginTools as PT
+from PluginTools import PluginTools as PT  # @UnresolvedImport
 
 class FragmentDB(PT):
 
@@ -94,6 +93,14 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
+    #self.guess_values()
+
+  def guess_values(self):
+    '''
+    guesses the values for FVAR, occopancy and PART for a selected target atom
+    '''  
+    # I need a funtion that returns the atom ids of the selected atoms
+    pass
     
   def clear_mainvalues(self):
     '''
@@ -192,12 +199,17 @@ class FragmentDB(PT):
     performs a search for an unsharp name in a list
     '''
     selected_list = ''
-    
     if not search_string:
       print("Empty search string.")
+      selected_list = self.list_fragments()
+      olx.html.SetItems('LIST_FRAGMENTS', selected_list)
       return
     else:
-      selected_results = self.db.find_fragment_by_name(search_string, 7)
+      selected_results = self.db.find_fragment_by_name(search_string, 8)
+      # do nothing in case we searched with the original name (exact one hit):
+      if len(selected_results) == 1:
+        print('Nothing found...')
+        return
       selected_list = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in selected_results])
     # propagate the smaller list to the combo-box:
     olx.html.SetItems('LIST_FRAGMENTS', selected_list)
@@ -1185,7 +1197,8 @@ class FragmentDB(PT):
           if d < remdist:
             atoms_to_delete.append(str(aa_id)) 
     return atoms_to_delete
-
+  
+"""
 def make_flat_restraints(rings):
   '''
   What I need:
@@ -1239,7 +1252,7 @@ def make_flat_restraints(rings):
           if not chunk in flats:
             flats.append(chunk)
   return flats
-
+"""
 
 fdb = FragmentDB()
 
@@ -1267,9 +1280,5 @@ OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
+#OV.registerFunction(fdb.guess_values, False, "FragmentDB") #not needed outside
 
-# for testing purposes:
-
-#from refine_model_tasks import Refmod
-#rm = Refmod()
-#OV.registerFunction(rm.get_atoms_list,False,"Refmod")
