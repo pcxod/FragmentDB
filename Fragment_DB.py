@@ -239,7 +239,7 @@ class FragmentDB(PT):
     self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
   
-  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
+  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1):
     '''
     Input a fragment with ImportFrag
     :param fragId: FragmentId
@@ -289,9 +289,10 @@ class FragmentDB(PT):
     except(ValueError):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
-    partnum = OV.GetParam('fragment_DB.fragment.frag_part')
+    #partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
+    # alway use "part -1" to prevent atom deletion
+    atomids = self.insert_frag_with_ImportFrag(fragId, occ=occupancy)
     return atomids
 
 
@@ -341,8 +342,8 @@ class FragmentDB(PT):
     # Placing restraints:
     if not OV.GetParam('fragment_DB.fragment.use_dfix'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
-    if partnum >= 0:
-      self.make_part(atomids, partnum)
+    #if partnum >= 0:
+    self.make_part(atomids, partnum)
     return atomids
   
   def make_part(self, atoms, partnum):
@@ -404,7 +405,7 @@ class FragmentDB(PT):
         OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
       else:
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
-      #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
+      #olx.xf.rm.NewRestraint(i[0], ' '.join(line)) #geht so nicht
 
   def prepare_picture(self, im, max_size=120):
     '''
