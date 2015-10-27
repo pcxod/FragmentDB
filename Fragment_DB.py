@@ -6,28 +6,36 @@ import StringIO
 from PIL import Image, ImageFile, ImageDraw
 from helper_functions import check_restraints_consistency, initialize_user_db,\
  IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, flatten,\
-  get_overlapped_chunks, is_flat
-
-OV = OlexFunctions()
-IT = ImageTools()
-
-'''
-Fragen und Ideen:
-
-- check_same_thread=False ?
-- ask oleg to save/load only graphical things in the model (save model 'fred') 
-
-'''
-
-
+  get_overlapped_chunks, is_flat, atomic_distance
 import os
 import olex
 import gui
 import gui.maps
 import olx
 import OlexVFS
+import olex_core
 from FragmentDB_handler import FragmentTable
 
+OV = OlexFunctions()
+IT = ImageTools()
+
+r'''
+Fragen und Ideen:
+
+- check_same_thread=False ?
+- ask oleg to save/load only graphical things in the model (save model 'fred') 
+
+TODO:
+- Eine Residue, die schon mal drin war geht nicht mehr:
+- It happens if you fit a fragment, into a residue and delete it immediately.
+
+Applying fragment properties:
+: RESI [MESI], [4] 
+
+ class esdl::TInvalidArgumentException Residue number 4 is already assigned class CCF3 at
+[E:\svn\olex2\branches\1.2\xlib\asymmunit.cpp(xlib::TAsymmUnit::NewResidue):262]
+
+'''
 
 instance_path = OV.DataDir()
 
@@ -59,9 +67,18 @@ class FragmentDB(PT):
     if not os.path.exists(self.userdbfile) or os.path.getsize(self.userdbfile) < 100:
       initialize_user_db(self.userdbfile)
     # for edited fragments:
-    self.frag_cell = []
+    self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
 
+  def get_cell(self):
+    '''
+    returns the cell from the refinement model
+    '''
+    precell = olex_core.GetRefinementModel(False)['aunit']['cell']
+    cell = [ precell['a'][0], precell['b'][0], precell['c'][0], precell['alpha'][0],
+            precell['beta'][0], precell['gamma'][0] ] 
+    return cell
+  
   def init_plugin(self):
     '''
     initialize the plugins main form
@@ -216,12 +233,20 @@ class FragmentDB(PT):
     '''
     print('Imported atom ids: {}'.format(atoms))
     atoms = atoms.split()
+    replatoms = None
+    if OV.GetParam('fragment_DB.fragment.replace'):
+      replatoms = self.find_atoms_to_replace(atoms)
+    if replatoms:
+      OV.cmd("sel u")
+      OV.cmd("sel #c{}".format(' #c'.join(replatoms)))
+      OV.cmd('KILL')
+      print('Deleting: {}'.format(' '.join(replatoms)))
     # define the other properties:
     self.define_atom_properties(atoms)
     self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
   
-  def insert_frag_with_ImportFrag(self, fragId, part=1, occ=1):
+  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1):
     '''
     Input a fragment with ImportFrag
     :param fragId: FragmentId
@@ -259,7 +284,7 @@ class FragmentDB(PT):
     if not fragId:
       try:
         fragId = olx.GetVar('fragment_ID')
-        if int(fragId) == 0:
+        if not fragId or int(fragId) == 0:
           # in this case the db returned a False
           print('Please select a fragment first, or type text and hit Enter key to search.')
           return
@@ -271,9 +296,10 @@ class FragmentDB(PT):
     except(ValueError):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
-    partnum = OV.GetParam('fragment_DB.fragment.frag_part')
+    #partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    atomids = self.insert_frag_with_ImportFrag(fragId, part=partnum, occ=occupancy)
+    # alway use "part -1" to prevent atom deletion
+    atomids = self.insert_frag_with_ImportFrag(fragId, occ=occupancy)
     return atomids
 
 
@@ -323,11 +349,8 @@ class FragmentDB(PT):
     # Placing restraints:
     if not OV.GetParam('fragment_DB.fragment.use_dfix'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
-    if partnum >= 0:
-      self.make_part(atomids, partnum)
-    # for potential replace mode:
-    #for i in atomids:
-    #  self.get_neighbours(i)
+    #if partnum >= 0:
+    self.make_part(atomids, partnum)
     return atomids
   
   def make_part(self, atoms, partnum):
@@ -341,13 +364,6 @@ class FragmentDB(PT):
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("PART {}".format(partnum))
 
-  def get_neighbours(self, atom, distance=1.3):
-    '''
-    returns the neighbouring atoms in a certein distance
-    '''
-    OV.cmd("sel #c{}".format(atom))
-    OV.cmd("ENVI {} -h".format(distance)) 
-    
   def make_residue(self, atoms, resiclass, resinum):
     '''
     selects the atoms and applies "RESI class number" to them
@@ -396,8 +412,7 @@ class FragmentDB(PT):
         OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
       else:
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
-      #olx.xf.rm.NewRestraint(i[0], ' '.join(line))
-
+      #olx.xf.rm.NewRestraint(i[0], ' '.join(line)) #geht so nicht
 
   def prepare_picture(self, im, max_size=120):
     '''
@@ -562,13 +577,12 @@ class FragmentDB(PT):
     '''
     returns a list of residue numbers in the structure
     '''
-    import olex_core  # @UnresolvedImport
     residues = []
     # get the properties of the atoms:
-    for r in olex_core.GetRefinementModel(True)['aunit']['residues']:
+    for resi in olex_core.GetRefinementModel(False)['aunit']['residues']:
       try:
         # atoms in residue 0 have no 'number'
-        residues.append(r['number'])
+        residues.append(resi['number'])
       except:
         pass
     residues.sort()
@@ -602,7 +616,9 @@ class FragmentDB(PT):
       return
     ref = self.db.get_reference(fragId)
     if not edit:
-      olx.html.SetValue('REFERENCE', ref)
+      pass
+      # disabled, because replace checkbox is there  
+      #olx.html.SetValue('REFERENCE', ref)
     else:
       # reference of the edit window
       olx.html.SetValue('REFERENCE_edit', ref)
@@ -1106,13 +1122,69 @@ class FragmentDB(PT):
   def get_fvar_occ(self):
     var = OV.GetParam('fragment_DB.fragment.frag_fvar')
     occ = OV.GetParam('fragment_DB.fragment.frag_occ')
-    #print(var, occ)
     if float(var) < 0:
       fvar = -(float(abs(var))*10+float(occ))
     else:
       fvar = float(var)*10+float(occ)
     olx.html.SetValue('FVAROCC', fvar)
     return fvar
+
+  def get_atoms_list(self, part=None):
+    '''
+    returns all atoms of the crystal
+    if part is defined, only collect atoms of defined part
+    {0: [u'F1', (0.16726, 0.42638, -0.23772), 0, 0],
+     id: [u'label', (x, y, z), part, resinum], ...}
+    '''
+    model = olex_core.GetRefinementModel(False) 
+    asym_unit = model['aunit']
+    atoms = {}
+    for residue in asym_unit['residues']:
+      for atom in residue['atoms']:
+        if part: 
+          if atom['part'] != part:
+            continue
+        try:
+          atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], residue['number'] ]
+        except KeyError:
+          atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], 0 ]
+    return atoms
+
+  def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
+    '''
+    this method looks around every atom of the fitted fragment and removes 
+    atoms that are near a certain distance.
+    go through all fragment atoms and look for each atom for all atoms in 
+    part 0 if they are nearer as remdist to them
+
+    :param frag_atoms: atom ids of the fitting fragment ['21', '22', '23', '24']
+    :param remdist: distance below atoms shoud be deleted.
+    '''
+    atoms_to_delete = []
+    all_atoms_dict = self.get_atoms_list(part=0)
+    frag_crd_dict = {}
+    for i in frag_atoms:
+      # create fragment dict:
+      frag_crd_dict[i] = all_atoms_dict[int(i)]
+      # remove fragment atoms from structure:
+      all_atoms_dict.pop(int(i), None)  
+    for aa_id in all_atoms_dict:
+      if all_atoms_dict[aa_id][2] == 0:
+        for f_id in frag_crd_dict:
+          at1 = all_atoms_dict[aa_id][1] # coordinates
+          at2 = frag_crd_dict[f_id][1] # coordinates
+          #resinum1 = all_atoms_dict[aa_id][3]
+          #resinum2 = frag_crd_dict[f_id][3]
+          #if at1 == at2 and resinum1 == resinum2:
+          #  # do not delete atoms on exactly the same position
+          #  # and same residue
+          #  continue
+          d = atomic_distance(at1, at2, self.get_cell())
+          # now get the atom types of the pair atoms and with that
+          # the covalence radius. 
+          if d < remdist:
+            atoms_to_delete.append(str(aa_id)) 
+    return atoms_to_delete
 
 def make_flat_restraints(rings):
   '''
