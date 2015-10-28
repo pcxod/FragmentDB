@@ -53,6 +53,7 @@ class Refmod(object):
         del disargeelist[-3:]
         print('residuals:', strucfactline, 'data:', data, 'parameters:', parameters)
         pprint.pprint(disargeelist)
+        return disargeelist
     
 
     
@@ -75,9 +76,12 @@ class Refmod(object):
               {}
             </table
               """.format(targs)
-      row = r"""<tr> {}  </tr>""".format(trows)
-      td = r"""<td> {} </td>""".format(tdata)
-      for 
+      for line in disagreelist:
+        td = r"""<td> {} </td>""".format(line)
+        for r in td:
+          row = r"""<tr> {}  </tr>""".format(r)
+          
+        
       OV.write_to_olex('large_fdb_image.htm', html)
       olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
                 h=height, x=box_x, y=box_y)
