@@ -3,17 +3,17 @@ Created on 23.10.2015
 
 @author: daniel
 '''
-import pprint
+#import pprint
 from helper_functions import REL_RESTR_CARDS
 try:
   import olx  # @UnresolvedImport
   from olexFunctions import OlexFunctions
-  from ImageTools import ImageTools
+  #from ImageTools import ImageTools
 except:
   pass
 try:
   OV = OlexFunctions()
-  IT = ImageTools()
+  #IT = ImageTools()
 except:
   pass
 
@@ -28,8 +28,8 @@ class Refmod(object):
       '''
       Constructor
       '''
-      self.lstfile = 'd:\Programme\DSR\example\p21c-test.lst'
-      #self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
+      #self.lstfile = 'd:\Programme\DSR\example\p21c-test.lst'
+      self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
       self.htm = html_Table()
       
     def fileparser(self):
@@ -40,16 +40,16 @@ class Refmod(object):
       disag = False
       disargeelist = []
       with open(self.lstfile, 'r') as f:
-        for num, line in enumerate(f):
+        for line in f:
           if not line.split():
             continue
           if line.startswith(" Final Structure Factor"):
             final = True
-          if line.startswith(' Total number of'):
-            parameters = line.split()[6]
-          if final and line.startswith(' wR2 ='):
-            data = line.split()[7]
-            disargeelist.append(['Results', 'data:', data, 'parameters:', parameters])
+#          if line.startswith(' Total number of'):
+#            parameters = line.split()[6]
+#          if final and line.startswith(' wR2 ='):
+#            data = line.split()[7]
+            #disargeelist.append(['Results', 'data:', data, 'parameters:', parameters])
           if final and line.startswith(' Disagreeable restraints'):
             disag = True
             continue
@@ -59,8 +59,8 @@ class Refmod(object):
           if disag: 
             fline = self.lineformatter(line.split())
             disargeelist.append(fline)
-        print('data:', data, 'parameters:', parameters)
-        pprint.pprint(disargeelist)
+        #print('data:', data, 'parameters:', parameters)
+        #pprint.pprint(disargeelist)
         return disargeelist
     
     def lineformatter(self, line):
@@ -78,7 +78,7 @@ class Refmod(object):
       tline = ' '.join(line)
       for n in REL_RESTR_CARDS:
         if n in tline:
-          line = [' - ', ' - ']+line
+          line = ['-', '-']+line
           break
       return line
         
@@ -103,20 +103,20 @@ class html_Table(object):
   '''
   html table generator
   '''
-  
   def __init__(self):
     pass
 
   
   def table_maker(self, datalist):
     '''
-    builds a html table
+    builds a html table out of a datalist from the final 
+    cycle summary of a shelxl list file.
     '''
     table=[]
     for line in datalist:
       table.append(self.row(line))
     html = r"""
-    <table border="0" cellpadding="0" cellspacing="5" width="100%" > 
+    <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
       {}
     </table
       """.format('\n'.join(table))
@@ -126,11 +126,34 @@ class html_Table(object):
   def row(self, rowdata):
     '''
     creates a table row
+    
+    :type rowdata: list
     '''
     td = []
-    for item in rowdata:
-      td.append(r"""<td> {} </td>""".format(item))
-    row = "<tr> {}  </tr>".format(' '.join(td))
+    bgcolor = ''
+    try:
+      if abs(float(rowdata[2])) > 2.5*float(rowdata[3]):
+        bgcolor = r"""bgcolor='yellow'"""
+      if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
+        bgcolor = r"""bgcolor='red'"""
+    except:
+      pass
+    for num, item in enumerate(rowdata): 
+      try:
+        # align right for numbers:
+        float(item)
+        td.append(r"""<td align='right' {0}> {1} </td>""".format(bgcolor, item))
+      except:
+        if item.startswith('-'):
+          # only a minus sign
+          td.append(r"""<td align='center'> {} </td>""".format(item))
+        else:
+          if num < 4:
+            td.append(r"""<td align='right'> {} </td>""".format(item))
+            continue
+          # align left for words:
+          td.append(r"""<td align='left'> {} </td>""".format(item))
+    row = "<tr> {} </tr>".format(' '.join(td))
     return row
     
 
