@@ -24,6 +24,7 @@ Fragen und Ideen:
 - ask oleg to save/load only graphical things in the model (save model 'fred') 
 
 - Check if restraints already there
+- should I introduce a rigid group checkbox?
 
 '''
 
