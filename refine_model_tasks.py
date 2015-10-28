@@ -17,8 +17,8 @@ class Refmod(object):
       Constructor
       
       '''
-      #self.lstfile = 'd:\Programme\DSR\example\p21c.lst'
-      self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
+      self.lstfile = 'd:\Programme\DSR\example\p21c-test.lst'
+      #self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
       
     def fileparser(self):
       '''

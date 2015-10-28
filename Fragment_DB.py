@@ -8,7 +8,6 @@ from helper_functions import check_restraints_consistency, initialize_user_db,\
  IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
 import olex  # @UnresolvedImport
-import gui
 import gui.maps
 import olx  # @UnresolvedImport
 import OlexVFS  # @UnresolvedImport
@@ -24,15 +23,7 @@ Fragen und Ideen:
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (save model 'fred') 
 
-TODO:
-- Eine Residue, die schon mal drin war geht nicht mehr:
-- It happens if you fit a fragment, into a residue and delete it immediately.
-
-Applying fragment properties:
-: RESI [MESI], [4] 
-
- class esdl::TInvalidArgumentException Residue number 4 is already assigned class CCF3 at
-[E:\svn\olex2\branches\1.2\xlib\asymmunit.cpp(xlib::TAsymmUnit::NewResidue):262]
+- Check if restraints already there
 
 '''
 
@@ -335,9 +326,8 @@ class FragmentDB(PT):
     :type fragId: int
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
-    freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     resinum = int(olx.html.GetValue('RESIDUE')) 
-    #int(OV.GetParam('fragment_DB.fragment.resinum'))
+    freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
     if not fragId:
@@ -1158,9 +1148,10 @@ class FragmentDB(PT):
           if atom['part'] != part:
             continue
         try:
-          atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], residue['number'] ]
+          resnum = residue['number'] 
         except KeyError:
-          atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], 0 ]
+          resnum = 0
+        atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum ]
     return atoms
 
   def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
@@ -1186,12 +1177,6 @@ class FragmentDB(PT):
         for f_id in frag_crd_dict:
           at1 = all_atoms_dict[aa_id][1] # coordinates
           at2 = frag_crd_dict[f_id][1] # coordinates
-          #resinum1 = all_atoms_dict[aa_id][3]
-          #resinum2 = frag_crd_dict[f_id][3]
-          #if at1 == at2 and resinum1 == resinum2:
-          #  # do not delete atoms on exactly the same position
-          #  # and same residue
-          #  continue
           d = atomic_distance(at1, at2, self.get_cell())
           # now get the atom types of the pair atoms and with that
           # the covalence radius. 
