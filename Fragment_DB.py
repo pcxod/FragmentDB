@@ -13,6 +13,7 @@ import olx  # @UnresolvedImport
 import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
+from refine_model_tasks import Refmod
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -1242,6 +1243,7 @@ def make_flat_restraints(rings):
 """
 
 fdb = FragmentDB()
+ref = Refmod()
 
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
@@ -1267,5 +1269,8 @@ OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
 OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
+
+OV.registerFunction(ref.results_window, False, "FragmentDB")
+
 #OV.registerFunction(fdb.guess_values, False, "FragmentDB") #not needed outside
 

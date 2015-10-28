@@ -30,6 +30,8 @@ RESTRAINT_CARDS = ('SIMU', 'RIGU', 'DELU', 'SAME', 'FREE', 'DFIX', 'BUMP', 'HFIX
 IMPL_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG', 'FLAT', 'TRIA',
                         'CHIV', 'DELU', 'SIMU', 'ISOR') 
 
+ABS_RESTR_CARDS = ('DFIX', 'DANG', 'BUMP', 'FLAT', 'TRIA', 'CHIV')
+REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY')
 
 def atomic_distance(p1, p2, cell):
     '''
