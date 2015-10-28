@@ -17,11 +17,17 @@ class Refmod(object):
       Constructor
       
       '''
-      lstfile = 'd:\Programme\DSR\example\p21c.lst'
+      #self.lstfile = 'd:\Programme\DSR\example\p21c.lst'
+      self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
+      
+    def fileparser(self):
+      '''
+      gathers the residuals of the lst file
+      '''  
       final = False
       disag = False
       disargeelist = []
-      with open(lstfile, 'r') as f:
+      with open(self.lstfile, 'r') as f:
         for num, line in enumerate(f):
           if line.startswith(" Final Structure Factor"):
             final = True
@@ -37,21 +43,18 @@ class Refmod(object):
           if line.startswith(' Summary of restraints'):
             final = False
             disag = False         
-      del disargeelist[:4]
-      del disargeelist[-3:]
-      print('residuals:', strucfactline, 'data:', data, 'parameters:', parameters)
-      pprint.pprint(disargeelist)
+        del disargeelist[:4]
+        del disargeelist[-3:]
+        print('residuals:', strucfactline, 'data:', data, 'parameters:', parameters)
+        pprint.pprint(disargeelist)
     
-    def open_lst_file(self):
-      '''
-      opens the resulting shelx lst file
-      '''
-      pass
-      #ed = olx.GetVar('defeditor')
-      #print(ed)
+
     
     def get_bond_list(self):
       pass
     
 if __name__ == '__main__':
   ref = Refmod()
+  ref.fileparser()
+  
+  
