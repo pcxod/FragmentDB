@@ -27,6 +27,9 @@ Fragen und Ideen:
 - Check if restraints already there
 - should I introduce a rigid group checkbox?
 
+- How do I get the Id of a selected atom?
+- onreturn="html.Call(~name~.onchange)"
+
 '''
 
 instance_path = OV.DataDir()
