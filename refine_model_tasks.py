@@ -29,17 +29,18 @@ class Refmod(object):
       Constructor
       '''
       #self.lstfile = 'd:\Programme\DSR\example\p21c-test.lst'
-      self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
+      #self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
+      #self.lstfile = None
       self.htm = html_Table()
       
-    def fileparser(self):
+    def fileparser(self, lstfile):
       '''
       gathers the residuals of the lst file
       '''  
       final = False
       disag = False
       disargeelist = []
-      with open(self.lstfile, 'r') as f:
+      with open(lstfile, 'r') as f:
         for line in f:
           if not line.split():
             continue
@@ -82,18 +83,33 @@ class Refmod(object):
           break
       return line
         
-
-    def results_window(self):#, residuals):
+    def open_listfile(self, title = "Select a .lst file", 
+                            ffilter = '*.lst; *.LST',
+                            location = '',
+                            default_name = ''
+                            ):
+      lstfile = olx.FileOpen(title, ffilter, location, default_name)
+      return lstfile 
+    
+    def results_window(self):
       '''
       display results in a window
       '''
+      lstfile = self.open_listfile()
+      if not lstfile:
+        print(self.lstfile)
+        print('No file selected')
+        return
       pop_name = "Residuals"
       screen_height = int(olx.GetWindowSize('gl').split(',')[3])
       screen_width = int(olx.GetWindowSize('gl').split(',')[2])
       box_x = int(screen_width*0.1)
       box_y = int(screen_height*0.1)
       width, height = 600, 520
-      html = self.htm.table_maker(self.fileparser())
+      filedata = self.fileparser(lstfile)
+      if not filedata:
+        filedata = [['-', 'No', 'disagreeable', 'restraints', 'found'], [' ']]
+      html = self.htm.table_maker(filedata)
       OV.write_to_olex('large_fdb_image.htm', html)
       olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
                 h=height, x=box_x, y=box_y)
@@ -126,7 +142,6 @@ class html_Table(object):
   def row(self, rowdata):
     '''
     creates a table row
-    
     :type rowdata: list
     '''
     td = []
@@ -153,7 +168,7 @@ class html_Table(object):
             continue
           # align left for words:
           td.append(r"""<td align='left'> {} </td>""".format(item))
-    row = "<tr> {} </tr>".format(' '.join(td))
+    row = "<tr> {} </tr>".format(''.join(td))
     return row
     
 
