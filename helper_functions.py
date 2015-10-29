@@ -8,6 +8,7 @@ here are only functions that are completely independent of olex
 from __future__ import print_function
 from collections import Counter
 from math import radians, cos, sqrt
+import string
 #import ast
 
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
@@ -165,6 +166,31 @@ def invert_atomlist_coordinates(atomst):
       line[2:] = inv_coord
       atoms.append(line)
     return atoms
+
+def remove_partsymbol(atom):
+    '''
+    strips the part symbol like C1_4b from an atom name
+    :param atom: 'C1_4b'
+    :type atom: string
+    
+    >>> remove_partsymbol('C2_4b')
+    'C2_4'
+    >>> remove_partsymbol('C22_b')
+    'C22'
+    >>> remove_partsymbol('C_5')
+    'C_5'
+    '''
+    if '_' in atom:
+        prefix = atom.split('_')[0]
+        suffix = atom.split('_')[-1].strip(string.ascii_letters)
+        if not suffix:
+            atom = prefix
+        else:
+            if suffix == '0':
+                atom = prefix
+            else:
+                atom = prefix+'_'+suffix
+    return atom
   
 ############################################################################
 # Experimental:
@@ -323,6 +349,8 @@ def determinante(a):
   return (a[0][0] * (a[1][1] * a[2][2] - a[2][1] * a[1][2])
          -a[1][0] * (a[0][1] * a[2][2] - a[2][1] * a[0][2])
          +a[2][0] * (a[0][1] * a[1][2] - a[1][1] * a[0][2]))
+
+
 
 
 def initialize_user_db(user_dbpath):
