@@ -108,7 +108,7 @@ class Refmod(object):
       width, height = 600, 520
       filedata = self.fileparser(lstfile)
       if not filedata:
-        filedata = [['-', 'No', 'disagreeable', 'restraints', 'found'], [' ']]
+        filedata =['']
       html = self.htm.table_maker(filedata)
       OV.write_to_olex('large_fdb_image.htm', html)
       olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
@@ -168,7 +168,10 @@ class html_Table(object):
             continue
           # align left for words:
           td.append(r"""<td align='left'> {} </td>""".format(item))
-    row = "<tr> {} </tr>".format(''.join(td))
+    if not td:
+      row = "<tr> No (disagreeable) restraints found in .lst file. </tr>"
+    else:
+      row = "<tr> {} </tr>".format(''.join(td))
     return row
     
 
