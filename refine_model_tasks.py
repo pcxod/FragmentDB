@@ -32,13 +32,18 @@ class Refmod(object):
     def fileparser(self, lstfile):
       '''
       gathers the residuals of the lst file
+      It searches for the final cycle summary and then for " Disagreeable restraints".
+      End is reached with ' Summary of restraints'
       '''  
       final = False
       disag = False
       disargeelist = []
       with open(lstfile, 'r') as f:
         for line in f:
-          if not line.split():
+          splitline = line.split()
+          if not splitline:
+            continue
+          if splitline[0].startswith('Observed'):
             continue
           if line.startswith(" Final Structure Factor"):
             final = True
@@ -54,7 +59,8 @@ class Refmod(object):
             final = False
             disag = False
           if disag: 
-            fline = self.lineformatter(line.split())
+            # in this case, the desired line is found:
+            fline = self.lineformatter(splitline)
             # fline is a list of list
             disargeelist.append(fline)
         return disargeelist
@@ -64,16 +70,16 @@ class Refmod(object):
       takes care of some extra things with different restraints. For example
       RIGU xy should be in one column
       '''
-      if line[0].startswith('Observed'):
-        return line
       for num, i in enumerate(line):
         if i[0].isalpha():
           pos = num
           break
+      # joining columns without numbers:
       line[pos:] = [' '.join(line[pos:])]
       tline = ' '.join(line)
       for n in REL_RESTR_CARDS:
         if n in tline:
+          # adding placeholders for empty fields:
           line = ['-', '-']+line
           break
       return line
@@ -102,11 +108,11 @@ class Refmod(object):
       filedata = self.fileparser(lstfile)
       if not filedata:
         filedata =['']
-      header = ['<h2>List of most disagreeable restraints</h2>']
+      header = ['<h3>List of most disagreeable restraints</h3>']
       footer = ['<br><br> Use "MORE 4" to get an extensive list of all restraints. ']
       html = self.htm.table_maker(header, filedata, footer)
       OV.write_to_olex('large_fdb_image.htm', html)
-      olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
+      olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="Residuals", w=width,
                 h=height, x=box_x, y=box_y)
     
 
@@ -133,6 +139,14 @@ class html_Table(object):
     html = r"""
       {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
+      <tr>
+         <th align='center'> Observed </th>
+         <th align='center'> Target </th>
+         <th align='center'> Error </th>
+         <th align='center'> Sigma </th>
+         <th align='left'> Restraint </th> 
+      </tr>
+      <hline>
       {1}
     </table
       {2}
@@ -168,7 +182,9 @@ class html_Table(object):
             td.append(r"""<td align='right'> {} </td>""".format(item))
             continue
           # align left for words:
-          td.append(r"""<td align='left'> {} </td>""".format(item))
+          td.append(r"""<td align='left'> 
+                  <a href="spy.edit_restraint()" > 
+                  {} </a> </td>""".format(item))
     if not td:
       row = "<tr> No (disagreeable) restraints found in .lst file. </tr>"
     else:
@@ -184,5 +200,5 @@ if __name__ == '__main__':
   lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
   htm = html_Table()
   header=['<h2>List of disagreeable restraints</h2>']
-  footer = ['<br><br> Use "MORE 4" to get an extensive list of all restraints. ']
+  footer = ['<br></br> Use "MORE 4" to get an extensive list of all restraints. ']
   print(htm.table_maker(header, lst, footer))
