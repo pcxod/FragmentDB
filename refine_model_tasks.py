@@ -23,7 +23,6 @@ class Refmod(object):
     '''
     handles the refinement model of olex2
     '''
-
     def __init__(self):
       '''
       Constructor
@@ -82,8 +81,7 @@ class Refmod(object):
     def open_listfile(self, title = "Select a .lst file", 
                             ffilter = '*.lst; *.LST',
                             location = '',
-                            default_name = ''
-                            ):
+                            default_name = '' ):
       lstfile = olx.FileOpen(title, ffilter, location, default_name)
       return lstfile 
     
@@ -104,7 +102,9 @@ class Refmod(object):
       filedata = self.fileparser(lstfile)
       if not filedata:
         filedata =['']
-      html = self.htm.table_maker(filedata)
+      header = ['<h2>List of most disagreeable restraints</h2>']
+      footer = ['<br><br> Use "MORE 4" to get an extensive list of all restraints. ']
+      html = self.htm.table_maker(header, filedata, footer)
       OV.write_to_olex('large_fdb_image.htm', html)
       olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
                 h=height, x=box_x, y=box_y)
@@ -118,23 +118,29 @@ class html_Table(object):
     pass
 
   
-  def table_maker(self, datalist):
+  def table_maker(self, header=[''], tabledata=[''], footer=['']):
     '''
     builds a html table out of a datalist from the final 
     cycle summary of a shelxl list file.
     '''
     table=[]
-    for line in datalist:
+    data = []
+    for line in tabledata:
       table.append(self.row(line))
+    data.extend(header)
+    data.extend(table)
+    data.extend(footer)
     html = r"""
+      {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
-      {}
+      {1}
     </table
-      """.format('\n'.join(table))
+      {2}
+      """.format('\n'.join(header), '\n'.join(table), '\n'.join(footer))
     return html  
     
 
-  def row(self, rowdata):
+  def row(self, rowdata, yellow='#FFD100', red='#FF1030'):
     '''
     creates a table row
     :type rowdata: list
@@ -143,9 +149,9 @@ class html_Table(object):
     bgcolor = ''
     try:
       if abs(float(rowdata[2])) > 2.5*float(rowdata[3]):
-        bgcolor = r"""bgcolor='yellow'"""
+        bgcolor = r"""bgcolor='{}'""".format(yellow)
       if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
-        bgcolor = r"""bgcolor='#FF1030'"""
+        bgcolor = r"""bgcolor='{}'""".format(red)
     except:
       pass
     for num, item in enumerate(rowdata): 
@@ -175,6 +181,8 @@ ref = Refmod()
 
 if __name__ == '__main__':
   ref = Refmod()
-  lst = ref.fileparser()
+  lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
   htm = html_Table()
-  print(htm.table_maker(lst))
+  header=['<h2>List of disagreeable restraints</h2>']
+  footer = ['<br><br> Use "MORE 4" to get an extensive list of all restraints. ']
+  print(htm.table_maker(header, lst, footer))
