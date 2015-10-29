@@ -32,6 +32,8 @@ class Refmod(object):
     def fileparser(self, lstfile):
       '''
       gathers the residuals of the lst file
+      It searches for the final cycle summary and then for " Disagreeable restraints".
+      End is reached with ' Summary of restraints'
       '''  
       final = False
       disag = False
@@ -54,6 +56,7 @@ class Refmod(object):
             final = False
             disag = False
           if disag: 
+            # in this case, the desired line is found:
             fline = self.lineformatter(line.split())
             # fline is a list of list
             disargeelist.append(fline)
@@ -65,6 +68,7 @@ class Refmod(object):
       RIGU xy should be in one column
       '''
       if line[0].startswith('Observed'):
+        # Observed   Target    Error     Sigma     Restraint
         return line
       for num, i in enumerate(line):
         if i[0].isalpha():
