@@ -28,9 +28,6 @@ class Refmod(object):
       '''
       Constructor
       '''
-      #self.lstfile = 'd:\Programme\DSR\example\p21c-test.lst'
-      #self.lstfile = '/Users/daniel/Documents/DSR/example/p21c.lst'
-      #self.lstfile = None
       self.htm = html_Table()
       
     def fileparser(self, lstfile):
@@ -59,9 +56,8 @@ class Refmod(object):
             disag = False
           if disag: 
             fline = self.lineformatter(line.split())
+            # fline is a list of list
             disargeelist.append(fline)
-        #print('data:', data, 'parameters:', parameters)
-        #pprint.pprint(disargeelist)
         return disargeelist
     
     def lineformatter(self, line):
@@ -97,7 +93,6 @@ class Refmod(object):
       '''
       lstfile = self.open_listfile()
       if not lstfile:
-        print(self.lstfile)
         print('No file selected')
         return
       pop_name = "Residuals"
@@ -150,7 +145,7 @@ class html_Table(object):
       if abs(float(rowdata[2])) > 2.5*float(rowdata[3]):
         bgcolor = r"""bgcolor='yellow'"""
       if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
-        bgcolor = r"""bgcolor='red'"""
+        bgcolor = r"""bgcolor='#FF1030'"""
     except:
       pass
     for num, item in enumerate(rowdata): 
