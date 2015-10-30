@@ -4,7 +4,7 @@ Created on 23.10.2015
 @author: daniel
 '''
 #import pprint
-from helper_functions import REL_RESTR_CARDS
+from helper_functions import REL_RESTR_CARDS, SHX_CARDS, remove_partsymbol
 try:
   import olx  # @UnresolvedImport
   from olexFunctions import OlexFunctions
@@ -28,6 +28,7 @@ class Refmod(object):
       Constructor
       '''
       self.htm = html_Table()
+
       
     def fileparser(self, lstfile):
       '''
@@ -85,9 +86,7 @@ class Refmod(object):
       return line
         
     def open_listfile(self, title = "Select a .lst file", 
-                            ffilter = '*.lst; *.LST',
-                            location = '',
-                            default_name = '' ):
+            ffilter = '*.lst; *.LST', location = '', default_name = '' ):
       lstfile = olx.FileOpen(title, ffilter, location, default_name)
       return lstfile 
     
@@ -95,17 +94,22 @@ class Refmod(object):
       '''
       display results in a window
       '''
-      lstfile = self.open_listfile()
-      if not lstfile:
-        print('No file selected')
+      #lstfile = self.open_listfile()
+      #if not lstfile:
+      #  print('No file selected')
+      #  return
+      try:
+        self.lstfile = OV.FilePath()+'\\'+OV.FileName()+'.lst'
+      except(), e:
+        print(e)
         return
       pop_name = "Residuals"
       screen_height = int(olx.GetWindowSize('gl').split(',')[3])
       screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-      box_x = int(screen_width*0.1)
-      box_y = int(screen_height*0.1)
+      box_x = int(screen_width*0.02)
+      box_y = int(screen_height*0.02)
       width, height = 600, 520
-      filedata = self.fileparser(lstfile)
+      filedata = self.fileparser(self.lstfile)
       if not filedata:
         filedata =['']
       header = ['<h3>List of most disagreeable restraints</h3>']
@@ -183,22 +187,46 @@ class html_Table(object):
             continue
           # align left for words:
           td.append(r"""<td align='left'> 
-                  <a href="spy.edit_restraint()" > 
-                  {} </a> </td>""".format(item))
+              <a href="spy.Refmod.edit_restraints({})" style="text-decoration:none"> 
+              {} </a> </td>""".format(item, item))
     if not td:
       row = "<tr> No (disagreeable) restraints found in .lst file. </tr>"
     else:
       row = "<tr> {} </tr>".format(''.join(td))
     return row
-    
 
-ref = Refmod()  
+  def edit_restraints(self, restr):
+    '''
+    this method gets the atom list of an disagreeable restraint and
+    should be able to edit the restraint. 
+    '''
+    restr = restr.replace('/', ' ')
+    restrlist = restr.split()
+    atoms = []
+    for i in restrlist:
+      if i in SHX_CARDS:
+        continue
+      if i in ['xz', 'yz', 'xy', 'etc.']:
+        continue
+      else:
+        #print(remove_partsymbol(i))
+        atoms.append(remove_partsymbol(i))
+    OV.cmd('editatom {}'.format(' '.join(atoms)))
+    
+  
+  
+  
+htm = html_Table()
+try:
+  OV.registerFunction(htm.edit_restraints, False, "Refmod")
+except:
+  pass
 
 
 if __name__ == '__main__':
   ref = Refmod()
   lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
-  htm = html_Table()
+  #lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   header=['<h2>List of disagreeable restraints</h2>']
   footer = ['<br></br> Use "MORE 4" to get an extensive list of all restraints. ']
   print(htm.table_maker(header, lst, footer))
