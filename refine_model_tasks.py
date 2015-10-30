@@ -94,17 +94,22 @@ class Refmod(object):
       '''
       display results in a window
       '''
-      lstfile = self.open_listfile()
-      if not lstfile:
-        print('No file selected')
+      #lstfile = self.open_listfile()
+      #if not lstfile:
+      #  print('No file selected')
+      #  return
+      try:
+        self.lstfile = OV.FilePath()+'\\'+OV.FileName()+'.lst'
+      except(), e:
+        print(e)
         return
       pop_name = "Residuals"
       screen_height = int(olx.GetWindowSize('gl').split(',')[3])
       screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-      box_x = int(screen_width*0.1)
-      box_y = int(screen_height*0.1)
+      box_x = int(screen_width*0.02)
+      box_y = int(screen_height*0.02)
       width, height = 600, 520
-      filedata = self.fileparser(lstfile)
+      filedata = self.fileparser(self.lstfile)
       if not filedata:
         filedata =['']
       header = ['<h3>List of most disagreeable restraints</h3>']
@@ -211,16 +216,17 @@ class html_Table(object):
   
   
   
-#ref = Refmod()
 htm = html_Table()
-OV.registerFunction(htm.edit_restraints, False, "Refmod")
-
+try:
+  OV.registerFunction(htm.edit_restraints, False, "Refmod")
+except:
+  pass
 
 
 if __name__ == '__main__':
   ref = Refmod()
-  #lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
-  lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
+  lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
+  #lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   header=['<h2>List of disagreeable restraints</h2>']
   footer = ['<br></br> Use "MORE 4" to get an extensive list of all restraints. ']
   print(htm.table_maker(header, lst, footer))
