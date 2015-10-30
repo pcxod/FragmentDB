@@ -5,6 +5,7 @@ Created on 23.10.2015
 '''
 #import pprint
 from helper_functions import REL_RESTR_CARDS, SHX_CARDS, remove_partsymbol
+import os
 try:
   import olx  # @UnresolvedImport
   from olexFunctions import OlexFunctions
@@ -99,7 +100,12 @@ class Refmod(object):
       #  print('No file selected')
       #  return
       try:
-        self.lstfile = OV.FilePath()+'\\'+OV.FileName()+'.lst'
+        lstfile = os.path.abspath(OV.FilePath()+'\\'+OV.FileName()+'.lst')
+        if os.path.isfile(lstfile):
+          pass
+        else:
+          print('No list file found.')
+          return
       except(), e:
         print(e)
         return
@@ -109,7 +115,7 @@ class Refmod(object):
       box_x = int(screen_width*0.02)
       box_y = int(screen_height*0.02)
       width, height = 600, 520
-      filedata = self.fileparser(self.lstfile)
+      filedata = self.fileparser(lstfile)
       if not filedata:
         filedata =['']
       header = ['<h3>List of most disagreeable restraints</h3>']
