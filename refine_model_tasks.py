@@ -37,6 +37,8 @@ class Refmod(object):
       It searches for the final cycle summary and then for " Disagreeable restraints".
       End is reached with ' Summary of restraints'
       '''  
+      if not lstfile:
+        return
       final = False
       disag = False
       disargeelist = []
@@ -107,32 +109,6 @@ class Refmod(object):
         return ''
       return lstfile
     
-    def results_window(self):
-      '''
-      display results in a window
-      '''
-      #lstfile = self.open_listfile()
-      #if not lstfile:
-      #  print('No file selected')
-      #  return
-
-      pop_name = "Residuals"
-      screen_height = int(olx.GetWindowSize('gl').split(',')[3])
-      screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-      box_x = int(screen_width*0.02)
-      box_y = int(screen_height*0.02)
-      width, height = 600, 520
-      filedata = self.fileparser(self.get_listfile())
-      if not filedata:
-        filedata =['']
-      header = ['<h3>List of most disagreeable restraints</h3>']
-      footer = ['<br><br> Use "MORE 4" to get an extensive list of all restraints. ']
-      html = self.htm.table_maker(header, filedata, footer)
-      OV.write_to_olex('large_fdb_image.htm', html)
-      olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="Residuals", w=width,
-                h=height, x=box_x, y=box_y)
-    
-    
     def results(self):  
       '''
       prepare the results for the plugin 
@@ -140,7 +116,7 @@ class Refmod(object):
       filedata = self.fileparser(self.get_listfile())
       if not filedata:
         filedata =['']
-      header = ['<b>List of most disagreeable restraints</b>']
+      header = ['<b>List of most disagreeable restraints:</b>']
       footer = ["<table> $spy.MakeHoverButton('small-Long_List@bitmap', \
                   'delins more>>addins more -4>>refine') &nbsp; \
                   $spy.MakeHoverButton('small-Short_List@bitmap', \
@@ -172,11 +148,11 @@ class html_Table(object):
       {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
       <tr>
-         <th align='center'> Observed </th>
-         <th align='center'> Target </th>
-         <th align='center'> Error </th>
-         <th align='center'> Sigma </th>
-         <th align='left'> Restraint </th> 
+         <td align='center'> Observed </td>
+         <td align='center'> Target   </td>
+         <td align='center'> Error    </td>
+         <td align='center'> Sigma    </td>
+         <td align='left'> Restraint  </td> 
       </tr>
       <hline>
       {1}
