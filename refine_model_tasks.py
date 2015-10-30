@@ -96,15 +96,15 @@ class Refmod(object):
       returns the path of the current SHELXL list file
       '''
       try:
-        lstfile = os.path.abspath(OV.FilePath()+'\\'+OV.FileName()+'.lst')
+        lstfile = os.path.abspath(OV.FilePath()+os.path.sep+OV.FileName()+'.lst')
         if os.path.isfile(lstfile):
           pass
         else:
           print('No list file found.')
-          return
-      except(), e:
-        print(e)
-        return
+          return ''
+      except:
+        print('somethin is wrong with the lst file path.')
+        return ''
       return lstfile
     
     def results_window(self):
@@ -141,9 +141,13 @@ class Refmod(object):
       if not filedata:
         filedata =['']
       header = ['<b>List of most disagreeable restraints</b>']
-      footer = [r'<br> </br> Use <a href="delins more>>addins more 4>>refine" "MORE 4"> to get an extensive list of all restraints. ']
+      footer = ["<table> $spy.MakeHoverButton('small-Long_List@bitmap', \
+                  'delins more>>addins more -4>>refine') &nbsp; \
+                  $spy.MakeHoverButton('small-Short_List@bitmap', \
+                  'delins more>>addins more -1>>refine') </table>"]
       html = self.htm.table_maker(header, filedata, footer)
       return html
+
     
 class html_Table(object):
   '''
@@ -152,7 +156,6 @@ class html_Table(object):
   def __init__(self):
     pass
 
-  
   def table_maker(self, header=[''], tabledata=[''], footer=['']):
     '''
     builds a html table out of a datalist from the final 
@@ -179,7 +182,7 @@ class html_Table(object):
       {1}
     </table
       {2}
-      """.format('\n'.join(header), '\n'.join(table), '\n'.join(footer))
+      """.format(' '.join(header), '\n'.join(table), ' '.join(footer))
     return html  
     
 
@@ -250,8 +253,11 @@ except:
 
 if __name__ == '__main__':
   ref = Refmod()
-  lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
-  #lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
-  header=['<h2>List of disagreeable restraints</h2>']
-  footer = ['<br></br> Use "MORE 4" to get an extensive list of all restraints. ']
+  #lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
+  lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
+  header = ['<b>List of most disagreeable restraints</b>']
+  footer = ["$spy.MakeHoverButton('small-Long_List@bitmap', \
+                  'delins more>>addins more -4>>refine')",  \
+                  "$spy.MakeHoverButton('small-Shortt_List@bitmap', \
+                  'delins more>>addins more -1>>refine')"]
   print(htm.table_maker(header, lst, footer))
