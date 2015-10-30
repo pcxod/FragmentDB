@@ -1172,7 +1172,7 @@ class FragmentDB(PT):
     :param remdist: distance below atoms shoud be deleted.
     '''
     atoms_to_delete = []
-    all_atoms_dict = self.get_atoms_list(part=0, notype='H')
+    all_atoms_dict = self.get_atoms_list(part=0, notype='')
     frag_crd_dict = {}
     for i in frag_atoms:
       # create fragment dict:
