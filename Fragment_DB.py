@@ -1137,18 +1137,20 @@ class FragmentDB(PT):
     olx.html.SetValue('FVAROCC', fvar)
     return fvar
 
-  def get_atoms_list(self, part=None):
+  def get_atoms_list(self, part=None, notype=''):
     '''
     returns all atoms of the crystal
     if part is defined, only collect atoms of defined part
-    {0: [u'F1', (0.16726, 0.42638, -0.23772), 0, 0],
-     id: [u'label', (x, y, z), part, resinum], ...}
+    {0: [u'F1', (0.16726, 0.42638, -0.23772), 0, 0, 'F'],
+     id: [u'label', (x, y, z), part, resinum, type], ...}
     '''
     model = olex_core.GetRefinementModel(False) 
     asym_unit = model['aunit']
     atoms = {}
     for residue in asym_unit['residues']:
       for atom in residue['atoms']:
+        if atom['type'] != notype:
+          continue
         if part: 
           if atom['part'] != part:
             continue
@@ -1156,7 +1158,7 @@ class FragmentDB(PT):
           resnum = residue['number'] 
         except KeyError:
           resnum = 0
-        atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum ]
+        atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
   def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
@@ -1170,7 +1172,7 @@ class FragmentDB(PT):
     :param remdist: distance below atoms shoud be deleted.
     '''
     atoms_to_delete = []
-    all_atoms_dict = self.get_atoms_list(part=0)
+    all_atoms_dict = self.get_atoms_list(part=0, notype='H')
     frag_crd_dict = {}
     for i in frag_atoms:
       # create fragment dict:
