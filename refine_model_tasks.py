@@ -91,14 +91,10 @@ class Refmod(object):
       lstfile = olx.FileOpen(title, ffilter, location, default_name)
       return lstfile 
     
-    def results_window(self):
+    def get_listfile(self):
       '''
-      display results in a window
+      returns the path of the current SHELXL list file
       '''
-      #lstfile = self.open_listfile()
-      #if not lstfile:
-      #  print('No file selected')
-      #  return
       try:
         lstfile = os.path.abspath(OV.FilePath()+'\\'+OV.FileName()+'.lst')
         if os.path.isfile(lstfile):
@@ -109,13 +105,24 @@ class Refmod(object):
       except(), e:
         print(e)
         return
+      return lstfile
+    
+    def results_window(self):
+      '''
+      display results in a window
+      '''
+      #lstfile = self.open_listfile()
+      #if not lstfile:
+      #  print('No file selected')
+      #  return
+
       pop_name = "Residuals"
       screen_height = int(olx.GetWindowSize('gl').split(',')[3])
       screen_width = int(olx.GetWindowSize('gl').split(',')[2])
       box_x = int(screen_width*0.02)
       box_y = int(screen_height*0.02)
       width, height = 600, 520
-      filedata = self.fileparser(lstfile)
+      filedata = self.fileparser(self.get_listfile())
       if not filedata:
         filedata =['']
       header = ['<h3>List of most disagreeable restraints</h3>']
@@ -125,7 +132,19 @@ class Refmod(object):
       olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="Residuals", w=width,
                 h=height, x=box_x, y=box_y)
     
-
+    
+    def results(self):  
+      '''
+      prepare the results for the plugin 
+      '''
+      filedata = self.fileparser(self.get_listfile())
+      if not filedata:
+        filedata =['']
+      header = ['<b>List of most disagreeable restraints</b>']
+      footer = [r'<br> </br> Use <a href="delins more>>addins more 4>>refine" "MORE 4"> to get an extensive list of all restraints. ']
+      html = self.htm.table_maker(header, filedata, footer)
+      return html
+    
 class html_Table(object):
   '''
   html table generator

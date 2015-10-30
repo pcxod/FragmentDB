@@ -120,10 +120,16 @@ SetVar(fdb_fit,
     If enabled, all atoms inside PART 0 lying in a radius of 1.22A arond the atoms of the fitted fragment 
     will be deleted. This is particular useful to replace atoms of a disordered structure just solved using SHELXT.
     ")
-        
 $-
-
-
+$+
+SetVar(results, 
+    "~Results~
+    <br> 
+    This table shows the list of the most disagreeable restraints. A click on the 
+    respective line opens the editor window to adjust the restraints values.
+    <br>
+    ")
+$-
 
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
 
@@ -331,7 +337,9 @@ $-
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=results; help_ext=Display Results;helpTxt=$GetVar(results);1; -->
+  $spy.FragmentDB.results()
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
 

@@ -1276,6 +1276,7 @@ OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
 
 OV.registerFunction(ref.results_window, False, "FragmentDB")
+OV.registerFunction(ref.results, False, "FragmentDB")
 
 #OV.registerFunction(fdb.guess_values, False, "FragmentDB") #not needed outside
 
