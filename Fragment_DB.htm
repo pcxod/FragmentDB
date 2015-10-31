@@ -128,6 +128,11 @@ SetVar(results,
     This table shows the list of the most disagreeable restraints. A click on the 
     respective line opens the editor window to adjust the restraints values.
     <br>
+    The error of a parameter should generally not be higher than 3*Sigma. A higher 
+    value means that the assumption of the target value originating from 
+    general observations is not met. The reason for this can be either, for 
+    example, a distorted molecular geometry like a bend aromatic ring or 
+    systematic errors in the data.
     ")
 $-
 
@@ -240,7 +245,7 @@ $-
     type="text" 
     name="FVAROCC"
     height="$GetVar('HtmlInputHeight')"
-    value=""
+    value="spy.GetParam('fragment_DB.fragment.fvarocc')"
     bgcolor="$GetVar(HtmlTableBgColour)"
     fgcolor="$GetVar(HtmlFontColour)"
     width="100%" >
@@ -323,6 +328,16 @@ $-
     $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
+  </td>
+  <td  align='right'><b>No Restraints:</b></td>
+  <td align='left' width='4%'>
+    $+
+    html.Snippet("gui/snippets/input-checkbox",
+    "name=ROFF",
+    "checked=spy.GetParam('fragment_DB.fragment.roff')",
+    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))"
+    )
+    $- 
   </td>
   <td  align='right'><b>Replace Mode:</b></td>
   <td align='left' width='4%'>
