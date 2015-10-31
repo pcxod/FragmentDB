@@ -73,13 +73,19 @@ class Refmod(object):
       '''
       takes care of some extra things with different restraints. For example
       RIGU xy should be in one column
+      :type line: list
       '''
       for num, i in enumerate(line):
+        i = i.replace('/', ' ')
         if i[0].isalpha():
           pos = num
           break
+      line2 = []
+      # remove the part symbol from e.g. F1_2a:
+      for i in line:
+        line2.append(remove_partsymbol(i))
       # joining columns without numbers:
-      line[pos:] = [' '.join(line[pos:])]
+      line[pos:] = [' '.join(line2[pos:])]
       tline = ' '.join(line)
       for n in REL_RESTR_CARDS:
         if n in tline:

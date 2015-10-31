@@ -179,6 +179,8 @@ def remove_partsymbol(atom):
     'C22'
     >>> remove_partsymbol('C_5')
     'C_5'
+    >>> remove_partsymbol('SAME/SADI')
+    'SAME/SADI'
     '''
     if '_' in atom:
         prefix = atom.split('_')[0]
