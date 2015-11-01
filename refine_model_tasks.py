@@ -121,13 +121,8 @@ class Refmod(object):
       '''
       filedata = self.fileparser(self.get_listfile())
       if not filedata:
-        filedata =['']
-      header = ['<b>List of most disagreeable restraints:</b>']
-      footer = ["<table> $spy.MakeHoverButton('small-Long_List@bitmap', \
-                  'delins more>>addins more -4>>refine') &nbsp; \
-                  $spy.MakeHoverButton('small-Short_List@bitmap', \
-                  'delins more>>addins more -1>>refine') </table>"]
-      html = self.htm.table_maker(header, filedata, footer)
+        filedata =[]
+      html = self.htm.table_maker(filedata)
       return html
 
     
@@ -138,18 +133,31 @@ class html_Table(object):
   def __init__(self):
     pass
 
-  def table_maker(self, header=[''], tabledata=[''], footer=['']):
+  def table_maker(self, tabledata=[]):
     '''
     builds a html table out of a datalist from the final 
     cycle summary of a shelxl list file.
     '''
     table=[]
-    data = []
     for line in tabledata:
       table.append(self.row(line))
-    data.extend(header)
-    data.extend(table)
-    data.extend(footer)
+    if not table:
+      return 'The restraints seem to be well appied.'
+    header = r"""
+        <table> 
+        <tr> 
+          <td> 
+          <b>List of most disagreeable restraints:</b>
+              &nbsp;
+          </td>
+          <td>
+          $spy.MakeHoverButton('small-Long_List@bitmap', delins more>>addins more -4>>refine) 
+                &nbsp; 
+          $spy.MakeHoverButton('small-Short_List@bitmap', delins more>>addins more -1>>refine) 
+          </td>
+        </tr>
+        </table>"""
+    footer = ""
     html = r"""
       {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
@@ -160,11 +168,11 @@ class html_Table(object):
          <td align='center'> Sigma    </td>
          <td align='left'> Restraint  </td> 
       </tr>
-      <hline>
+
       {1}
-    </table
+    </table>
       {2}
-      """.format(' '.join(header), '\n'.join(table), ' '.join(footer))
+      """.format(header, '\n'.join(table), footer)
     return html  
     
 
@@ -237,9 +245,4 @@ if __name__ == '__main__':
   ref = Refmod()
   #lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
   lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
-  header = ['<b>List of most disagreeable restraints</b>']
-  footer = ["$spy.MakeHoverButton('small-Long_List@bitmap', \
-                  'delins more>>addins more -4>>refine')",  \
-                  "$spy.MakeHoverButton('small-Shortt_List@bitmap', \
-                  'delins more>>addins more -1>>refine')"]
-  print(htm.table_maker(header, lst, footer))
+  print(htm.table_maker(lst))
