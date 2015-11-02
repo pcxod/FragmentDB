@@ -151,9 +151,9 @@ class html_Table(object):
               &nbsp;
           </td>
           <td>
-          $spy.MakeHoverButton('small-Long_List@bitmap', delins more>>addins more -4>>refine) 
+            $spy.MakeHoverButton('small-Short_List@bitmap', delins more>>addins more -1>>refine)
                 &nbsp; 
-          $spy.MakeHoverButton('small-Short_List@bitmap', delins more>>addins more -1>>refine) 
+            $spy.MakeHoverButton('small-Full_List@bitmap', delins more>>addins more -4>>refine)            
           </td>
         </tr>
         </table>"""
