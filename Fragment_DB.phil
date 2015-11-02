@@ -49,6 +49,14 @@ fragment_DB{
     replace = False
       .type = bool
       .help = Enables replace mode.
+      
+    fvarocc = 11.0
+      .type = float
+      .help = Defines the shelx free variable/occupancy number
+      
+    roff = False
+      .type = bool
+      .help = Decides if restraints should be applied to the fragment or not.
     }
   
   new_fragment{

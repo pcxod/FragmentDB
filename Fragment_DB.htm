@@ -120,10 +120,23 @@ SetVar(fdb_fit,
     If enabled, all atoms inside PART 0 lying in a radius of 1.22A arond the atoms of the fitted fragment 
     will be deleted. This is particular useful to replace atoms of a disordered structure just solved using SHELXT.
     ")
-        
 $-
-
-
+$+
+SetVar(results, 
+    "~Results~
+    <br> 
+    This table shows the list of the most disagreeable restraints (in case there are some). 
+    A click on the respective line opens the editor window to adjust the restraints values.
+    <br>
+    The long list shows ALL restraints and the short list only the most disargreeable ones.
+    <br>
+    The error of a parameter should generally not be higher than 3*Sigma. A higher 
+    value means that the assumption of the target value originating from 
+    general observations is not met. The reason for this can be either, for 
+    example, a distorted molecular geometry like a bend aromatic ring or 
+    systematic errors in the data.
+    ")
+$-
 
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
 
@@ -234,7 +247,7 @@ $-
     type="text" 
     name="FVAROCC"
     height="$GetVar('HtmlInputHeight')"
-    value=""
+    value="spy.GetParam('fragment_DB.fragment.fvarocc')"
     bgcolor="$GetVar(HtmlTableBgColour)"
     fgcolor="$GetVar(HtmlFontColour)"
     width="100%" >
@@ -318,6 +331,16 @@ $-
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
   </td>
+  <td  align='right'><b>No Restraints:</b></td>
+  <td align='left' width='4%'>
+    $+
+    html.Snippet("gui/snippets/input-checkbox",
+    "name=ROFF",
+    "checked=spy.GetParam('fragment_DB.fragment.roff')",
+    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))"
+    )
+    $- 
+  </td>
   <td  align='right'><b>Replace Mode:</b></td>
   <td align='left' width='4%'>
     $+
@@ -331,7 +354,9 @@ $-
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=results; help_ext=Display Results;helpTxt=$GetVar(results);1; -->
+  $spy.FragmentDB.results()
+<!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
 

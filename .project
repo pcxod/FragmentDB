@@ -20,17 +20,17 @@
 		<link>
 			<name>cctbx</name>
 			<type>2</type>
-			<location>D:/Applications/olex2-dev.app/Contents/MacOS/cctbx</location>
+			<location>/Applications/LiClipse.app/Contents/MacOS/D::/Applications/olex2-dev.app/Contents/MacOS/cctbx</location>
 		</link>
 		<link>
 			<name>plugin-Fragment_DB</name>
 			<type>2</type>
-			<location>D:/downloads/olex2-gui/util/pyUtil/PluginLib/plugin-Fragment_DB</location>
+			<location>/Users/daniel/Downloads/olex2-gui/util/pyUtil/PluginLib/plugin-Fragment_DB</location>
 		</link>
 		<link>
 			<name>pyUtil</name>
 			<type>2</type>
-			<location>D:/Users/daniel/Downloads/olex2-gui/util/pyUtil</location>
+			<location>/Applications/LiClipse.app/Contents/MacOS/D::/Users/daniel/Downloads/olex2-gui/util/pyUtil</location>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -29,6 +29,7 @@ Fragen und Ideen:
 
 - How do I get the Id of a selected atom?
 - onreturn="html.Call(~name~.onchange)"
+- How to make a link without underline?
 
 '''
 
@@ -355,7 +356,8 @@ class FragmentDB(PT):
         self.make_residue(atomids, resiclass, resinum)
         self.atomrenamer(labeldict)
     # Placing restraints:
-    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
+    if not OV.GetParam('fragment_DB.fragment.use_dfix') \
+      and not OV.GetParam('fragment_DB.fragment.roff'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
     #if partnum >= 0:
     self.make_part(atomids, partnum)
@@ -1135,6 +1137,7 @@ class FragmentDB(PT):
     else:
       fvar = float(var)*10+float(occ)
     olx.html.SetValue('FVAROCC', fvar)
+    OV.SetParam('fragment_DB.fragment.fvarocc', fvar)
     return fvar
 
   def get_atoms_list(self, part=None, notype=''):
@@ -1149,7 +1152,7 @@ class FragmentDB(PT):
     atoms = {}
     for residue in asym_unit['residues']:
       for atom in residue['atoms']:
-        if atom['type'] != notype:
+        if atom['type'] == notype:
           continue
         if part: 
           if atom['part'] != part:
@@ -1275,7 +1278,7 @@ OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
 OV.registerFunction(fdb.store_picture,False,"FragmentDB")
 OV.registerFunction(fdb.display_image,False,"FragmentDB")
 
-OV.registerFunction(ref.results_window, False, "FragmentDB")
+OV.registerFunction(ref.results, False, "FragmentDB")
 
 #OV.registerFunction(fdb.guess_values, False, "FragmentDB") #not needed outside
 

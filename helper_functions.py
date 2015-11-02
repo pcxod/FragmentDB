@@ -179,6 +179,8 @@ def remove_partsymbol(atom):
     'C22'
     >>> remove_partsymbol('C_5')
     'C_5'
+    >>> remove_partsymbol('SAME/SADI')
+    'SAME/SADI'
     '''
     if '_' in atom:
         prefix = atom.split('_')[0]
@@ -349,30 +351,6 @@ def determinante(a):
   return (a[0][0] * (a[1][1] * a[2][2] - a[2][1] * a[1][2])
          -a[1][0] * (a[0][1] * a[2][2] - a[2][1] * a[0][2])
          +a[2][0] * (a[0][1] * a[1][2] - a[1][1] * a[0][2]))
-
-def remove_duplicate_restraints(self, dbhead, residue_class=''):
-    '''
-    removes restraints from the header which are already
-    in the res-file.
-
-    :param dbhead:         database header (list of strings)
-    :param residue_class:  SHELXL residue class
-    :type residue_class:   string
-    '''
-    all_restraints = self.collect_all_restraints()
-    modified = False
-    newhead = dbhead[:]
-    for num, headline in enumerate(dbhead):
-        headline = headline.split()
-        for restr in all_restraints:
-            if headline == restr:
-                newhead[num] = ''
-                modified = True
-                break
-    if modified:
-        print('\nAlready existing restraints for residue "{}" were not '
-                'applied again.'.format(residue_class))
-    return newhead
 
 
 def initialize_user_db(user_dbpath):

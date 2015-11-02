@@ -37,6 +37,8 @@ class Refmod(object):
       It searches for the final cycle summary and then for " Disagreeable restraints".
       End is reached with ' Summary of restraints'
       '''  
+      if not lstfile:
+        return
       final = False
       disag = False
       disargeelist = []
@@ -71,13 +73,19 @@ class Refmod(object):
       '''
       takes care of some extra things with different restraints. For example
       RIGU xy should be in one column
+      :type line: list
       '''
       for num, i in enumerate(line):
+        i = i.replace('/', ' ')
         if i[0].isalpha():
           pos = num
           break
+      line2 = []
+      # remove the part symbol from e.g. F1_2a:
+      for i in line:
+        line2.append(remove_partsymbol(i))
       # joining columns without numbers:
-      line[pos:] = [' '.join(line[pos:])]
+      line[pos:] = [' '.join(line2[pos:])]
       tline = ' '.join(line)
       for n in REL_RESTR_CARDS:
         if n in tline:
@@ -91,41 +99,33 @@ class Refmod(object):
       lstfile = olx.FileOpen(title, ffilter, location, default_name)
       return lstfile 
     
-    def results_window(self):
+    def get_listfile(self):
       '''
-      display results in a window
+      returns the path of the current SHELXL list file
       '''
-      #lstfile = self.open_listfile()
-      #if not lstfile:
-      #  print('No file selected')
-      #  return
       try:
-        lstfile = os.path.abspath(OV.FilePath()+'\\'+OV.FileName()+'.lst')
+        lstfile = os.path.abspath(OV.FilePath()+os.path.sep+OV.FileName()+'.lst')
         if os.path.isfile(lstfile):
           pass
         else:
           print('No list file found.')
-          return
-      except(), e:
-        print(e)
-        return
-      pop_name = "Residuals"
-      screen_height = int(olx.GetWindowSize('gl').split(',')[3])
-      screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-      box_x = int(screen_width*0.02)
-      box_y = int(screen_height*0.02)
-      width, height = 600, 520
-      filedata = self.fileparser(lstfile)
-      if not filedata:
-        filedata =['']
-      header = ['<h3>List of most disagreeable restraints</h3>']
-      footer = ['<br><br> Use "MORE 4" to get an extensive list of all restraints. ']
-      html = self.htm.table_maker(header, filedata, footer)
-      OV.write_to_olex('large_fdb_image.htm', html)
-      olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="Residuals", w=width,
-                h=height, x=box_x, y=box_y)
+          return ''
+      except:
+        print('somethin is wrong with the lst file path.')
+        return ''
+      return lstfile
     
+    def results(self):  
+      '''
+      prepare the results for the plugin 
+      '''
+      filedata = self.fileparser(self.get_listfile())
+      if not filedata:
+        filedata =[]
+      html = self.htm.table_maker(filedata)
+      return html
 
+    
 class html_Table(object):
   '''
   html table generator
@@ -133,34 +133,46 @@ class html_Table(object):
   def __init__(self):
     pass
 
-  
-  def table_maker(self, header=[''], tabledata=[''], footer=['']):
+  def table_maker(self, tabledata=[]):
     '''
     builds a html table out of a datalist from the final 
     cycle summary of a shelxl list file.
     '''
     table=[]
-    data = []
     for line in tabledata:
       table.append(self.row(line))
-    data.extend(header)
-    data.extend(table)
-    data.extend(footer)
+    if not table:
+      return 'The restraints seem to be well appied.'
+    header = r"""
+        <table> 
+        <tr> 
+          <td> 
+          <b>List of most disagreeable restraints:</b>
+              &nbsp;
+          </td>
+          <td>
+          $spy.MakeHoverButton('small-Long_List@bitmap', delins more>>addins more -4>>refine) 
+                &nbsp; 
+          $spy.MakeHoverButton('small-Short_List@bitmap', delins more>>addins more -1>>refine) 
+          </td>
+        </tr>
+        </table>"""
+    footer = ""
     html = r"""
       {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
       <tr>
-         <th align='center'> Observed </th>
-         <th align='center'> Target </th>
-         <th align='center'> Error </th>
-         <th align='center'> Sigma </th>
-         <th align='left'> Restraint </th> 
+         <td align='center'> Observed </td>
+         <td align='center'> Target   </td>
+         <td align='center'> Error    </td>
+         <td align='center'> Sigma    </td>
+         <td align='left'> Restraint  </td> 
       </tr>
-      <hline>
+
       {1}
-    </table
+    </table>
       {2}
-      """.format('\n'.join(header), '\n'.join(table), '\n'.join(footer))
+      """.format(header, '\n'.join(table), footer)
     return html  
     
 
@@ -231,8 +243,6 @@ except:
 
 if __name__ == '__main__':
   ref = Refmod()
-  lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
-  #lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
-  header=['<h2>List of disagreeable restraints</h2>']
-  footer = ['<br></br> Use "MORE 4" to get an extensive list of all restraints. ']
-  print(htm.table_maker(header, lst, footer))
+  #lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
+  lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
+  print(htm.table_maker(lst))
