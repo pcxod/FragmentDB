@@ -140,7 +140,9 @@ class html_Table(object):
     
 
   def rgb2hex(self, rgb):
-    """return the hexadecimal string representation of an rgb colour"""
+    """
+    return the hexadecimal string representation of an rgb colour
+    """
     return '#%02x%02x%02x' % rgb
   
   def table_maker(self, tabledata=[]):
@@ -152,7 +154,7 @@ class html_Table(object):
     for line in tabledata:
       table.append(self.row(line))
     if not table:
-      return 'The restraints seem to be well appied.'
+      return 'The restraints seem to be well applied.'
     header = r"""
         <table> 
         <tr> 
@@ -188,9 +190,10 @@ class html_Table(object):
 
   def row(self, rowdata):
     '''
-    creates a table row
+    creates a table row for the restraints list.
     :type rowdata: list
     '''
+    import re
     td = []
     bgcolor = ''
     try:
@@ -208,9 +211,13 @@ class html_Table(object):
       try:
         # align right for numbers:
         float(item)
-        td.append(r"""<td align='right' {0}> {1} </td>""".format(bgcolor, item))
+        if num < 2: 
+          # do not colorize the first two columns:
+          td.append(r"""<td align='right'> {} </td>""".format(item))
+        else:
+          td.append(r"""<td align='right' {0}> {1} </td>""".format(bgcolor, item))
       except:
-        if item.startswith('-'):
+        if re.search('-', item):  
           # only a minus sign
           td.append(r"""<td align='center'> {} </td>""".format(item))
         else:
@@ -231,9 +238,12 @@ class html_Table(object):
 
   def edit_restraints(self, restr):
     '''
-    this method gets the atom list of an disagreeable restraint and
-    should be able to edit the restraint. 
+    this method gets the atom list of an disagreeable restraint in olex2.
+    The text string is then formated so that "editatom" can handle it.
+    editatom opens an editor window with the respective atoms. 
+    :type restr: string like "SAME/SADI Co N11 Co N22"
     '''
+    # separate SAME/SADI:
     restr = restr.replace('/', ' ')
     restrlist = restr.split()
     atoms = []
