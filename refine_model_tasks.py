@@ -88,11 +88,6 @@ class Refmod(object):
           line = ['-', '-']+line
           break
       return line
-        
-    def open_listfile(self, title = "Select a .lst file", 
-            ffilter = '*.lst; *.LST', location = '', default_name = '' ):
-      lstfile = olx.FileOpen(title, ffilter, location, default_name)
-      return lstfile 
     
     def get_listfile(self):
       '''
@@ -100,9 +95,7 @@ class Refmod(object):
       '''
       try:
         lstfile = os.path.abspath(OV.FilePath()+os.path.sep+OV.FileName()+'.lst')
-        if os.path.isfile(lstfile):
-          pass
-        else:
+        if not os.path.isfile(lstfile):
           print('No list file found.')
           return ''
       except:
@@ -114,7 +107,7 @@ class Refmod(object):
       '''
       prepare the results for the plugin 
       '''
-      filedata = self.fileparser(self.get_listfile())
+      filedata = self.fileparser(self.get_listfile()) # raw table
       if not filedata:
         filedata = []
       html = self.htm.table_maker(filedata)
