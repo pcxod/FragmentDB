@@ -9,12 +9,12 @@ import os
 try:
   import olx  # @UnresolvedImport
   from olexFunctions import OlexFunctions
-  #from ImageTools import ImageTools
+  from ImageTools import ImageTools
 except:
   pass
 try:
   OV = OlexFunctions()
-  #IT = ImageTools()
+  IT = ImageTools()
 except:
   pass
 
@@ -131,8 +131,23 @@ class html_Table(object):
   html table generator
   '''
   def __init__(self):
-    pass
+    # more than two colors here are too crystmas treelike:
+    #self.grade_2_colour = '#FFD100'
+    #self.grade_4_colour = '#FF1030'
+    #grade_1_colour = OV.GetParam('gui.skin.diagnostics.colour_grade1')
+    #self.grade_1_colour = self.rgb2hex(IT.adjust_colour(grade_1_colour, luminosity=1.8))    
+    grade_2_colour = OV.GetParam('gui.skin.diagnostics.colour_grade2')
+    self.grade_2_colour = self.rgb2hex(IT.adjust_colour(grade_2_colour, luminosity=1.8)) 
+    #grade_3_colour = OV.GetParam('gui.skin.diagnostics.colour_grade3')
+    #self.grade_3_colour = self.rgb2hex(IT.adjust_colour(grade_3_colour, luminosity=1.8))
+    grade_4_colour = OV.GetParam('gui.skin.diagnostics.colour_grade4')
+    self.grade_4_colour = self.rgb2hex(IT.adjust_colour(grade_4_colour, luminosity=1.8))
+    
 
+  def rgb2hex(self, rgb):
+    """return the hexadecimal string representation of an rgb colour"""
+    return '#%02x%02x%02x' % rgb
+  
   def table_maker(self, tabledata=[]):
     '''
     builds a html table out of a datalist from the final 
@@ -146,14 +161,14 @@ class html_Table(object):
     header = r"""
         <table> 
         <tr> 
-          <td> 
+          <td align='left'> 
           <b>List of most disagreeable restraints:</b>
               &nbsp;
           </td>
-          <td>
-          $spy.MakeHoverButton('small-Long_List@bitmap', delins more>>addins more -4>>refine) 
+          <td align='right'>
+            $spy.MakeHoverButton('small-Short@bitmap', delins more>>addins more -1>>refine 4)
                 &nbsp; 
-          $spy.MakeHoverButton('small-Short_List@bitmap', delins more>>addins more -1>>refine) 
+            $spy.MakeHoverButton('small-Full@bitmap', delins more>>addins more -4>>refine 4)            
           </td>
         </tr>
         </table>"""
@@ -176,7 +191,7 @@ class html_Table(object):
     return html  
     
 
-  def row(self, rowdata, yellow='#FFD100', red='#FF1030'):
+  def row(self, rowdata):
     '''
     creates a table row
     :type rowdata: list
@@ -184,11 +199,15 @@ class html_Table(object):
     td = []
     bgcolor = ''
     try:
+      #if abs(float(rowdata[2])) > 2.0*float(rowdata[3]):
+      #  bgcolor = r"""bgcolor='{}'""".format(self.grade_1_colour)
       if abs(float(rowdata[2])) > 2.5*float(rowdata[3]):
-        bgcolor = r"""bgcolor='{}'""".format(yellow)
+        bgcolor = r"""bgcolor='{}'""".format(self.grade_2_colour)
+      #if abs(float(rowdata[2])) > 3.0*float(rowdata[3]):
+      #  bgcolor = r"""bgcolor='{}'""".format(self.grade_3_colour)
       if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
-        bgcolor = r"""bgcolor='{}'""".format(red)
-    except:
+        bgcolor = r"""bgcolor='{}'""".format(self.grade_4_colour)        
+    except():
       pass
     for num, item in enumerate(rowdata): 
       try:
