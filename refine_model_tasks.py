@@ -219,11 +219,9 @@ class html_Table(object):
             continue
           # align left for words:
           td.append(r"""
-            <td align='left'> 
-              <a 
-              href="spy.Refmod.edit_restraints({})" style="text-decoration:none"> 
-              {} 
-              </a> 
+            <td align='left'>  
+              {}
+              <a href="spy.Refmod.edit_restraints({})">  edit </a> 
             </td>""".format(item, item))
     if not td:
       row = "<tr> No (disagreeable) restraints found in .lst file. </tr>"
