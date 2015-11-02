@@ -51,11 +51,6 @@ class Refmod(object):
             continue
           if line.startswith(" Final Structure Factor"):
             final = True
-#          if line.startswith(' Total number of'):
-#            parameters = line.split()[6]
-#          if final and line.startswith(' wR2 ='):
-#            data = line.split()[7]
-            #disargeelist.append(['Results', 'data:', data, 'parameters:', parameters])
           if final and line.startswith(' Disagreeable restraints'):
             disag = True
             continue
@@ -121,7 +116,7 @@ class Refmod(object):
       '''
       filedata = self.fileparser(self.get_listfile())
       if not filedata:
-        filedata =[]
+        filedata = []
       html = self.htm.table_maker(filedata)
       return html
 
@@ -223,9 +218,13 @@ class html_Table(object):
             td.append(r"""<td align='right'> {} </td>""".format(item))
             continue
           # align left for words:
-          td.append(r"""<td align='left'> 
-              <a href="spy.Refmod.edit_restraints({})" style="text-decoration:none"> 
-              {} </a> </td>""".format(item, item))
+          td.append(r"""
+            <td align='left'> 
+              <a 
+              href="spy.Refmod.edit_restraints({})" style="text-decoration:none"> 
+              {} 
+              </a> 
+            </td>""".format(item, item))
     if not td:
       row = "<tr> No (disagreeable) restraints found in .lst file. </tr>"
     else:
@@ -246,7 +245,6 @@ class html_Table(object):
       if i in ['xz', 'yz', 'xy', 'etc.']:
         continue
       else:
-        #print(remove_partsymbol(i))
         atoms.append(remove_partsymbol(i))
     OV.cmd('editatom {}'.format(' '.join(atoms)))
     
