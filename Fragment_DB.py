@@ -14,7 +14,6 @@ import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
-import string
 from natsort import natsort
 
 OV = OlexFunctions()
