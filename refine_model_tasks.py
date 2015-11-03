@@ -101,7 +101,7 @@ class Refmod(object):
       try:
         lstfile = os.path.abspath(OV.FilePath()+os.path.sep+OV.FileName()+'.lst')
         if not os.path.isfile(lstfile):
-          print('No list file found.')
+          #print('No list file found.')
           return ''
       except:
         print('somethin is wrong with the lst file path.')
