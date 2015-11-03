@@ -17,10 +17,10 @@ try:
   IT = ImageTools()
 except:
   pass
-
 #import cProfile
 #import pstats
 #cp = cProfile.Profile()
+#cp.enable(subcalls=True, builtins=True)
 
 class Refmod(object):
     '''
@@ -65,8 +65,8 @@ class Refmod(object):
             # fline is a list of list
             disargeelist.append(fline)
             num = num+1
-            if num > 1500:
-              print('Abort restraints list. Too many restraints...')
+            if num > 1000:
+              print('Cutting restraints list. Too many restraints...')
               return disargeelist
         return disargeelist
     
@@ -257,20 +257,19 @@ except:
 
 
 if __name__ == '__main__':
-  '''
-  #import cProfile
-  #import pstats
+  import cProfile
+  import pstats
+  cp = cProfile.Profile()
   cp.enable(subcalls=True, builtins=True)
   ref = Refmod()
   try:
-    #lst = ref.fileparser(r'D:\Programme\DSR\example\p21c.lst')
+    lst = ref.fileparser(r'D:\Programme\DSR\example\p21c.lst')
     lst = ref.fileparser(r'D:\tmp\big_strukt\p-1.lst')
-  except() as e:
-    print(e)
+  except:
     lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   tab = htm.table_maker(lst)
-  #print(tab)
+  print(tab)
   cp.disable()
   
   pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)
-  '''
+  
