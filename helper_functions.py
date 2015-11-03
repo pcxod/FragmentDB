@@ -183,8 +183,8 @@ def remove_partsymbol(atom):
     'SAME/SADI'
     '''
     if '_' in atom:
-        prefix = atom.split('_')[0]
-        suffix = atom.split('_')[-1].strip(string.ascii_letters)
+        presuff = atom.split('_')
+        prefix, suffix = presuff[0], presuff[-1].strip(string.ascii_letters)
         if not suffix:
             atom = prefix
         else:

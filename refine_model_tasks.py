@@ -18,7 +18,9 @@ try:
 except:
   pass
 
-
+#import cProfile
+#import pstats
+#cp = cProfile.Profile()
 
 class Refmod(object):
     '''
@@ -29,7 +31,6 @@ class Refmod(object):
       Constructor
       '''
       self.htm = html_Table()
-
       
     def fileparser(self, lstfile):
       '''
@@ -39,9 +40,10 @@ class Refmod(object):
       '''  
       if not lstfile:
         return
-      final = False
       disag = False
+      final = False
       disargeelist = []
+      num = 0
       with open(lstfile, 'r') as f:
         for line in f:
           splitline = line.split()
@@ -62,6 +64,10 @@ class Refmod(object):
             fline = self.lineformatter(splitline)
             # fline is a list of list
             disargeelist.append(fline)
+            num = num+1
+            if num > 1500:
+              print('Abort restraints list. Too many restraints...')
+              return disargeelist
         return disargeelist
     
     def lineformatter(self, line):
@@ -75,12 +81,11 @@ class Refmod(object):
         if i[0].isalpha():
           pos = num
           break
-      line2 = []
       # remove the part symbol from e.g. F1_2a:
-      for i in line:
-        line2.append(remove_partsymbol(i))
+      for num, i in enumerate(line):
+        line[num] = remove_partsymbol(i)
       # joining columns without numbers:
-      line[pos:] = [' '.join(line2[pos:])]
+      line[pos:] = [' '.join(line[pos:])]
       tline = ' '.join(line)
       for n in REL_RESTR_CARDS:
         if n in tline:
@@ -121,12 +126,8 @@ class html_Table(object):
   def __init__(self):
     try:
       # more than two colors here are too crystmas treelike:
-      # grade_1_colour = OV.GetParam('gui.skin.diagnostics.colour_grade1')
-      # self.grade_1_colour = self.rgb2hex(IT.adjust_colour(grade_1_colour, luminosity=1.8))    
       grade_2_colour = OV.GetParam('gui.skin.diagnostics.colour_grade2')
       self.grade_2_colour = self.rgb2hex(IT.adjust_colour(grade_2_colour, luminosity=1.8)) 
-      # grade_3_colour = OV.GetParam('gui.skin.diagnostics.colour_grade3')
-      # self.grade_3_colour = self.rgb2hex(IT.adjust_colour(grade_3_colour, luminosity=1.8))
       grade_4_colour = OV.GetParam('gui.skin.diagnostics.colour_grade4')
       self.grade_4_colour = self.rgb2hex(IT.adjust_colour(grade_4_colour, luminosity=1.8))
     except(ImportError, NameError):
@@ -187,16 +188,11 @@ class html_Table(object):
     creates a table row for the restraints list.
     :type rowdata: list
     '''
-    import re
     td = []
     bgcolor = ''
     try:
-      #if abs(float(rowdata[2])) > 2.0*float(rowdata[3]):
-      #  bgcolor = r"""bgcolor='{}'""".format(self.grade_1_colour)
       if abs(float(rowdata[2])) > 2.5*float(rowdata[3]):
         bgcolor = r"""bgcolor='{}'""".format(self.grade_2_colour)
-      #if abs(float(rowdata[2])) > 3.0*float(rowdata[3]):
-      #  bgcolor = r"""bgcolor='{}'""".format(self.grade_3_colour)
       if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
         bgcolor = r"""bgcolor='{}'""".format(self.grade_4_colour)        
     except():
@@ -211,7 +207,7 @@ class html_Table(object):
         else:
           td.append(r"""<td align='right' {0}> {1} </td>""".format(bgcolor, item))
       except:
-        if re.search('-', item):  
+        if item.startswith('-'):  
           # only a minus sign
           td.append(r"""<td align='center'> {} </td>""".format(item))
         else:
@@ -261,9 +257,20 @@ except:
 
 
 if __name__ == '__main__':
+  '''
+  #import cProfile
+  #import pstats
+  cp.enable(subcalls=True, builtins=True)
   ref = Refmod()
   try:
-    lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
-  except:
+    #lst = ref.fileparser(r'D:\Programme\DSR\example\p21c.lst')
+    lst = ref.fileparser(r'D:\tmp\big_strukt\p-1.lst')
+  except() as e:
+    print(e)
     lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
-  print(htm.table_maker(lst))
+  tab = htm.table_maker(lst)
+  #print(tab)
+  cp.disable()
+  
+  pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)
+  '''
