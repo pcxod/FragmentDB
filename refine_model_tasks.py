@@ -119,18 +119,19 @@ class html_Table(object):
   html table generator
   '''
   def __init__(self):
-    # more than two colors here are too crystmas treelike:
-    #self.grade_2_colour = '#FFD100'
-    #self.grade_4_colour = '#FF1030'
-    #grade_1_colour = OV.GetParam('gui.skin.diagnostics.colour_grade1')
-    #self.grade_1_colour = self.rgb2hex(IT.adjust_colour(grade_1_colour, luminosity=1.8))    
-    grade_2_colour = OV.GetParam('gui.skin.diagnostics.colour_grade2')
-    self.grade_2_colour = self.rgb2hex(IT.adjust_colour(grade_2_colour, luminosity=1.8)) 
-    #grade_3_colour = OV.GetParam('gui.skin.diagnostics.colour_grade3')
-    #self.grade_3_colour = self.rgb2hex(IT.adjust_colour(grade_3_colour, luminosity=1.8))
-    grade_4_colour = OV.GetParam('gui.skin.diagnostics.colour_grade4')
-    self.grade_4_colour = self.rgb2hex(IT.adjust_colour(grade_4_colour, luminosity=1.8))
-    
+    try:
+      # more than two colors here are too crystmas treelike:
+      # grade_1_colour = OV.GetParam('gui.skin.diagnostics.colour_grade1')
+      # self.grade_1_colour = self.rgb2hex(IT.adjust_colour(grade_1_colour, luminosity=1.8))    
+      grade_2_colour = OV.GetParam('gui.skin.diagnostics.colour_grade2')
+      self.grade_2_colour = self.rgb2hex(IT.adjust_colour(grade_2_colour, luminosity=1.8)) 
+      # grade_3_colour = OV.GetParam('gui.skin.diagnostics.colour_grade3')
+      # self.grade_3_colour = self.rgb2hex(IT.adjust_colour(grade_3_colour, luminosity=1.8))
+      grade_4_colour = OV.GetParam('gui.skin.diagnostics.colour_grade4')
+      self.grade_4_colour = self.rgb2hex(IT.adjust_colour(grade_4_colour, luminosity=1.8))
+    except(ImportError, NameError):
+      self.grade_2_colour = '#FFD100'
+      self.grade_4_colour = '#FF1030'
 
   def rgb2hex(self, rgb):
     """
