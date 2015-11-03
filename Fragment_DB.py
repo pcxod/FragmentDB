@@ -14,6 +14,8 @@ import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
+import string
+from natsort import natsort
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -654,7 +656,8 @@ class FragmentDB(PT):
       if at[0] == 'H' and at[:2] not in ('He', 'Hf', 'Ho', 'Hg'):
         continue
       atoms.append(at)
-    atoms.sort()
+    #atoms.sort()
+    natsort(atoms)
     crd = [ olx.Crd(x) for x in atoms ]
     # now I want to remove the residue number:
     atoms = [ y.split('_')[0] for y in atoms]
