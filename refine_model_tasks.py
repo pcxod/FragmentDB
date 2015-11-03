@@ -262,6 +262,8 @@ except:
 
 if __name__ == '__main__':
   ref = Refmod()
-  #lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
-  lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
+  try:
+    lst = ref.fileparser('d:\Programme\DSR\example\p21c-test.lst')
+  except:
+    lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   print(htm.table_maker(lst))
