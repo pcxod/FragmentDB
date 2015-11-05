@@ -29,7 +29,7 @@ Fragen und Ideen:
 - How do I get the Id of a selected atom?
 - onreturn="html.Call(~name~.onchange)"
 - How to make a link without underline?
-
+- Write sqlite to DSR text database export method.
 '''
 
 instance_path = OV.DataDir()
