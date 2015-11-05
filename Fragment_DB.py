@@ -14,8 +14,6 @@ import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
-import string
-from natsort import natsort
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -24,9 +22,8 @@ r'''
 Fragen und Ideen:
 
 - check_same_thread=False ?
-- ask oleg to save/load only graphical things in the model (save model 'fred') 
+- ask oleg to save/load only graphical things in the model e.g. (save model 'fred' -g) 
 
-- Check if restraints already there
 - should I introduce a rigid group checkbox?
 
 - How do I get the Id of a selected atom?
@@ -656,8 +653,8 @@ class FragmentDB(PT):
       if at[0] == 'H' and at[:2] not in ('He', 'Hf', 'Ho', 'Hg'):
         continue
       atoms.append(at)
-    #atoms.sort()
-    natsort(atoms)
+    atoms.sort()
+    #natsort(atoms)
     crd = [ olx.Crd(x) for x in atoms ]
     # now I want to remove the residue number:
     atoms = [ y.split('_')[0] for y in atoms]

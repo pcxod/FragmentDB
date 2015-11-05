@@ -103,7 +103,8 @@ SetVar(fdb_fit,
     <br>
     *Atoms:* 
     insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also 
-    directly copy atoms from SHELX files or copy coordiinates from Avogadro.
+    directly copy atoms from SHELX files or copy coordiinates from Avogadro. 
+    http://avogadro.cc/
     <br>
     *Restraints:* 
     Type any SHELX compatible restraint here (except SAME). 
@@ -118,8 +119,10 @@ SetVar(fdb_fit,
     <br>
     ~Replace Mode~
     <br>
-    If enabled, all atoms inside PART 0 lying in a radius of 1.22A around the atoms of the fitted fragment 
-    will be deleted. This is particular useful to replace atoms of a disordered structure just solved using SHELXT.
+    If enabled, all atoms inside PART 0 lying in a radius of 1.22 A around the 
+    atoms of the fitted fragment will be deleted. This is particular useful to 
+    replace atoms of a disordered structure just solved using SHELXT. 
+    It will not delete atoms in different PARTs than PART 0. 
     ")
 $-
 $+
