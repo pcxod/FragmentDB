@@ -30,6 +30,7 @@ Fragen und Ideen:
 - onreturn="html.Call(~name~.onchange)"
 - How to make a link without underline?
 - Write sqlite to DSR text database export method.
+- list of rings for FLAT restraints
 '''
 
 instance_path = OV.DataDir()
