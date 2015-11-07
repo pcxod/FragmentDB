@@ -7,8 +7,9 @@ here are only functions that are completely independent of olex
 '''
 from __future__ import print_function
 from collections import Counter
-from math import radians, cos, sqrt
+from math import radians, cos, sqrt, sin
 import string
+from copy import deepcopy
 #import ast
 
 SHX_CARDS = ('TITL', 'CELL', 'ZERR', 'LATT', 'SYMM', 'SFAC', 'UNIT', 'LIST',
@@ -147,6 +148,132 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
     print('Check database entry.\n')
   return status
 
+def pairwise(iterable):
+    '''
+     s -> (s0,s1), (s2,s3), (s4, s5), ...
+     
+     >>> liste = ['C1', 'C2', 'C2', 'C3', 'C4', 'C5', 'C5', 'C6']
+     >>> pairwise(liste)
+     [('C1', 'C2'), ('C2', 'C3'), ('C4', 'C5'), ('C5', 'C6')]
+     '''
+    a = iter(iterable)
+    return zip(a, a)
+
+def mean(values):
+    '''
+    returns mean value of a list of numbers
+    
+    >>> mean([1, 2, 3, 4, 1, 2, 3, 4])
+    2.5
+    >>> round(mean([1, 2, 3, 4, 1, 2, 3, 4.1, 1000000]), 4)
+    111113.3444
+    '''
+    mean = sum(values) / float(len(values)) 
+    return mean
+
+def median(nums):
+    """
+    calculates the median of a list of numbers
+    >>> median([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4])
+    2.5
+    >>> median([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4.1, 1000000])
+    3
+    >>> median([])
+    Traceback (most recent call last):
+    ...
+    ValueError: Need a non-empty iterable
+    """
+    ls = sorted(nums)
+    n = len(ls)
+    if n == 0:
+        raise ValueError("Need a non-empty iterable")
+    # for uneven list length:
+    elif n % 2 == 1:
+        # // is floordiv:
+        return ls[n // 2]
+    else:
+        return sum(ls[(n / 2 - 1):(n / 2 + 1)]) / 2.0
+
+def std_dev(data):
+    '''
+    returns standard deviation of values rounded to pl decimal places
+    S = sqrt( (sum(x-xm)^2) / n-1 )
+    xm = sum(x)/n
+    :param values: list with integer or float values
+    :type values: list  
+    :param pl: round to n places
+    :type pl: integer
+    
+    >>> round(std_dev([1.234, 1.222, 1.345, 1.451, 1.000, 1.234, 1.321, 1.222]), 8)
+    0.1303522
+    '''
+    if len(data) == 0:
+        return 0
+    K = data[0]
+    n = 0
+    Sum = 0
+    Sum_sqr = 0
+    for x in data:
+        n = n + 1
+        Sum += x - K
+        Sum_sqr += (x - K) * (x - K)
+    variance = (Sum_sqr - (Sum * Sum) / n) / (n - 1)
+    # use n instead of (n-1) if want to compute the exact variance of the given data
+    # use (n-1) if data are samples of a larger population
+    return sqrt(variance)
+
+def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
+  '''
+  check if same distance restraints make sense. Each length of an atom
+  pair is tested agains the deviation from the mean of each restraint.
+  The deviation must ly in factor times the rmsd.        
+  :param atoms: atoms list of thr fragment
+  :param restraints: restraints list
+  :param fragment: frag name
+  :param factor: factor for confidence interval
+  '''
+  restraints = deepcopy(restr)
+  atnames = [i[0].upper() for i in atoms]
+  for num, line in enumerate(restraints):
+    print(line)
+    if not line:
+      continue
+    if line[0].upper() == 'SADI':
+      del line[0]
+      if not str(line[0][0]).isalpha():
+        del line[0] # delete standard deviation
+      if len(line)%2 == 1: # test for uneven atoms count
+        print('Inconsistent SADI restraint line {} of "{}". Not all atoms form a pair.'.format(num, fragment))   
+      pairs = pairwise(line)
+      print(pairs)
+      distances = []
+      pairlist = []
+      for i in pairs:  
+        pairlist.append(i)
+        a = atoms[atnames.index(i[0])][1:4]
+        b = atoms[atnames.index(i[1])][1:4]
+        print(a, b, 'ab###')  
+        #a = [float(x) for x in a]
+        #b = [float(y) for y in b]
+        dist = atomic_distance(a, b, cell)
+        distances.append(dist)
+      # factor time standard deviation of the SADI distances
+      s3 = factor*std_dev(distances) 
+      # mean distance
+      if len(distances) > 10:
+        meand = median(distances)
+      else:
+        meand = mean(distances) 
+      for dist, pair in zip(distances, pairlist):
+        # deviation of each distance from mean 
+        dev = abs(dist-meand)
+        if dev > s3:
+          print("{}:".format(fragment))
+          pair = ' '.join(pair)
+          print('More than {}sigma={:.2} deviation in atom pair "{}" of SADI line {} ({:.2} A).'.format(factor, s3, pair, num+1, dev))
+          print(restraints[num][:40], '...')
+
+
 def invert_atomlist_coordinates(atomst):
     '''
     Inverts atom coordinates
@@ -193,10 +320,8 @@ def remove_partsymbol(atom):
             else:
                 atom = prefix+'_'+suffix
     return atom
-  
-############################################################################
-# Experimental:
-######################################################################
+
+
 def flatten(nested):
   '''
   flattens a nested list
@@ -216,6 +341,33 @@ def flatten(nested):
     result.append(nested)
   return result
 
+def frac_to_cart(frac_coord, cell):
+  '''
+  Converts fractional coordinates to cartesian coodinates
+  :param frac_coord: [float, float, float]
+  :param cell:       [float, float, float, float, float, float]
+    >>> cell = (10.5086, 20.9035, 20.5072, 90, 94.13, 90)
+  >>> coord1 = (-0.186843,   0.282708,   0.526803)
+  >>> print(frac_to_cart(coord1, cell))
+  (-2.741505423999065, 5.909586678000002, 10.775200700893734)
+  '''
+  a, b, c, alpha, beta, gamma = cell
+  x, y, z = frac_coord
+  alpha = radians(alpha)
+  beta  = radians(beta)
+  gamma = radians(gamma)
+  cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
+  sinastar = sqrt(1-cosastar**2)
+  Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
+  Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
+  Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
+  return(Xc, Yc, Zc)
+  
+############################################################################
+# Experimental:
+######################################################################
+
+"""
 def get_overlapped_chunks(ring, size):
   '''
   returns a list of chunks of size 'size' which overlap with one field.
@@ -260,29 +412,6 @@ def get_formated_flats():
     #i = [misc.remove_partsymbol(x) for x in i]
     flat_format.append('FLAT {}\n'.format(' '.join(i)))
   return flat_format
-
-def frac_to_cart(frac_coord, cell):
-  '''
-  Converts fractional coordinates to cartesian coodinates
-  :param frac_coord: [float, float, float]
-  :param cell:       [float, float, float, float, float, float]
-    >>> cell = (10.5086, 20.9035, 20.5072, 90, 94.13, 90)
-  >>> coord1 = (-0.186843,   0.282708,   0.526803)
-  >>> print(frac_to_cart(coord1, cell))
-  (-2.741505423999065, 5.909586678000002, 10.775200700893734)
-  '''
-  from math import cos, sin, sqrt, radians
-  a, b, c, alpha, beta, gamma = cell
-  x, y, z = frac_coord
-  alpha = radians(alpha)
-  beta  = radians(beta)
-  gamma = radians(gamma)
-  cosastar = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
-  sinastar = sqrt(1-cosastar**2)
-  Xc = a*x + (b*cos(gamma))*y + (c*cos(beta))*z
-  Yc = 0   + (b*sin(gamma))*y + (-c*sin(beta)*cosastar)*z
-  Zc = 0   +  0               + (c*sin(beta)*sinastar)*z
-  return(Xc, Yc, Zc)
 
 def vol_tetrahedron(a, b, c, d, cell=None):
   '''
@@ -351,7 +480,7 @@ def determinante(a):
   return (a[0][0] * (a[1][1] * a[2][2] - a[2][1] * a[1][2])
          -a[1][0] * (a[0][1] * a[2][2] - a[2][1] * a[0][2])
          +a[2][0] * (a[0][1] * a[1][2] - a[1][1] * a[0][2]))
-
+"""
 
 def initialize_user_db(user_dbpath):
   '''

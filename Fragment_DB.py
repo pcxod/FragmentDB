@@ -14,6 +14,7 @@ import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
+import helper_functions
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -942,6 +943,8 @@ class FragmentDB(PT):
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('\nFragment was not added to the database!')
       return
+    helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
+                                            fragname, factor=3.5)
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                       reference, picture=pic_data)
