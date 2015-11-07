@@ -944,7 +944,7 @@ class FragmentDB(PT):
       print('\nFragment was not added to the database!')
       return
     helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
-                                            fragname, factor=3.5)
+                                            fragname, factor=2.5)
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                       reference, picture=pic_data)
@@ -953,7 +953,7 @@ class FragmentDB(PT):
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
       olx.SetVar('fragment_ID', frag_id)
     else:
-      print('Something is wrong with fragment storage.')
+      print('Something went wrong during fragment storage.')
     self.get_frag_for_gui()
     self.set_fragment_picture()
     olx.html.SetValue('RESIDUE_CLASS', '')
@@ -1031,12 +1031,16 @@ class FragmentDB(PT):
       #self.blink_field('Inputfrag.restraints')
       #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
-    at_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
+    helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
+                                            fragname, factor=2.5)
+    frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
-    if at_id:
+    if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    else:
+      print('Something went wrong during fragment storage.')
     # now get the fragment back from the db to display the new cell:
-    olx.SetVar('fragment_ID', at_id)
+    olx.SetVar('fragment_ID', frag_id)
     self.init_plugin()
 
   def blank_state(self):

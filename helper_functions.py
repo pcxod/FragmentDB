@@ -235,7 +235,6 @@ def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
   restraints = deepcopy(restr)
   atnames = [i[0].upper() for i in atoms]
   for num, line in enumerate(restraints):
-    print(line)
     if not line:
       continue
     if line[0].upper() == 'SADI':
@@ -245,33 +244,29 @@ def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
       if len(line)%2 == 1: # test for uneven atoms count
         print('Inconsistent SADI restraint line {} of "{}". Not all atoms form a pair.'.format(num, fragment))   
       pairs = pairwise(line)
-      print(pairs)
       distances = []
       pairlist = []
       for i in pairs:  
         pairlist.append(i)
         a = atoms[atnames.index(i[0])][1:4]
         b = atoms[atnames.index(i[1])][1:4]
-        print(a, b, 'ab###')  
-        #a = [float(x) for x in a]
-        #b = [float(y) for y in b]
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
       # factor time standard deviation of the SADI distances
       s3 = factor*std_dev(distances) 
       # mean distance
-      if len(distances) > 10:
-        meand = median(distances)
+      if len(distances) > 3:
+        mean_dist = median(distances)
       else:
-        meand = mean(distances) 
+        mean_dist = mean(distances) 
       for dist, pair in zip(distances, pairlist):
         # deviation of each distance from mean 
-        dev = abs(dist-meand)
+        dev = abs(dist-mean_dist)
         if dev > s3:
           print("{}:".format(fragment))
           pair = ' '.join(pair)
-          print('More than {}sigma={:.2} deviation in atom pair "{}" of SADI line {} ({:.2} A).'.format(factor, s3, pair, num+1, dev))
-          print(restraints[num][:40], '...')
+          print('More than {}sigma={:.2} deviation in atom pair "{}" ({:.2} A) of SADI line {}.'.format(factor, s3, pair, dev, num+1))
+          print(' '.join(restraints[num])[:40], '...')
 
 
 def invert_atomlist_coordinates(atomst):
