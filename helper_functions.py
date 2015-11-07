@@ -227,7 +227,7 @@ def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
   check if same distance restraints make sense. Each length of an atom
   pair is tested agains the deviation from the mean of each restraint.
   The deviation must ly in factor times the rmsd.        
-  :param atoms: atoms list of thr fragment
+  :param atoms: atoms list of the fragment ['C1', x, y, z]
   :param restraints: restraints list
   :param fragment: frag name
   :param factor: factor for confidence interval
@@ -239,8 +239,11 @@ def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
       continue
     if line[0].upper() == 'SADI':
       del line[0]
-      if not str(line[0][0]).isalpha():
-        del line[0] # delete standard deviation
+      try:
+        if not str(line[0][0]).isalpha():
+          del line[0] # delete standard deviation
+      except(IndexError):
+        return
       if len(line)%2 == 1: # test for uneven atoms count
         print('Inconsistent SADI restraint line {} of "{}". Not all atoms form a pair.'.format(num, fragment))   
       pairs = pairwise(line)
@@ -248,12 +251,20 @@ def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
       pairlist = []
       for i in pairs:  
         pairlist.append(i)
-        a = atoms[atnames.index(i[0])][1:4]
-        b = atoms[atnames.index(i[1])][1:4]
+        try:
+          a = atoms[atnames.index(i[0])][1:4]
+          b = atoms[atnames.index(i[1])][1:4]
+        except(ValueError):
+          return
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
       # factor time standard deviation of the SADI distances
-      s3 = factor*std_dev(distances) 
+      try:
+        s3 = factor*std_dev(distances)
+      except(ZeroDivisionError):
+        return 
+      if len(distances) < 1:
+        return
       # mean distance
       if len(distances) > 3:
         mean_dist = median(distances)
