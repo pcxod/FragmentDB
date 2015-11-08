@@ -270,31 +270,32 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
 def nalimov_test(data):
   '''
   returns a index list of outliers base on the Nalimov test for data.
+  Modified implementation of:
   "R. Kaiser, G. Gottschalk, Elementare Tests zur Beurteilung von Messdaten
-  Bibliographisches Institut, Mannheim 1972."
+  Bibliographisches Institut, Mannheim 1972." It is tuned to detect only 
+  the really bad outliers.
   
-  >>> nalimov_test([1.120, 1.234, 1.324, 1.456, 1.145, 1.222, 1.123, 1.322, 1.2654, 1.221, 1.215])
+  >>> data = [1.120, 1.234, 1.224, 1.469, 1.145, 1.222, 1.123, 1.223, 1.2654, 1.221, 1.215]
+  >>> nalimov_test(data)
   [3]
   '''
   # q-values for degrees of freedom:
   f = {1:1.409, 2:1.645, 3:1.757, 4:1.814, 5:1.848, 6:1.870, 7:1.885, 8:1.895,
        9:1.903, 10:1.910, 11:1.916, 12:1.920, 13:1.923, 14:1.926, 15:1.928, 
        16:1.931, 17:1.933, 18:1.935, 19:1.936, 20:1.937, 30:1.945}
-  fact = sqrt(len(data)/(len(data)-1))
+  fact = sqrt(float(len(data))/(len(data)-0.4))
   fval = len(data)-2
   if fval < 2:
     return []
   outliers = []
   if fval in f:
     # less strict than the original:
-    q_crit = f[fval]+(f[fval]*0.3)
+    q_crit = f[fval]+(f[fval]*0.4)
   else:
-    q_crit = 1.95
-  #print('q:', q_crit)
+    q_crit = 1.95+(1.95*0.4)
   for num, i in enumerate(data):
     q = abs(((i-median(data))/std_dev(data))*fact)
     if q > q_crit:
-      #print('outl:', q)
       outliers.append(num)
   return outliers
 
