@@ -264,7 +264,7 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
         for x in outliers:
           print("\n{}:".format(fragment))
           pair = ' '.join(pairlist[x])
-          print('Large deviation in atom pair "{}" ({:4.4f} A) of SADI line {}.'.format(pair, distances[x], num+1))
+          print('Suspicious deviation in atom pair "{}" ({:4.4f} A) of SADI line {}.'.format(pair, distances[x], num+1))
           print(' '.join(restraints[num])[:40], '...')
 
 def nalimov_test(data):
@@ -287,7 +287,7 @@ def nalimov_test(data):
   outliers = []
   if fval in f:
     # less strict than the original:
-    q_crit = f[fval]+(f[fval]*0.5)
+    q_crit = f[fval]+(f[fval]*0.3)
   else:
     q_crit = 1.95
   #print('q:', q_crit)
