@@ -944,7 +944,7 @@ class FragmentDB(PT):
       print('\nFragment was not added to the database!')
       return
     helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
-                                            fragname, factor=2.5)
+                                            fragname)
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                       reference, picture=pic_data)
@@ -1032,7 +1032,7 @@ class FragmentDB(PT):
       #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
     helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
-                                            fragname, factor=2.5)
+                                            fragname)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
     if frag_id:

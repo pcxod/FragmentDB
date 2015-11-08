@@ -222,7 +222,7 @@ def std_dev(data):
     # use (n-1) if data are samples of a larger population
     return sqrt(variance)
 
-def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
+def check_sadi_consistence(atoms, restr, cell, fragment):
   '''
   check if same distance restraints make sense. Each length of an atom
   pair is tested agains the deviation from the mean of each restraint.
@@ -259,26 +259,44 @@ def check_sadi_consistence(atoms, restr, cell, fragment, factor=3.5):
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
       # factor time standard deviation of the SADI distances
-      try:
-        s3 = factor*std_dev(distances)
-      except(ZeroDivisionError):
-        return 
-      if len(distances) < 1:
-        return
-      # mean distance
-      if len(distances) > 3:
-        mean_dist = median(distances)
-      else:
-        mean_dist = mean(distances) 
-      for dist, pair in zip(distances, pairlist):
-        # deviation of each distance from mean 
-        dev = abs(dist-mean_dist)
-        if dev > s3:
-          print("{}:".format(fragment))
-          pair = ' '.join(pair)
-          print('More than {}sigma={:.2} deviation in atom pair "{}" ({:.2} A) of SADI line {}.'.format(factor, s3, pair, dev, num+1))
+      outliers = nalimov_test(distances)
+      if outliers:
+        for x in outliers:
+          print("\n{}:".format(fragment))
+          pair = ' '.join(pairlist[x])
+          print('Large deviation in atom pair "{}" ({:4.4f} A) of SADI line {}.'.format(pair, distances[x], num+1))
           print(' '.join(restraints[num])[:40], '...')
 
+def nalimov_test(data):
+  '''
+  returns a index list of outliers base on the Nalimov test for data.
+  "R. Kaiser, G. Gottschalk, Elementare Tests zur Beurteilung von Messdaten
+  Bibliographisches Institut, Mannheim 1972."
+  
+  >>> nalimov_test([1.120, 1.234, 1.324, 1.456, 1.145, 1.222, 1.123, 1.322, 1.2654, 1.221, 1.215])
+  [3]
+  '''
+  # q-values for degrees of freedom:
+  f = {1:1.409, 2:1.645, 3:1.757, 4:1.814, 5:1.848, 6:1.870, 7:1.885, 8:1.895,
+       9:1.903, 10:1.910, 11:1.916, 12:1.920, 13:1.923, 14:1.926, 15:1.928, 
+       16:1.931, 17:1.933, 18:1.935, 19:1.936, 20:1.937, 30:1.945}
+  fact = sqrt(len(data)/(len(data)-1))
+  fval = len(data)-2
+  if fval < 2:
+    return []
+  outliers = []
+  if fval in f:
+    # less strict than the original:
+    q_crit = f[fval]+(f[fval]*0.5)
+  else:
+    q_crit = 1.95
+  #print('q:', q_crit)
+  for num, i in enumerate(data):
+    q = abs(((i-median(data))/std_dev(data))*fact)
+    if q > q_crit:
+      #print('outl:', q)
+      outliers.append(num)
+  return outliers
 
 def invert_atomlist_coordinates(atomst):
     '''
