@@ -19,7 +19,8 @@ SetVar(fdb_chooser,
     ~User Defined Database~
     <br>
     The main database is write protected, but you can add and change as many 
-    fragments you like. They will be stored in a separate database.
+    fragments you like. They will be stored in a separate database. The user 
+    database will never be overwritten by plugin updates!
     <br>
     Fragments created or changed by the user will get a #user# at 
     the end of their names.  
@@ -134,11 +135,15 @@ SetVar(results,
     <br>
     The long list shows ALL restraints and the short list only the most disargreeable ones.
     <br>
-    The error of a parameter should generally not be higher than 3*Sigma. A higher 
+    The error of a parameter should generally not be higher than 3Sigma. A higher 
     value means that the assumption of the target value originating from 
     general observations is not met. The reason for this can be either, for 
     example, a distorted molecular geometry like a bend aromatic ring or 
     systematic errors in the data.
+    <br>
+    Disagreeable restraints will be highlighted in yellow if the error is above 
+    2.5sigma. They will be highlighted in red if the error is above 
+    3.5sigma. 
     ")
 $-
 

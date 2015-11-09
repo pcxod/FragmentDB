@@ -149,7 +149,7 @@ class html_Table(object):
     for line in tabledata:
       table.append(self.row(line))
     if not table:
-      return 'The restraints seem to be well applied.'
+      return ''
     header = r"""
         <table> 
         <tr> 

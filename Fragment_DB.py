@@ -14,6 +14,7 @@ import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
+import helper_functions
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -29,7 +30,8 @@ Fragen und Ideen:
 - How do I get the Id of a selected atom?
 - onreturn="html.Call(~name~.onchange)"
 - How to make a link without underline?
-
+- Write sqlite to DSR text database export method.
+- list of rings for FLAT restraints
 '''
 
 instance_path = OV.DataDir()
@@ -142,8 +144,11 @@ class FragmentDB(PT):
     except:
       print('Wrong value. Only Numbers allowed for residue numbers.')
       return
-    if resinum in used and not resinum == 0:
+    if resinum in used:
       print('\nResidue number already occupied.')
+      return
+    elif resinum == 0:
+      pass
     else:
       olx.html.SetValue('RESIDUE', resinum)
       OV.SetParam('fragment_DB.fragment.resinum', resinum)
@@ -680,7 +685,7 @@ class FragmentDB(PT):
     pop_name = "Inputfrag"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-    box_x = int(screen_width*0.1)
+    box_x = int(screen_width*0.2)
     box_y = int(screen_height*0.1)
     width, height = 550, 710
     path = "{}/inputfrag.htm".format(self.p_path)
@@ -706,6 +711,7 @@ class FragmentDB(PT):
     box_y = int(screen_height*0.1)
     width, height = 500, 520
     html = """
+    <a target="" href="spy.FragmentDB.save_picture()">
     <zimg name="LMOLEPIC" 
         border="0" 
         src="largefdbimg.png" 
@@ -716,6 +722,19 @@ class FragmentDB(PT):
     OV.write_to_olex('large_fdb_image.htm', html)
     olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
               h=height, x=box_x, y=box_y)
+  
+  def save_picture(self):  
+    '''
+    save the enlarged picture to a file
+    '''
+    title = 'Save Pictue'
+    ffilter = '*.png;*.PNG'
+    location = ''
+    default_name = 'molecule.png'
+    img_name = olx.FileSave(title, ffilter, location, default_name)
+    if not img_name:
+      return
+    olx.fs.Dump("largefdbimg.png", img_name)
 
   def set_frag_name(self, enable_check=True):
     '''
@@ -941,6 +960,8 @@ class FragmentDB(PT):
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('\nFragment was not added to the database!')
       return
+    helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
+                                            fragname)
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                       reference, picture=pic_data)
@@ -949,7 +970,7 @@ class FragmentDB(PT):
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
       olx.SetVar('fragment_ID', frag_id)
     else:
-      print('Something is wrong with fragment storage.')
+      print('Something went wrong during fragment storage.')
     self.get_frag_for_gui()
     self.set_fragment_picture()
     olx.html.SetValue('RESIDUE_CLASS', '')
@@ -1027,12 +1048,16 @@ class FragmentDB(PT):
       #self.blink_field('Inputfrag.restraints')
       #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
-    at_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
+    helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
+                                            fragname)
+    frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
-    if at_id:
+    if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    else:
+      print('Something went wrong during fragment storage.')
     # now get the fragment back from the db to display the new cell:
-    olx.SetVar('fragment_ID', at_id)
+    olx.SetVar('fragment_ID', frag_id)
     self.init_plugin()
 
   def blank_state(self):
@@ -1106,7 +1131,7 @@ class FragmentDB(PT):
     OV.cmd("center")
     OV.cmd("sel -i")
     OV.cmd("mpln -n")
-    OV.cmd("sel -i")
+    OV.cmd("sel -a")
     OV.cmd("sel bonds -u")
     OV.cmd('label -a')
     OV.cmd('pers')
@@ -1256,27 +1281,28 @@ ref = Refmod()
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
-OV.registerFunction(fdb.show_reference,False,"FragmentDB")
-OV.registerFunction(fdb.make_selctions_picture,False,"FragmentDB")
-OV.registerFunction(fdb.get_selected_atoms,False,"FragmentDB")
-OV.registerFunction(fdb.open_edit_fragment_window,False,"FragmentDB")
-OV.registerFunction(fdb.list_fragments,False,"FragmentDB")
-OV.registerFunction(fdb.fit_db_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.get_resi_class,False,"FragmentDB")
-OV.registerFunction(fdb.find_free_residue_num,False,"FragmentDB")
-OV.registerFunction(fdb.get_frag_for_gui,False,"FragmentDB")
-OV.registerFunction(fdb.set_occu,False,"FragmentDB")
-OV.registerFunction(fdb.set_resiclass,False,"FragmentDB")
-OV.registerFunction(fdb.set_resinum,False,"FragmentDB")
-OV.registerFunction(fdb.store_new_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.set_fragment_picture,False,"FragmentDB")
-OV.registerFunction(fdb.get_chemdrawstyle,False,"FragmentDB")
-OV.registerFunction(fdb.add_new_frag,False,"FragmentDB")
-OV.registerFunction(fdb.update_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.delete_fragment,False,"FragmentDB")
-OV.registerFunction(fdb.display_large_image,False,"FragmentDB")
-OV.registerFunction(fdb.store_picture,False,"FragmentDB")
-OV.registerFunction(fdb.display_image,False,"FragmentDB")
+OV.registerFunction(fdb.show_reference, False, "FragmentDB")
+OV.registerFunction(fdb.make_selctions_picture, False, "FragmentDB")
+OV.registerFunction(fdb.get_selected_atoms, False, "FragmentDB")
+OV.registerFunction(fdb.open_edit_fragment_window, False, "FragmentDB")
+OV.registerFunction(fdb.list_fragments, False, "FragmentDB")
+OV.registerFunction(fdb.fit_db_fragment, False, "FragmentDB")
+OV.registerFunction(fdb.get_resi_class, False, "FragmentDB")
+OV.registerFunction(fdb.find_free_residue_num, False, "FragmentDB")
+OV.registerFunction(fdb.get_frag_for_gui, False, "FragmentDB")
+OV.registerFunction(fdb.set_occu, False, "FragmentDB")
+OV.registerFunction(fdb.set_resiclass, False, "FragmentDB")
+OV.registerFunction(fdb.set_resinum, False, "FragmentDB")
+OV.registerFunction(fdb.store_new_fragment, False, "FragmentDB")
+OV.registerFunction(fdb.set_fragment_picture, False, "FragmentDB")
+OV.registerFunction(fdb.get_chemdrawstyle, False, "FragmentDB")
+OV.registerFunction(fdb.add_new_frag, False, "FragmentDB")
+OV.registerFunction(fdb.update_fragment, False, "FragmentDB")
+OV.registerFunction(fdb.delete_fragment, False, "FragmentDB")
+OV.registerFunction(fdb.display_large_image, False, "FragmentDB")
+OV.registerFunction(fdb.save_picture, False, "FragmentDB")
+OV.registerFunction(fdb.store_picture, False, "FragmentDB")
+OV.registerFunction(fdb.display_image, False, "FragmentDB")
 
 OV.registerFunction(ref.results, False, "FragmentDB")
 
