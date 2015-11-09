@@ -257,22 +257,16 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
         except(ValueError):
           return
         dist = atomic_distance(a, b, cell)
-        #print(dist, i)
         distances.append(dist)
-      warn = False
-      # factor time standard deviation of the SADI distances
       stdev = std_dev(distances)
+      # only do outlier test if standard deviation is suspiciously large:
       if stdev > 0.08:
-        warn = True
-      print('stddev:', stdev)
-      print('mean:', mean(distances))
-      if warn:
         outliers = nalimov_test(distances)
         if outliers:
           print("\n{}:".format(fragment))
           for x in outliers:
             pair = ' '.join(pairlist[x])
-            print('Suspicious deviation in atom pair "{}" ({:4.3f} A, mean: {:4.3f}) of SADI line {}.'.format(pair, distances[x], mean(distances), num+1))
+            print('Suspicious deviation in atom pair "{}" ({:4.3f} A, median: {:4.3f}) of SADI line {}.'.format(pair, distances[x], median(distances), num+1))
             print(' '.join(restr[num])[:60], '...')
 
 def nalimov_test(data):
@@ -302,7 +296,6 @@ def nalimov_test(data):
     q_crit = 1.95
   for num, i in enumerate(data):
     q = abs(((i-median(data))/std_dev(data))*fact)
-    print(q, q_crit, '################')
     if q > q_crit:
       outliers.append(num)
   return outliers
