@@ -257,23 +257,30 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
         except(ValueError):
           return
         dist = atomic_distance(a, b, cell)
+        #print(dist, i)
         distances.append(dist)
+      warn = False
       # factor time standard deviation of the SADI distances
-      outliers = nalimov_test(distances)
-      if outliers:
-        for x in outliers:
+      stdev = std_dev(distances)
+      if stdev > 0.08:
+        warn = True
+      print('stddev:', stdev)
+      print('mean:', mean(distances))
+      if warn:
+        outliers = nalimov_test(distances)
+        if outliers:
           print("\n{}:".format(fragment))
-          pair = ' '.join(pairlist[x])
-          print('Suspicious deviation in atom pair "{}" ({:4.4f} A) of SADI line {}.'.format(pair, distances[x], num+1))
-          print(' '.join(restraints[num])[:40], '...')
+          for x in outliers:
+            pair = ' '.join(pairlist[x])
+            print('Suspicious deviation in atom pair "{}" ({:4.3f} A, mean: {:4.3f}) of SADI line {}.'.format(pair, distances[x], mean(distances), num+1))
+            print(' '.join(restr[num])[:60], '...')
 
 def nalimov_test(data):
   '''
   returns a index list of outliers base on the Nalimov test for data.
   Modified implementation of:
   "R. Kaiser, G. Gottschalk, Elementare Tests zur Beurteilung von Messdaten
-  Bibliographisches Institut, Mannheim 1972." It is tuned to detect only 
-  the really bad outliers.
+  Bibliographisches Institut, Mannheim 1972." 
   
   >>> data = [1.120, 1.234, 1.224, 1.469, 1.145, 1.222, 1.123, 1.223, 1.2654, 1.221, 1.215]
   >>> nalimov_test(data)
@@ -283,18 +290,19 @@ def nalimov_test(data):
   f = {1:1.409, 2:1.645, 3:1.757, 4:1.814, 5:1.848, 6:1.870, 7:1.885, 8:1.895,
        9:1.903, 10:1.910, 11:1.916, 12:1.920, 13:1.923, 14:1.926, 15:1.928, 
        16:1.931, 17:1.933, 18:1.935, 19:1.936, 20:1.937, 30:1.945}
-  fact = sqrt(float(len(data))/(len(data)-0.4))
+  fact = sqrt(float(len(data))/(len(data)-1))
   fval = len(data)-2
   if fval < 2:
     return []
   outliers = []
   if fval in f:
     # less strict than the original:
-    q_crit = f[fval]+(f[fval]*0.4)
+    q_crit = f[fval]
   else:
-    q_crit = 1.95+(1.95*0.4)
+    q_crit = 1.95
   for num, i in enumerate(data):
     q = abs(((i-median(data))/std_dev(data))*fact)
+    print(q, q_crit, '################')
     if q > q_crit:
       outliers.append(num)
   return outliers
