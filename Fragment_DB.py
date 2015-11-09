@@ -1114,7 +1114,7 @@ class FragmentDB(PT):
     OV.cmd("center")
     OV.cmd("sel -i")
     OV.cmd("mpln -n")
-    OV.cmd("sel -i")
+    OV.cmd("sel -a")
     OV.cmd("sel bonds -u")
     OV.cmd('label -a')
     OV.cmd('pers')
