@@ -241,7 +241,7 @@ class FragmentTable():
     # that list: 
     if fragment_id < 0:
       fragment_id = self.get_all_rowids()[fragment_id]
-    req = '''DELETE FROM Fragment WHERE rowid = ?'''
+    #req = '''DELETE FROM Fragment WHERE rowid = ?'''
     req_usr = '''DELETE FROM userdb.Fragment WHERE rowid = ?''' 
     try:
       fragment_id = int(fragment_id)

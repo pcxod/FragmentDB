@@ -225,8 +225,8 @@ def std_dev(data):
 def check_sadi_consistence(atoms, restr, cell, fragment):
   '''
   check if same distance restraints make sense. Each length of an atom
-  pair is tested agains the deviation from the mean of each restraint.
-  The deviation must ly in factor times the rmsd.        
+  pair is tested agains the standard deviation of all distances.
+  For a large standard deviation, the list is tested for outliers. 
   :param atoms: atoms list of the fragment ['C1', x, y, z]
   :param restraints: restraints list
   :param fragment: frag name
@@ -258,6 +258,8 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
           return
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
+      if len(distances) <= 2:
+        return
       stdev = std_dev(distances)
       # only do outlier test if standard deviation is suspiciously large:
       if stdev > 0.08:

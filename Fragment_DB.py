@@ -27,7 +27,8 @@ Fragen und Ideen:
 
 - should I introduce a rigid group checkbox?
 
-- How do I get the Id of a selected atom?
+- How do I get the Id of a selected atom? 
+      divide get_selected_atoms() in two methods.
 - onreturn="html.Call(~name~.onchange)"
 - How to make a link without underline?
 - Write sqlite to DSR text database export method.
@@ -238,17 +239,18 @@ class FragmentDB(PT):
     text = ' '.join(finallist)
     return text
 
-  def onImport(self, atoms):
+  def onImport(self, atom_ids):
     '''
-    Function is called when ImportFrag terminates after import 
-    :param atoms: list of atoms as olex2 atom ids
-    :type atoms: string
+    Function is called when ImportFrag terminates after import. It gets the 
+    atomIds from ImportFrag vie the onFragmentImport callback.
+    :param atom_ids: list of atoms as olex2 atom ids
+    :type atom_ids: string
     '''
-    print('Imported atom ids: {}'.format(atoms))
-    atoms = atoms.split()
+    print('Imported atom ids: {}'.format(atom_ids))
+    atom_ids = atom_ids.split()
     replatoms = None
     if OV.GetParam('fragment_DB.fragment.replace'):
-      replatoms = self.find_atoms_to_replace(atoms)
+      replatoms = self.find_atoms_to_replace(atom_ids)
     # now replace atoms in a certain distance in part 0:
     if replatoms:
       OV.cmd("sel u")
@@ -256,9 +258,37 @@ class FragmentDB(PT):
       OV.cmd('KILL')
       print('Deleting: {}'.format(' '.join(replatoms)))
     # define the other properties:
-    self.define_atom_properties(atoms)
+    self.define_atom_properties(atom_ids)
     self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
+
+  def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
+    '''
+    this method looks around every atom of the fitted fragment and removes 
+    atoms that are near a certain distance.
+    go through all fragment atoms and look for each atom for all atoms in 
+    part 0 if they are nearer as remdist to them
+    :param frag_atoms: atom ids of the fitting fragment ['21', '22', '23', '24']
+    :param remdist: distance below atoms shoud be deleted.
+    '''
+    atoms_to_delete = []
+    all_atoms_dict = self.get_atoms_list(part=0, notype='')
+    frag_crd_dict = {}
+    for i in frag_atoms:
+      # create fragment dict:
+      frag_crd_dict[i] = all_atoms_dict[int(i)]
+      # remove fragment atoms from structure:
+      all_atoms_dict.pop(int(i), None)  
+    for aa_id in all_atoms_dict:
+      if all_atoms_dict[aa_id][2] == 0:
+        for f_id in frag_crd_dict:
+          at1 = all_atoms_dict[aa_id][1] # coordinates
+          at2 = frag_crd_dict[f_id][1] # coordinates
+          d = atomic_distance(at1, at2, self.get_cell())
+          # now the atoms inside the remdist go into deltion list
+          if d < remdist:
+            atoms_to_delete.append(str(aa_id)) 
+    return list(set(atoms_to_delete))
   
   def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1):
     '''
@@ -310,12 +340,9 @@ class FragmentDB(PT):
     except(ValueError):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
-    #partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    # alway use "part -1" to prevent atom deletion
-    atomids = self.insert_frag_with_ImportFrag(fragId, occ=occupancy)
-    return atomids
-
+    # alway use "part -1" to prevent atom deletion:
+    self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy)
 
   def atomrenamer(self, labeldict):
     '''
@@ -363,7 +390,6 @@ class FragmentDB(PT):
     if not OV.GetParam('fragment_DB.fragment.use_dfix') \
       and not OV.GetParam('fragment_DB.fragment.roff'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
-    #if partnum >= 0:
     self.make_part(atomids, partnum)
     return atomids
   
@@ -1189,35 +1215,7 @@ class FragmentDB(PT):
         atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
-  def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
-    '''
-    this method looks around every atom of the fitted fragment and removes 
-    atoms that are near a certain distance.
-    go through all fragment atoms and look for each atom for all atoms in 
-    part 0 if they are nearer as remdist to them
 
-    :param frag_atoms: atom ids of the fitting fragment ['21', '22', '23', '24']
-    :param remdist: distance below atoms shoud be deleted.
-    '''
-    atoms_to_delete = []
-    all_atoms_dict = self.get_atoms_list(part=0, notype='')
-    frag_crd_dict = {}
-    for i in frag_atoms:
-      # create fragment dict:
-      frag_crd_dict[i] = all_atoms_dict[int(i)]
-      # remove fragment atoms from structure:
-      all_atoms_dict.pop(int(i), None)  
-    for aa_id in all_atoms_dict:
-      if all_atoms_dict[aa_id][2] == 0:
-        for f_id in frag_crd_dict:
-          at1 = all_atoms_dict[aa_id][1] # coordinates
-          at2 = frag_crd_dict[f_id][1] # coordinates
-          d = atomic_distance(at1, at2, self.get_cell())
-          # now get the atom types of the pair atoms and with that
-          # the covalence radius. 
-          if d < remdist:
-            atoms_to_delete.append(str(aa_id)) 
-    return atoms_to_delete
   
 """
 def make_flat_restraints(rings):
