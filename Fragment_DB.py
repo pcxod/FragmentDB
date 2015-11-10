@@ -15,6 +15,7 @@ import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
 import helper_functions
+import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -1215,6 +1216,28 @@ class FragmentDB(PT):
         atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
+  def foo(self, atids):
+    print('newatids:', atids)
+    at3 = self.get_atoms_list()
+    pprint.pprint(at3)
+    OV.unregisterCallback('onFragmentImport', self.foo)
+  
+  def test_importfrag(self):
+    '''
+    atoms exactly on a target atom are deleted as soon as I put them in 
+    positive part!
+    '''
+    OV.registerCallback('onFragmentImport', self.foo)
+    at1 = self.get_atoms_list()
+    pprint.pprint(at1)
+    print('########################################')
+    OV.cmd('ImportFrag -d /Users/daniel/.olex2/data/3e30b45376c2d4175951f811f7137870/samples/water/.olex/fragment.txt')
+    print('22222######2222##222######')
+    at2 = self.get_atoms_list()
+    pprint.pprint(at2)
+    print('fofofof')
+    
+    
 
   
 """
@@ -1273,7 +1296,10 @@ def make_flat_restraints(rings):
   return flats
 """
 
+  
+
 fdb = FragmentDB()
+OV.registerFunction(fdb.test_importfrag, False, "FragmentDB")
 ref = Refmod()
 
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
