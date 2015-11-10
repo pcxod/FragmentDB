@@ -258,6 +258,8 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
           return
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
+      if len(distances) <= 2:
+        return
       stdev = std_dev(distances)
       # only do outlier test if standard deviation is suspiciously large:
       if stdev > 0.08:

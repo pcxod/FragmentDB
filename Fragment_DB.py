@@ -27,7 +27,8 @@ Fragen und Ideen:
 
 - should I introduce a rigid group checkbox?
 
-- How do I get the Id of a selected atom?
+- How do I get the Id of a selected atom? 
+      divide get_selected_atoms() in two methods.
 - onreturn="html.Call(~name~.onchange)"
 - How to make a link without underline?
 - Write sqlite to DSR text database export method.
@@ -238,17 +239,18 @@ class FragmentDB(PT):
     text = ' '.join(finallist)
     return text
 
-  def onImport(self, atoms):
+  def onImport(self, atom_ids):
     '''
-    Function is called when ImportFrag terminates after import 
-    :param atoms: list of atoms as olex2 atom ids
-    :type atoms: string
+    Function is called when ImportFrag terminates after import. It gets the 
+    atomIds from ImportFrag vie the onFragmentImport callback.
+    :param atom_ids: list of atoms as olex2 atom ids
+    :type atom_ids: string
     '''
-    print('Imported atom ids: {}'.format(atoms))
-    atoms = atoms.split()
+    print('Imported atom ids: {}'.format(atom_ids))
+    atom_ids = atom_ids.split()
     replatoms = None
     if OV.GetParam('fragment_DB.fragment.replace'):
-      replatoms = self.find_atoms_to_replace(atoms)
+      replatoms = self.find_atoms_to_replace(atom_ids)
     # now replace atoms in a certain distance in part 0:
     if replatoms:
       OV.cmd("sel u")
@@ -256,7 +258,7 @@ class FragmentDB(PT):
       OV.cmd('KILL')
       print('Deleting: {}'.format(' '.join(replatoms)))
     # define the other properties:
-    self.define_atom_properties(atoms)
+    self.define_atom_properties(atom_ids)
     self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
   
@@ -310,12 +312,9 @@ class FragmentDB(PT):
     except(ValueError):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
-    #partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    # alway use "part -1" to prevent atom deletion
-    atomids = self.insert_frag_with_ImportFrag(fragId, occ=occupancy)
-    return atomids
-
+    # alway use "part -1" to prevent atom deletion:
+    self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy)
 
   def atomrenamer(self, labeldict):
     '''
