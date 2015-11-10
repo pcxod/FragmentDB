@@ -285,8 +285,7 @@ class FragmentDB(PT):
           at1 = all_atoms_dict[aa_id][1] # coordinates
           at2 = frag_crd_dict[f_id][1] # coordinates
           d = atomic_distance(at1, at2, self.get_cell())
-          # now get the atom types of the pair atoms and with that
-          # the covalence radius. 
+          # now the atoms inside the remdist go into deltion list
           if d < remdist:
             atoms_to_delete.append(str(aa_id)) 
     return list(set(atoms_to_delete))
