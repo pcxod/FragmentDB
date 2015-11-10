@@ -261,6 +261,35 @@ class FragmentDB(PT):
     self.define_atom_properties(atom_ids)
     self.clear_mainvalues()
     OV.unregisterCallback('onFragmentImport', self.onImport)
+
+  def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
+    '''
+    this method looks around every atom of the fitted fragment and removes 
+    atoms that are near a certain distance.
+    go through all fragment atoms and look for each atom for all atoms in 
+    part 0 if they are nearer as remdist to them
+    :param frag_atoms: atom ids of the fitting fragment ['21', '22', '23', '24']
+    :param remdist: distance below atoms shoud be deleted.
+    '''
+    atoms_to_delete = []
+    all_atoms_dict = self.get_atoms_list(part=0, notype='')
+    frag_crd_dict = {}
+    for i in frag_atoms:
+      # create fragment dict:
+      frag_crd_dict[i] = all_atoms_dict[int(i)]
+      # remove fragment atoms from structure:
+      all_atoms_dict.pop(int(i), None)  
+    for aa_id in all_atoms_dict:
+      if all_atoms_dict[aa_id][2] == 0:
+        for f_id in frag_crd_dict:
+          at1 = all_atoms_dict[aa_id][1] # coordinates
+          at2 = frag_crd_dict[f_id][1] # coordinates
+          d = atomic_distance(at1, at2, self.get_cell())
+          # now get the atom types of the pair atoms and with that
+          # the covalence radius. 
+          if d < remdist:
+            atoms_to_delete.append(str(aa_id)) 
+    return list(set(atoms_to_delete))
   
   def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1):
     '''
@@ -362,7 +391,6 @@ class FragmentDB(PT):
     if not OV.GetParam('fragment_DB.fragment.use_dfix') \
       and not OV.GetParam('fragment_DB.fragment.roff'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
-    #if partnum >= 0:
     self.make_part(atomids, partnum)
     return atomids
   
@@ -1188,35 +1216,7 @@ class FragmentDB(PT):
         atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
-  def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
-    '''
-    this method looks around every atom of the fitted fragment and removes 
-    atoms that are near a certain distance.
-    go through all fragment atoms and look for each atom for all atoms in 
-    part 0 if they are nearer as remdist to them
 
-    :param frag_atoms: atom ids of the fitting fragment ['21', '22', '23', '24']
-    :param remdist: distance below atoms shoud be deleted.
-    '''
-    atoms_to_delete = []
-    all_atoms_dict = self.get_atoms_list(part=0, notype='')
-    frag_crd_dict = {}
-    for i in frag_atoms:
-      # create fragment dict:
-      frag_crd_dict[i] = all_atoms_dict[int(i)]
-      # remove fragment atoms from structure:
-      all_atoms_dict.pop(int(i), None)  
-    for aa_id in all_atoms_dict:
-      if all_atoms_dict[aa_id][2] == 0:
-        for f_id in frag_crd_dict:
-          at1 = all_atoms_dict[aa_id][1] # coordinates
-          at2 = frag_crd_dict[f_id][1] # coordinates
-          d = atomic_distance(at1, at2, self.get_cell())
-          # now get the atom types of the pair atoms and with that
-          # the covalence radius. 
-          if d < remdist:
-            atoms_to_delete.append(str(aa_id)) 
-    return atoms_to_delete
   
 """
 def make_flat_restraints(rings):
