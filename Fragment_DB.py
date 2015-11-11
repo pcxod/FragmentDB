@@ -953,10 +953,14 @@ class FragmentDB(PT):
     # add _new_frag must check the restraints vor validity!
     state = self.set_frag_name()
     if not state:
+      print('Please define a fragment name. Fragment is not stored!')
       return
     if not self.set_frag_cell():
       return False
     atoms = self.set_frag_atoms()
+    if not atoms:
+      print('Please add atoms!!!')
+      return
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
