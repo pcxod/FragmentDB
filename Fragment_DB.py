@@ -23,15 +23,12 @@ r'''
 Fragen und Ideen:
 
 - check_same_thread=False ?
-- ask oleg to save/load only graphical things in the model e.g. (save model 'fred' -g) 
-
+- ask oleg to save/load only graphical things in the model (rotation, style, )
+    e.g. (save model 'fred' -g) 
 - should I introduce a rigid group checkbox?
-
 - How do I get the Id of a selected atom? 
       divide get_selected_atoms() in two methods.
 - onreturn="html.Call(~name~.onchange)"
-- How to make a link without underline?
-- Write sqlite to DSR text database export method.
 - list of rings for FLAT restraints
 '''
 
@@ -903,7 +900,7 @@ class FragmentDB(PT):
     if reference:
       return reference
 
-  def prepare_atoms_list(self, fragId):
+  def prepare_atoms_list(self, fragId, element=False):
     '''
     prepare the atom list to display in a multiline edit field
     '''
@@ -919,7 +916,10 @@ class FragmentDB(PT):
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
       try:
-        atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+        if not element:
+          atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+        else:
+          atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
       except(UnicodeEncodeError):
         print('Invalid atomline found. Non-ASCII character in line.')
     at = ' \n'.join(atlist)
@@ -953,10 +953,14 @@ class FragmentDB(PT):
     # add _new_frag must check the restraints vor validity!
     state = self.set_frag_name()
     if not state:
+      print('Please define a fragment name. Fragment is not stored!')
       return
     if not self.set_frag_cell():
       return False
     atoms = self.set_frag_atoms()
+    if not atoms:
+      print('Please add atoms!!!')
+      return
     restraints = self.set_frag_restraints()
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
@@ -986,7 +990,8 @@ class FragmentDB(PT):
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('\nFragment was not added to the database!')
       return
-    helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
+    if restraints:
+      helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
                                             fragname)
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
@@ -1074,7 +1079,8 @@ class FragmentDB(PT):
       #self.blink_field('Inputfrag.restraints')
       #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
-    helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
+    if restraints:
+      helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, 
                                             fragname)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
@@ -1215,67 +1221,38 @@ class FragmentDB(PT):
         atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
+ 
+  def exportfrag(self):
+    '''
+    print the fragment details on screen for DSR
+    '''
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      return
+    name = self.prepare_fragname(fragId)
+    restr = self.prepare_restraints(fragId)
+    residue = self.prepare_residue_class()
+    reference = self.db.get_reference(fragId)
+    cell = 'FRAG 17 1 1 1 90 90 90'
+    print(' ')
+    print('REM Name:', name)
+    print('REM Src:', reference)
+    print(restr)
+    print('RESI',  residue)
+    print(cell)
+    at = self.prepare_atoms_list(fragId, element=True)
+    if not at:
+      print('not atoms found!')
+      return
+    print(at)
+    print(' ')
 
   
-"""
-def make_flat_restraints(rings):
-  '''
-  What I need:
-  -list of rings
-  -function to determine which binds which
-  -get all neighbors of an atom GetRefinementModel
-  
-  splits rings in 4-member chunks and tests if
-  they are flat: volume of tetrahedron of chunk < 0.1 A-3.
-  returns list of flat chunks.
-
-  first add neighbor atoms to neighbors
-  check if original rings are flat, if flat check if ring with neighbor
-  is flat, if yes, add this chunk minus first atom
-  '''
-  list_of_rings = rings
-  #print('The list of rings:', list_of_rings)
-  if not list_of_rings:
-    return False
-  flats = []
-  neighbors = []
-  for ring in list_of_rings:
-    for atom in ring:
-      # lets see if there is a neighboring atom:
-      ### how can I get neighbors of atoms?
-      nb = _G.neighbors(atom)[1:]
-      for i in nb:
-        if not i in flatten(list_of_rings):
-          neighbors.append(i)
-    if len(ring) < 4:
-      continue # if ring has to few atoms, use the next
-    chunks = get_overlapped_chunks(ring, 4)
-    for chunk in chunks:
-      if is_flat(chunk):
-        flats.append(chunk[:])
-    if not flats:
-      return False
-    for chunk in flats:
-      for i in neighbors:
-        for at in chunk:
-          if binds_to(at, i) and i not in chunk:
-            if not binds_to(chunk[0], i):
-              # only delete if not bounded to the beforehand added atom
-              del chunk[0]
-            else:
-              # otherwise delete from the other end
-              del chunk[-1]
-            chunk.append(i)
-            del neighbors[0]
-        if is_flat(chunk):
-          if not chunk in flats:
-            flats.append(chunk)
-  return flats
-"""
 
 fdb = FragmentDB()
 ref = Refmod()
-
+OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
