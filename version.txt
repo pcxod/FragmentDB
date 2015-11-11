@@ -2,4 +2,4 @@
 # This file is here to keep track of the different versions of FragmentDB #
 ###########################################################################
 
-FragmentDB_version 2
+FragmentDB_version 3
