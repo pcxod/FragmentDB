@@ -1220,7 +1220,6 @@ class FragmentDB(PT):
           resnum = 0
         atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
-
  
   def exportfrag(self):
     '''
