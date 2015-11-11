@@ -1226,12 +1226,16 @@ class FragmentDB(PT):
     '''
     atoms exactly on a target atom are deleted as soon as I put them in 
     positive part!
+    The real problem here is that adjacent hydrogen atoms (including the new ones) 
+    are deleted as soon as I delete the target oxygen atom of water!
+    Should I re-introduce the atoms?
     '''
     OV.registerCallback('onFragmentImport', self.foo)
     at1 = self.get_atoms_list()
     pprint.pprint(at1)
     print('########################################')
-    OV.cmd('ImportFrag -d /Users/daniel/.olex2/data/3e30b45376c2d4175951f811f7137870/samples/water/.olex/fragment.txt')
+    OV.cmd(r'ImportFrag -d .olex\fragment.txt')
+    #OV.cmd('ImportFrag -d /Users/daniel/.olex2/data/3e30b45376c2d4175951f811f7137870/samples/water/.olex/fragment.txt')
     print('22222######2222##222######')
     at2 = self.get_atoms_list()
     pprint.pprint(at2)
@@ -1299,8 +1303,8 @@ def make_flat_restraints(rings):
   
 
 fdb = FragmentDB()
-OV.registerFunction(fdb.test_importfrag, False, "FragmentDB")
 ref = Refmod()
+#OV.registerFunction(fdb.test_importfrag, False, "FragmentDB")
 
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
