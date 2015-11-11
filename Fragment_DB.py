@@ -15,7 +15,6 @@ import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
 import helper_functions
-import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -24,15 +23,12 @@ r'''
 Fragen und Ideen:
 
 - check_same_thread=False ?
-- ask oleg to save/load only graphical things in the model e.g. (save model 'fred' -g) 
-
+- ask oleg to save/load only graphical things in the model (rotation, style, )
+    e.g. (save model 'fred' -g) 
 - should I introduce a rigid group checkbox?
-
 - How do I get the Id of a selected atom? 
       divide get_selected_atoms() in two methods.
 - onreturn="html.Call(~name~.onchange)"
-- How to make a link without underline?
-- Write sqlite to DSR text database export method.
 - list of rings for FLAT restraints
 '''
 
@@ -904,7 +900,7 @@ class FragmentDB(PT):
     if reference:
       return reference
 
-  def prepare_atoms_list(self, fragId):
+  def prepare_atoms_list(self, fragId, element=False):
     '''
     prepare the atom list to display in a multiline edit field
     '''
@@ -920,7 +916,10 @@ class FragmentDB(PT):
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
       try:
-        atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+        if not element:
+          atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+        else:
+          atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
       except(UnicodeEncodeError):
         print('Invalid atomline found. Non-ASCII character in line.')
     at = ' \n'.join(atlist)
@@ -1216,96 +1215,38 @@ class FragmentDB(PT):
         atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
-  def foo(self, atids):
-    print('newatids:', atids)
-    at3 = self.get_atoms_list()
-    pprint.pprint(at3)
-    OV.unregisterCallback('onFragmentImport', self.foo)
-  
-  def test_importfrag(self):
+ 
+  def exportfrag(self):
     '''
-    atoms exactly on a target atom are deleted as soon as I put them in 
-    positive part!
-    The real problem here is that adjacent hydrogen atoms (including the new ones) 
-    are deleted as soon as I delete the target oxygen atom of water!
-    Should I re-introduce the atoms?
+    print the fragment details on screen for DSR
     '''
-    OV.registerCallback('onFragmentImport', self.foo)
-    at1 = self.get_atoms_list()
-    pprint.pprint(at1)
-    print('########################################')
-    OV.cmd(r'ImportFrag -d .olex\fragment.txt')
-    #OV.cmd('ImportFrag -d /Users/daniel/.olex2/data/3e30b45376c2d4175951f811f7137870/samples/water/.olex/fragment.txt')
-    print('22222######2222##222######')
-    at2 = self.get_atoms_list()
-    pprint.pprint(at2)
-    print('fofofof')
-    
-    
-
-  
-"""
-def make_flat_restraints(rings):
-  '''
-  What I need:
-  -list of rings
-  -function to determine which binds which
-  -get all neighbors of an atom GetRefinementModel
-  
-  splits rings in 4-member chunks and tests if
-  they are flat: volume of tetrahedron of chunk < 0.1 A-3.
-  returns list of flat chunks.
-
-  first add neighbor atoms to neighbors
-  check if original rings are flat, if flat check if ring with neighbor
-  is flat, if yes, add this chunk minus first atom
-  '''
-  list_of_rings = rings
-  #print('The list of rings:', list_of_rings)
-  if not list_of_rings:
-    return False
-  flats = []
-  neighbors = []
-  for ring in list_of_rings:
-    for atom in ring:
-      # lets see if there is a neighboring atom:
-      ### how can I get neighbors of atoms?
-      nb = _G.neighbors(atom)[1:]
-      for i in nb:
-        if not i in flatten(list_of_rings):
-          neighbors.append(i)
-    if len(ring) < 4:
-      continue # if ring has to few atoms, use the next
-    chunks = get_overlapped_chunks(ring, 4)
-    for chunk in chunks:
-      if is_flat(chunk):
-        flats.append(chunk[:])
-    if not flats:
-      return False
-    for chunk in flats:
-      for i in neighbors:
-        for at in chunk:
-          if binds_to(at, i) and i not in chunk:
-            if not binds_to(chunk[0], i):
-              # only delete if not bounded to the beforehand added atom
-              del chunk[0]
-            else:
-              # otherwise delete from the other end
-              del chunk[-1]
-            chunk.append(i)
-            del neighbors[0]
-        if is_flat(chunk):
-          if not chunk in flats:
-            flats.append(chunk)
-  return flats
-"""
+    try:
+      fragId = olx.GetVar('fragment_ID')
+    except(RuntimeError):
+      return
+    name = self.prepare_fragname(fragId)
+    restr = self.prepare_restraints(fragId)
+    residue = self.prepare_residue_class()
+    reference = self.db.get_reference(fragId)
+    cell = 'FRAG 17 1 1 1 90 90 90'
+    print(' ')
+    print('REM Name:', name)
+    print('REM Src:', reference)
+    print(restr)
+    print('RESI',  residue)
+    print(cell)
+    at = self.prepare_atoms_list(fragId, element=True)
+    if not at:
+      print('not atoms found!')
+      return
+    print(at)
+    print(' ')
 
   
 
 fdb = FragmentDB()
 ref = Refmod()
-#OV.registerFunction(fdb.test_importfrag, False, "FragmentDB")
-
+OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
