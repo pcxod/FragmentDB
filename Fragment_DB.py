@@ -542,6 +542,8 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     # TODO: better use set_fragment_picture() here 
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
+    iml = self.prepare_picture(im, max_size=450)
+    OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
@@ -1256,7 +1258,7 @@ class FragmentDB(PT):
 
 fdb = FragmentDB()
 ref = Refmod()
-OV.registerFunction(fdb.get_selected_atom_names, False, "FragmentDB")
+OV.registerFunction(fdb.prepare_selected_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
