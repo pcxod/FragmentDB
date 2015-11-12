@@ -26,8 +26,6 @@ Fragen und Ideen:
 - ask oleg to save/load only graphical things in the model (rotation, style, )
     e.g. (save model 'fred' -g) 
 - should I introduce a rigid group checkbox?
-- How do I get the Id of a selected atom? 
-      divide get_selected_atoms() in two methods.
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
 '''
@@ -660,22 +658,29 @@ class FragmentDB(PT):
       # reference of the edit window
       olx.html.SetValue('REFERENCE_edit', ref)
 
-  def get_selected_atoms(self):
+  def get_selected_atom_names(self):
     '''
-    returns the currently selected atoms for the atoms field.
+    returns the names of the currently selected atoms.
     Hydrogen atoms are discarded.
+    :type atoms_all: list of strings
     '''
-    atlist = []
-    atoms = []
-    if not olex.f("sel()").split():
-      return
-    if len(olex.f("sel()").split()) < 3:
-      print('Please select at least three atoms.')
-      return
     atoms_all = olex.f("sel(a)").split()
     if not atoms_all:
       print('No atoms selected!')
       return
+    return atoms_all
+  
+  def prepare_selected_atoms(self):
+    '''
+    prepares atoms for fragment_DB.new_fragment.frag_atoms 
+    atom field in inputfrag. 
+    '''
+    atoms_all = self.get_selected_atom_names()
+    if len(atoms_all) < 3:
+      print('Please select at least three atoms.')
+      return
+    atlist = []
+    atoms = []
     # make a list without H atoms:
     for at in atoms_all:
       if at[0] == 'H' and at[:2] not in ('He', 'Hf', 'Ho', 'Hg'):
@@ -690,7 +695,7 @@ class FragmentDB(PT):
       atlist.append('{:4.4s} {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
-    self.cell = '1 1 1 90 90 90'
+    self.cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.set_cell', self.cell)
     OV.SetParam('fragment_DB.new_fragment.frag_cell', self.cell)
     OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
@@ -1251,13 +1256,14 @@ class FragmentDB(PT):
 
 fdb = FragmentDB()
 ref = Refmod()
+OV.registerFunction(fdb.get_selected_atom_names, False, "FragmentDB")
 OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
 OV.registerFunction(fdb.get_fvar_occ, False, "FragmentDB")
 OV.registerFunction(fdb.search_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.show_reference, False, "FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture, False, "FragmentDB")
-OV.registerFunction(fdb.get_selected_atoms, False, "FragmentDB")
+OV.registerFunction(fdb.set_frag_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window, False, "FragmentDB")
 OV.registerFunction(fdb.list_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment, False, "FragmentDB")
