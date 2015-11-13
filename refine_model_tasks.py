@@ -151,11 +151,11 @@ class html_Table(object):
     header = r"""
         <table> 
         <tr> 
-          <td align='left'> 
+          <td width=60% align='left'> 
           <b>List of most disagreeable restraints:</b>
               &nbsp;
           </td>
-          <td align='right'>
+          <td width=40% align='right'>
             $spy.MakeHoverButton('small-Short@bitmap', delins more>>addins more -1>>refine 4)
                 &nbsp; 
             $spy.MakeHoverButton('small-Full@bitmap', delins more>>addins more -4>>refine 4)            

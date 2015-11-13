@@ -49,6 +49,10 @@ fragment_DB{
     replace = False
       .type = bool
       .help = Enables replace mode.
+
+    rigid = False
+      .type = bool
+      .help = Put the fragment into a rigid group.
       
     fvarocc = 11.0
       .type = float

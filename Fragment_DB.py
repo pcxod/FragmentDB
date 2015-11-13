@@ -22,6 +22,9 @@ IT = ImageTools()
 r'''
 Fragen und Ideen:
 
+- No fragment picture in main tab after "update/add fragment"!
+- reset Id after fit
+
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (rotation, style, )
     e.g. (save model 'fred' -g) 
@@ -285,7 +288,7 @@ class FragmentDB(PT):
             atoms_to_delete.append(str(aa_id)) 
     return list(set(atoms_to_delete))
   
-  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1):
+  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1, afix=''):
     '''
     Input a fragment with ImportFrag
     :param fragId: FragmentId
@@ -310,9 +313,9 @@ class FragmentDB(PT):
     OV.cmd("file")
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       print('Applying DFIX restraints')
-      OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
+      OV.cmd(r'ImportFrag {3} -p={0} -o={1} -d {2}'.format(part, occ, fragpath, afix))
     else:
-      OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
+      OV.cmd(r'ImportFrag {3} -p={0} -o={1} {2}'.format(part, occ, fragpath, afix))
     return
     
   def fit_db_fragment(self, fragId=None):
@@ -336,8 +339,10 @@ class FragmentDB(PT):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
+    if OV.GetParam('fragment_DB.fragment.rigid'):
+      afix="-a=6"
     # alway use "part -1" to prevent atom deletion:
-    self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy)
+    self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy, afix=afix)
 
   def atomrenamer(self, labeldict):
     '''
