@@ -339,6 +339,7 @@ class FragmentDB(PT):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
+    afix = ''
     if OV.GetParam('fragment_DB.fragment.rigid'):
       afix="-a=6"
     # alway use "part -1" to prevent atom deletion:
@@ -1103,6 +1104,7 @@ class FragmentDB(PT):
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', frag_id)
     self.init_plugin()
+    self.clear_mainvalues()
 
   def blank_state(self):
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
@@ -1292,6 +1294,5 @@ OV.registerFunction(fdb.store_picture, False, "FragmentDB")
 OV.registerFunction(fdb.display_image, False, "FragmentDB")
 
 OV.registerFunction(ref.results, False, "FragmentDB")
-
-#OV.registerFunction(fdb.guess_values, False, "FragmentDB") #not needed outside
+OV.registerFunction(fdb.clear_mainvalues, False, "FragmentDB")
 
