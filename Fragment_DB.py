@@ -1261,10 +1261,25 @@ class FragmentDB(PT):
     print(at)
     print(' ')
 
-  
-
+  def imagedisp(self, name, height=120):
+    '''
+    todo:
+    make an object for each picture place with a clear state for every 
+    state of the plugin.
+    '''
+    html = '''  
+      <zimg name="{}" 
+        border="0" 
+        src="blank.png" 
+        height={} 
+        width=120 
+        align="center">
+        '''.format(name, height)
+    return html
+    
 fdb = FragmentDB()
 ref = Refmod()
+OV.registerFunction(fdb.imagedisp, False, "FragmentDB")
 OV.registerFunction(fdb.prepare_selected_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
