@@ -22,13 +22,9 @@ IT = ImageTools()
 r'''
 Fragen und Ideen:
 
-- No fragment picture in main tab after "update/add fragment"!
-- reset Id after fit
-
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (rotation, style, )
     e.g. (save model 'fred' -g) 
-- should I introduce a rigid group checkbox?
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
 '''
@@ -455,7 +451,7 @@ class FragmentDB(PT):
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line)) #geht so nicht
 
-  def prepare_picture(self, im, max_size=120):
+  def prepare_picture(self, im, max_size=120, ratiolim=0.6):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -465,6 +461,8 @@ class FragmentDB(PT):
     :type max_size: int
     :param control: html control to get the background color right
     :type control: string
+    :param ratiolim: limits the resize for small fragments
+    :type ratiolim: float
     '''
     for i in im.size:
       if i < 50:
@@ -473,8 +471,8 @@ class FragmentDB(PT):
     img_w, img_h = im.size
     ratio = abs(float(max_size) / float(max(im.size)))
     # just an empirical value:
-    if float(max_size) / float(max(im.size)) > 0.6:
-      ratio = 0.6
+    if float(max_size) / float(max(im.size)) > ratiolim:
+      ratio = ratiolim
       # resize equally to fit in max_size
     im = im.resize((int(img_w * ratio), int(img_h * ratio)), Image.ANTIALIAS)
     # empty image of max_size
@@ -510,7 +508,7 @@ class FragmentDB(PT):
     OlexVFS.save_image_to_olex(imo, 'storepic.png', 0)
     im = self.prepare_picture(imo, max_size)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
-    iml = self.prepare_picture(imo, max_size=450)
+    iml = self.prepare_picture(imo, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
 
   def display_image(self, zimgname, image_file):
@@ -548,7 +546,7 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     # TODO: better use set_fragment_picture() here 
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    iml = self.prepare_picture(im, max_size=450)
+    iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
@@ -1189,7 +1187,7 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    iml = self.prepare_picture(im, max_size=450)
+    iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
