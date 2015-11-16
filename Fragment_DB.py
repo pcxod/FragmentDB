@@ -27,6 +27,7 @@ Fragen und Ideen:
     e.g. (save model 'fred' -g) 
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
+- http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
 '''
 
 instance_path = OV.DataDir()
