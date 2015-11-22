@@ -15,6 +15,7 @@ import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
 import helper_functions
+import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -1275,9 +1276,46 @@ class FragmentDB(PT):
         align="center">
         '''.format(name, height)
     return html
+
+
+  def det_refmodel(self):
+    '''
+    For the graph:
+    - each node the atom id
+    - the weight is the distance
+    - additional property are the coordinates and atom type
+    - keep it open for more properties
+    {adp: ((0.040012128291554504,
+            0.028449999999999993,
+            0.018489999999999993,
+            0.0038800000000000006,
+            -0.0008756170278833539,
+            -0.003693364226525346),
+           (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)),
+   'aunit_id': 11,
+   'charge': 0,
+   'crd': ((0.268021, 0.476066, 0.394047), (0.0, 0.0, 0.0)),
+   'label': u'C13,
+   'neighbours': (6, 12, 13, 14),
+   'occu': (1.0, 0.0),
+   'part': 0,
+   'tag': 11,
+   'type': u'C}
+    '''
+    model = olex_core.GetRefinementModel(True) 
+    asym_unit = model['aunit']
+    atoms = {}
+    for residue in asym_unit['residues']:
+      for atom in residue['atoms']:
+        pprint.pprint(atom)
+        #atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
+    return atoms
+
     
 fdb = FragmentDB()
 ref = Refmod()
+OV.registerFunction(fdb.det_refmodel, False, "FragmentDB")
+
 OV.registerFunction(fdb.imagedisp, False, "FragmentDB")
 OV.registerFunction(fdb.prepare_selected_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
