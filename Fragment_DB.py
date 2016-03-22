@@ -1238,6 +1238,8 @@ class FragmentDB(PT):
   def exportfrag(self):
     '''
     print the fragment details on screen for DSR
+    
+    Type "spy.FragmentDB.exportfrag" to export the current fragment.
     '''
     try:
       fragId = olx.GetVar('fragment_ID')

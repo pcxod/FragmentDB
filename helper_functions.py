@@ -235,12 +235,17 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
   restraints = deepcopy(restr)
   atnames = [i[0].upper() for i in atoms]
   for num, line in enumerate(restraints):
+    prefixes = []
+    dev = 0.02
     if not line:
       continue
     if line[0].upper() == 'SADI':
+      prefixes.append(line[0])
       del line[0]
       try:
         if not str(line[0][0]).isalpha():
+          prefixes.append(line[0])
+          dev = line[0]
           del line[0] # delete standard deviation
       except(IndexError):
         return
@@ -258,11 +263,15 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
           return
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
-      if len(distances) <= 2:
-        return
+      dist_minus_longest = sorted(distances)
+      if len(distances) > 2:
+          del dist_minus_longest[-1]
+      if len(distances) > 5:
+          del dist_minus_longest[-1]
+      stdev_selected = std_dev(dist_minus_longest)
       stdev = std_dev(distances)
       # only do outlier test if standard deviation is suspiciously large:
-      if stdev > 0.08:
+      if stdev_selected > 0.048:
         outliers = nalimov_test(distances)
         if outliers:
           print("\n{}:".format(fragment))
@@ -270,6 +279,12 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
             pair = ' '.join(pairlist[x])
             print('Suspicious deviation in atom pair "{}" ({:4.3f} A, median: {:4.3f}) of SADI line {}.'.format(pair, distances[x], median(distances), num+1))
             print(' '.join(restr[num])[:60], '...')
+            return
+      if stdev > 3*float(dev):
+        print("\nFragment {}:".format(fragment))
+        print('Suspicious restraints in SADI line {} with high Stdeviation {:4.3f} (median length: {:4.3f} A).'.format(num+1, stdev, median(distances)))
+        print(' '.join(prefixes+line))
+        
 
 def nalimov_test(data):
   '''
