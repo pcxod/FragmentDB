@@ -35,6 +35,40 @@ IMPL_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG', 'FLAT', 'TRIA',
 ABS_RESTR_CARDS = ('DFIX', 'DANG', 'BUMP', 'TRIA', 'CHIV')
 REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY', 'FLAT')
 
+def make_sortkey(full_name):
+    """
+    Algorythm inspired by W. Sage J. Chem. Inf: Comput. Sci. 1983, 23, 186-197
+    Turns a full chemical name into a sort key for regular sorting.
+    """
+    full_name = ''.join(e for e in full_name if e not in ('{}()[],'))
+    full_name = full_name.split(',')[0].lower()
+    if full_name.startswith('tert-'):
+        full_name = full_name[4:]
+    if full_name.startswith('sec-'):
+        full_name = full_name[3:]
+    if full_name.startswith('iso-'):
+        full_name = full_name[3:]
+    if full_name.startswith('bis-'):
+        full_name = full_name[3:]
+    if full_name.startswith('tris-'):
+        full_name = full_name[3:]
+    if full_name.startswith('mono-'):
+        full_name = full_name[4:]
+    if full_name.startswith('t-'):
+        full_name = full_name[1:]
+    if full_name.startswith('p-'):
+        full_name = full_name[2:]
+    if full_name.startswith('o-'):
+        full_name = full_name[1:]
+    if full_name.startswith('n-'):
+        full_name = full_name[1:]
+    if full_name.startswith('m-'):
+        full_name = full_name[1:]
+    if full_name.startswith('i-'):
+        full_name = full_name[1:]
+    full_name = ''.join(e for e in full_name if e not in ('+-_.\'1234567890, '))
+    return full_name
+
 def atomic_distance(p1, p2, cell):
     '''
     p1 and p2 are x, y , z coordinates as list ['x', 'y', 'z']
