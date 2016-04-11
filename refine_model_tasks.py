@@ -148,16 +148,14 @@ class html_Table(object):
     table=[]
     for line in tabledata:
       table.append(self.row(line))
-    if not table:
-      return ''
     header = r"""
         <table> 
         <tr> 
-          <td align='left'> 
+          <td width=60% align='left'> 
           <b>List of most disagreeable restraints:</b>
               &nbsp;
           </td>
-          <td align='right'>
+          <td width=40% align='right'>
             $spy.MakeHoverButton('small-Short@bitmap', delins more>>addins more -1>>refine 4)
                 &nbsp; 
             $spy.MakeHoverButton('small-Full@bitmap', delins more>>addins more -4>>refine 4)            
@@ -165,6 +163,23 @@ class html_Table(object):
         </tr>
         </table>"""
     footer = ""
+    empty_data = """
+    <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
+      <tr>
+         <td align='center'> Observed </td>
+         <td align='center'> Target   </td>
+         <td align='center'> Error    </td>
+         <td align='center'> Sigma    </td>
+         <td align='left'> Restraint  </td> 
+      </tr>
+        <tr>
+         <td align='center'> -- </td>
+         <td align='center'> -- </td>
+         <td align='center'> -- </td>
+         <td align='center'> -- </td>
+         <td align='center'> -- </td> 
+      </tr>
+    </table>"""
     html = r"""
       {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
@@ -180,6 +195,8 @@ class html_Table(object):
     </table>
       {2}
       """.format(header, '\n'.join(table), footer)
+    if not table:
+      return header+empty_data
     return html  
     
 
@@ -246,7 +263,6 @@ class html_Table(object):
         atoms.append(remove_partsymbol(i))
     OV.cmd('editatom {}'.format(' '.join(atoms)))
     
-  
   
   
 htm = html_Table()

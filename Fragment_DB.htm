@@ -52,7 +52,7 @@ SetVar(fdb_resi,
     Define *residue number* and *residue class*. 
     Usually it is not necessary to change anything here.
     <br>
-    *Disable* residues with a residue number *0*.  
+    To *Disable* residues, choose residue number *0*.
     <br>
     The residue number must be unique. The plugin automatically chooses the next 
     unused residue number. So it is best to leave it untouched. The residue class 
@@ -172,8 +172,7 @@ $-
         manage="False" >
   </td>
   <td align='right' width='10%'>
-  $spy.MakeHoverButton('small-reset@bitmap', 'html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())')
-
+  $spy.MakeHoverButton('small-reset@bitmap', 'html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())>>spy.fragmentDB.clear_mainvalues()')
   </td>
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -182,12 +181,7 @@ $-
 
   <td width="100%" align="center">
   <a target="" href="spy.FragmentDB.display_large_image()"> 
-  <zimg name="FDBMOLEPIC" 
-        border="0" 
-        src="blank.png" 
-        height=120 
-        width=120 
-        align="center">
+  $spy.fragmentdb.imagedisp('FDBMOLEPIC')
   </a>
   </td>
 
@@ -336,7 +330,7 @@ $-
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons; help_ext=Fit the Fragment;helpTxt=$GetVar(fdb_fit);1; -->
 
-  <td width='35%' align='left'>
+  <td  align='left'>
     $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
     &nbsp;
     $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
@@ -351,6 +345,18 @@ $-
     )
     $- 
   </td>
+
+  <td  align='right'><b>Rigid Group:</b></td>
+  <td align='left' width='4%'>
+    $+
+    html.Snippet("gui/snippets/input-checkbox",
+    "name=RIGID",
+    "checked=spy.GetParam('fragment_DB.fragment.rigid')",
+    "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))"
+    )
+    $- 
+  </td>
+
   <td  align='right'><b>Replace Mode:</b></td>
   <td align='left' width='4%'>
     $+

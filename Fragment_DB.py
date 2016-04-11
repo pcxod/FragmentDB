@@ -15,6 +15,7 @@ import olex_core  # @UnresolvedImport
 from FragmentDB_handler import FragmentTable
 from refine_model_tasks import Refmod
 import helper_functions
+import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -25,9 +26,9 @@ Fragen und Ideen:
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (rotation, style, )
     e.g. (save model 'fred' -g) 
-- should I introduce a rigid group checkbox?
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
+- http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
 '''
 
 instance_path = OV.DataDir()
@@ -285,7 +286,7 @@ class FragmentDB(PT):
             atoms_to_delete.append(str(aa_id)) 
     return list(set(atoms_to_delete))
   
-  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1):
+  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1, afix=''):
     '''
     Input a fragment with ImportFrag
     :param fragId: FragmentId
@@ -310,9 +311,9 @@ class FragmentDB(PT):
     OV.cmd("file")
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       print('Applying DFIX restraints')
-      OV.cmd(r'ImportFrag -p={0} -o={1} -d {2}'.format(part, occ, fragpath))
+      OV.cmd(r'ImportFrag {3} -p={0} -o={1} -d {2}'.format(part, occ, fragpath, afix))
     else:
-      OV.cmd(r'ImportFrag -p={0} -o={1} {2}'.format(part, occ, fragpath))
+      OV.cmd(r'ImportFrag {3} -p={0} -o={1} {2}'.format(part, occ, fragpath, afix))
     return
     
   def fit_db_fragment(self, fragId=None):
@@ -336,8 +337,11 @@ class FragmentDB(PT):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
+    afix = ''
+    if OV.GetParam('fragment_DB.fragment.rigid'):
+      afix="-a=6"
     # alway use "part -1" to prevent atom deletion:
-    self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy)
+    self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy, afix=afix)
 
   def atomrenamer(self, labeldict):
     '''
@@ -449,7 +453,7 @@ class FragmentDB(PT):
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
       #olx.xf.rm.NewRestraint(i[0], ' '.join(line)) #geht so nicht
 
-  def prepare_picture(self, im, max_size=120):
+  def prepare_picture(self, im, max_size=120, ratiolim=0.6):
     '''
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
@@ -459,6 +463,8 @@ class FragmentDB(PT):
     :type max_size: int
     :param control: html control to get the background color right
     :type control: string
+    :param ratiolim: limits the resize for small fragments
+    :type ratiolim: float
     '''
     for i in im.size:
       if i < 50:
@@ -467,8 +473,8 @@ class FragmentDB(PT):
     img_w, img_h = im.size
     ratio = abs(float(max_size) / float(max(im.size)))
     # just an empirical value:
-    if float(max_size) / float(max(im.size)) > 0.6:
-      ratio = 0.6
+    if float(max_size) / float(max(im.size)) > ratiolim:
+      ratio = ratiolim
       # resize equally to fit in max_size
     im = im.resize((int(img_w * ratio), int(img_h * ratio)), Image.ANTIALIAS)
     # empty image of max_size
@@ -504,7 +510,7 @@ class FragmentDB(PT):
     OlexVFS.save_image_to_olex(imo, 'storepic.png', 0)
     im = self.prepare_picture(imo, max_size)
     OlexVFS.save_image_to_olex(im, 'displayimg.png', 0)
-    iml = self.prepare_picture(imo, max_size=450)
+    iml = self.prepare_picture(imo, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
 
   def display_image(self, zimgname, image_file):
@@ -542,7 +548,7 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     # TODO: better use set_fragment_picture() here 
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    iml = self.prepare_picture(im, max_size=450)
+    iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
@@ -1098,6 +1104,7 @@ class FragmentDB(PT):
     # now get the fragment back from the db to display the new cell:
     olx.SetVar('fragment_ID', frag_id)
     self.init_plugin()
+    self.clear_mainvalues()
 
   def blank_state(self):
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
@@ -1182,7 +1189,7 @@ class FragmentDB(PT):
     im = Image.open(picfile)
     im = IT.trim_image(im)
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
-    iml = self.prepare_picture(im, max_size=450)
+    iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
     # display it.
     im = self.prepare_picture(im)
@@ -1231,6 +1238,8 @@ class FragmentDB(PT):
   def exportfrag(self):
     '''
     print the fragment details on screen for DSR
+    
+    Type "spy.FragmentDB.exportfrag" to export the current fragment.
     '''
     try:
       fragId = olx.GetVar('fragment_ID')
@@ -1254,10 +1263,62 @@ class FragmentDB(PT):
     print(at)
     print(' ')
 
-  
+  def imagedisp(self, name, height=120):
+    '''
+    todo:
+    make an object for each picture place with a clear state for every 
+    state of the plugin.
+    '''
+    html = '''  
+      <zimg name="{}" 
+        border="0" 
+        src="blank.png" 
+        height={} 
+        width=120 
+        align="center">
+        '''.format(name, height)
+    return html
 
+
+  def det_refmodel(self):
+    '''
+    For the graph:
+    - each node the atom id
+    - the weight is the distance
+    - additional property are the coordinates and atom type
+    - keep it open for more properties
+    {adp: ((0.040012128291554504,
+            0.028449999999999993,
+            0.018489999999999993,
+            0.0038800000000000006,
+            -0.0008756170278833539,
+            -0.003693364226525346),
+           (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)),
+   'aunit_id': 11,
+   'charge': 0,
+   'crd': ((0.268021, 0.476066, 0.394047), (0.0, 0.0, 0.0)),
+   'label': u'C13,
+   'neighbours': (6, 12, 13, 14),
+   'occu': (1.0, 0.0),
+   'part': 0,
+   'tag': 11,
+   'type': u'C}
+    '''
+    model = olex_core.GetRefinementModel(True) 
+    asym_unit = model['aunit']
+    atoms = {}
+    for residue in asym_unit['residues']:
+      for atom in residue['atoms']:
+        pprint.pprint(atom)
+        #atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
+    return atoms
+
+    
 fdb = FragmentDB()
 ref = Refmod()
+OV.registerFunction(fdb.det_refmodel, False, "FragmentDB")
+
+OV.registerFunction(fdb.imagedisp, False, "FragmentDB")
 OV.registerFunction(fdb.prepare_selected_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
 OV.registerFunction(fdb.init_plugin, False, "FragmentDB")
@@ -1287,6 +1348,5 @@ OV.registerFunction(fdb.store_picture, False, "FragmentDB")
 OV.registerFunction(fdb.display_image, False, "FragmentDB")
 
 OV.registerFunction(ref.results, False, "FragmentDB")
-
-#OV.registerFunction(fdb.guess_values, False, "FragmentDB") #not needed outside
+OV.registerFunction(fdb.clear_mainvalues, False, "FragmentDB")
 

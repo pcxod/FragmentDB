@@ -235,12 +235,17 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
   restraints = deepcopy(restr)
   atnames = [i[0].upper() for i in atoms]
   for num, line in enumerate(restraints):
+    prefixes = []
+    dev = 0.02
     if not line:
       continue
     if line[0].upper() == 'SADI':
+      prefixes.append(line[0])
       del line[0]
       try:
         if not str(line[0][0]).isalpha():
+          prefixes.append(line[0])
+          dev = line[0]
           del line[0] # delete standard deviation
       except(IndexError):
         return
@@ -249,20 +254,20 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
       pairs = pairwise(line)
       distances = []
       pairlist = []
+      if len(pairs) <= 2:
+        return True
       for i in pairs:  
         pairlist.append(i)
         try:
           a = atoms[atnames.index(i[0])][1:4]
           b = atoms[atnames.index(i[1])][1:4]
         except(ValueError):
-          return
+          return False
         dist = atomic_distance(a, b, cell)
         distances.append(dist)
-      if len(distances) <= 2:
-        return
       stdev = std_dev(distances)
       # only do outlier test if standard deviation is suspiciously large:
-      if stdev > 0.08:
+      if stdev > 0.06:
         outliers = nalimov_test(distances)
         if outliers:
           print("\n{}:".format(fragment))
@@ -270,6 +275,14 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
             pair = ' '.join(pairlist[x])
             print('Suspicious deviation in atom pair "{}" ({:4.3f} A, median: {:4.3f}) of SADI line {}.'.format(pair, distances[x], median(distances), num+1))
             print(' '.join(restr[num])[:60], '...')
+            return False
+      if stdev > 2.5*float(dev):
+        print("\nFragment {}:".format(fragment))
+        print('Suspicious restraints in SADI line {} with high standard deviation {:4.3f} (median length: {:4.3f} A).'.format(num+1, stdev, median(distances)))
+        print(' '.join(prefixes+line))
+        return False
+  return True
+        
 
 def nalimov_test(data):
   '''
