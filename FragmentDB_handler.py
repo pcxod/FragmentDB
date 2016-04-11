@@ -5,8 +5,9 @@ Created on 09.10.2014
 
 '''
 import sys
-import os
-from helper_functions import dice_coefficient, SHX_CARDS
+
+from helper_functions import dice_coefficient, SHX_CARDS, make_sortkey
+
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
@@ -403,7 +404,7 @@ class FragmentTable():
     req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
     req_usr = '''SELECT Fragment.Id, Fragment.name FROM userdb.Fragment'''
     allrows = []
-    rows = self.database.db_request(req)
+    rows = [list(i) for i in self.database.db_request(req)]
     if self.userdb:
       rows_usr = self.database.db_request(req_usr)
       if rows_usr:
@@ -412,8 +413,13 @@ class FragmentTable():
         allrows = allrows+rows+rows_usr
       else:
         allrows = rows
+    for num, i in enumerate(allrows):
+      key = make_sortkey(i[1])
+      allrows[num].append(key)
     if allrows:
-      allrows.sort(key=lambda x: x[1])
+      allrows.sort(key=lambda x: x[2])
+      for i in allrows:
+        del i[-1]
       return allrows
     else:
       return False
@@ -778,6 +784,7 @@ class Restraints():
 
 
 if __name__ == '__main__':
+  import os
   import doctest
   failed, attempted = doctest.testmod()#verbose=True)
   if failed == 0:
