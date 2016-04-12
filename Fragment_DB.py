@@ -63,6 +63,7 @@ class FragmentDB(PT):
     # for edited fragments:
     self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
+    
 
   def get_cell(self):
     '''
@@ -78,7 +79,7 @@ class FragmentDB(PT):
     initialize the plugins main form
     '''
     try:
-      int(olx.GetVar('fragment_ID'))
+      int(OV.GetParam('fragment_DB.fragment.fragId')) #, int(olx.GetVar('fragment_ID')))
     except(RuntimeError, ValueError):
       return
     self.get_resi_class()
@@ -108,7 +109,8 @@ class FragmentDB(PT):
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
-    olx.SetVar('fragment_ID', 0)
+    olx.SetParam('fragment_DB.fragment.fragId', 0)
+    #olx.SetVar('fragment_ID', 0)
   
   def set_occu(self, occ):
     '''
@@ -213,8 +215,9 @@ class FragmentDB(PT):
     olx.html.SetItems('LIST_FRAGMENTS', selected_list)
     # show the first result in combo box and intialize the fragment:
     olx.html.SetValue('LIST_FRAGMENTS', '{}'.format(selected_results[0][1]))
-    frag_id = selected_results[0][0]
-    olx.SetVar('fragment_ID', frag_id)
+    frag_id = int(selected_results[0][0])
+    olx.SetParam('fragment_DB.fragment.fragId', frag_id)
+    #olx.SetVar('fragment_ID', frag_id)
     self.init_plugin()
 
   def format_atoms_for_importfrag(self, atoms):
@@ -323,19 +326,11 @@ class FragmentDB(PT):
     OV.cmd("labels false")
     if not fragId:
       try:
-        fragId = olx.GetVar('fragment_ID')
-        if not fragId or int(fragId) == 0:
-          # in this case the db returned a False
-          print('Please select a fragment first, or type text and hit Enter key to search.')
-          return
-      except(RuntimeError):
+        fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) #olx.GetVar('fragment_ID')
+      except(RuntimeError, ValueError):
+        print('Please select a fragment first, or type text and hit Enter key to search.')
         # no fragment chosen-> do nothing
         return
-    try:
-      int(fragId)
-    except(ValueError):
-      print('Please select a fragment first, or type text and hit Enter key to search.')
-      return
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     afix = ''
     if OV.GetParam('fragment_DB.fragment.rigid'):
@@ -368,8 +363,8 @@ class FragmentDB(PT):
     print('Applying fragment properties:')
     if not fragId:
       try:
-        fragId = olx.GetVar('fragment_ID')
-      except(RuntimeError):
+        fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) #olx.GetVar('fragment_ID')
+      except(RuntimeError, ValueError):
         # no fragment chosen-> do nothing
         return
     labeldict = OrderedDict()
@@ -500,7 +495,7 @@ class FragmentDB(PT):
     :type control: string
     '''
     max_size = int(max_size)
-    fragId = olx.GetVar('fragment_ID')
+    fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
     pic = self.db.get_picture(fragId)
     if not pic:
       print('No fragment picture found.')
@@ -636,12 +631,9 @@ class FragmentDB(PT):
     sets the residue class from the respective database fragment.
     '''
     try:
-      fragId = olx.GetVar('fragment_ID')
-    except(RuntimeError):
-      return
-    try:
-      int(fragId)
-    except ValueError:
+      fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) # olx.GetVar('fragment_ID')
+    except(RuntimeError, ValueError) as e:
+      print('Unable to get fragment Id', e)
       return
     resiclass = self.db.get_residue_class(int(fragId))
     OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
@@ -654,8 +646,8 @@ class FragmentDB(PT):
     show the reference of a fragment in the GUI
     '''
     try:
-      fragId = olx.GetVar('fragment_ID')
-    except(RuntimeError):
+      fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
+    except(RuntimeError, ValueError):
       return
     ref = self.db.get_reference(fragId)
     if not edit:
