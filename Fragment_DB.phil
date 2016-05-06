@@ -12,7 +12,7 @@ fragment_DB{
   fragment{
     fragId = 0
       .type = int
-      .help = Places the fragment in the residue with the respective number.
+      .help = Database Id of the current fragment.
 
     resinum = 0
       .type = int

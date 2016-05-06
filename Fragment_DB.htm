@@ -166,7 +166,7 @@ $-
         items='spy.FragmentDB.list_fragments()'
         value='select or search fragments here'
         onenter='html.SetValue(~name~, "")'
-        onchange="SetVar(fragment_ID, html.GetValue(~name~))>>spy.FragmentDB.init_plugin()"
+        onchange="spy.SetParam(fragment_DB.fragment.fragId, html.GetValue(~name~))>>spy.FragmentDB.init_plugin()"
         onreturn="spy.FragmentDB.search_fragments(html.GetValue(~name~))"
         readonly="False"
         manage="False" >
