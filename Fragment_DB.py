@@ -715,7 +715,7 @@ class FragmentDB(PT):
     '''
     blank = False
     try:
-      olx.GetVar('fragment_ID')
+      fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except RuntimeError:
       blank = True
     pop_name = "Inputfrag"
@@ -891,7 +891,7 @@ class FragmentDB(PT):
       # remove empty lines:
       restr = [i.upper() for i in restr if i ]
       restr = [i.split() for i in restr]
-    except AttributeError, e:  # @UnusedVariable
+    except AttributeError as e:  # @UnusedVariable
       #print(e)
       restr = None
       return
@@ -1048,7 +1048,7 @@ class FragmentDB(PT):
     get the fragment to display in the multiline edit field
     '''
     try:
-      fragId = olx.GetVar('fragment_ID')
+      fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except(RuntimeError):
       return
     at = self.prepare_atoms_list(fragId)
@@ -1128,7 +1128,7 @@ class FragmentDB(PT):
     # Todo: reset all fields (oic, atoms, ...) after deltion
     '''
     try:
-      fragId = olx.GetVar('fragment_ID')
+      fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except(RuntimeError):
       print('Could not delete a fragment. No fragment is selected.')
       return
@@ -1242,7 +1242,7 @@ class FragmentDB(PT):
     Type "spy.FragmentDB.exportfrag" to export the current fragment.
     '''
     try:
-      fragId = olx.GetVar('fragment_ID')
+      fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except(RuntimeError):
       return
     name = self.prepare_fragname(fragId)

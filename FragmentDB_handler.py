@@ -521,7 +521,7 @@ class FragmentTable():
       classname = classname[0][0]
     except(IndexError, TypeError):
       print('Could not find residue class.')
-      return
+      return ''
     return str(classname) 
 
   def get_restraints(self, fragment_id):
