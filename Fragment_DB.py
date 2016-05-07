@@ -89,7 +89,7 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
-    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    #olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     #self.guess_values()
 
   def guess_values(self):
@@ -1272,7 +1272,7 @@ class FragmentDB(PT):
     html = '''
       <zimg name="{}" 
         border="0" 
-        src="blank.png" 
+        src="displayimg.png"
         height={} 
         width=120 
         align="center">
