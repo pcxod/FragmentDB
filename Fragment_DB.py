@@ -1269,16 +1269,19 @@ class FragmentDB(PT):
     make an object for each picture place with a clear state for every 
     state of the plugin.
     '''
+    if olx.fs.Exists('displayimg.png') == 'false':
+      imgname = 'blank.png'
+    else:
+      imgname = 'displayimg.png'
     html = '''
       <zimg name="{}" 
         border="0" 
-        src="displayimg.png"
+        src="{}"
         height={} 
         width=120 
         align="center">
-        '''.format(name, height)
+        '''.format(name, imgname, height)
     return html
-
 
   def det_refmodel(self):
     '''
