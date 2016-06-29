@@ -49,19 +49,13 @@ $-
 $+
 SetVar(fdb_resi, 
     "
-    Define *residue number* and *residue class*. 
-    Usually it is not necessary to change anything here.
-    <br>
-    To *Disable* residues, choose residue number *0*.
-    <br>
-    The residue number must be unique. The plugin automatically chooses the next 
-    unused residue number. So it is best to leave it untouched. The residue class 
-    has to start with a letter and can be up to four characters. Usually, 
-    the class provided by the database is sufficient.
+    Use a residue: Disable or enable putting the fitted fragment into a residue. 
+    The residue class has to start with a letter and can be up to four 
+    characters. Usually, the class provided by the database is sufficient.
     <br>
     ~DFIX~
     <br> 
-    The supplied fragment normally has predefines restraints like
+    The supplied fragment normally has predefined restraints like
     SADI, FLAT and others. 
     *DFIX* Generates DFIX/DANG restraints from the geometry of the fragment and 
     replaces the predefined restraints.
@@ -260,7 +254,7 @@ $-
 
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue definition;helpTxt=$GetVar(fdb_resi);1 -->
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue/DFIX/invert;helpTxt=$GetVar(fdb_resi);1 -->
 
   <td width='20%' align='left'>
    <b>%Use a residue:%</b>
