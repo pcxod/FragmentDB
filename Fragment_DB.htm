@@ -6,7 +6,7 @@ SetVar(fdb_chooser,
     <br>
     ~Searching~
     <br>
-    Do an unsharp search with a partial name and *hit enter key*. 
+    Do an unsharp search with a partial name and <b>hit enter key</b>. 
     <br>
     For example a search for cf3 finds all the fragments containing cf3 in their 
     name and similar. <br>
@@ -49,20 +49,22 @@ $-
 $+
 SetVar(fdb_resi, 
     "
-    Use a residue: Disable or enable putting the fitted fragment into a residue. 
-    The residue class has to start with a letter and can be up to four 
+    ~Use a residue~ 
+    <br>
+    Disable or enable putting the fitted fragment into a residue. 
+    The residue class has to start with a letter and can be up to four  
     characters. Usually, the class provided by the database is sufficient.
     <br>
     ~DFIX~
     <br> 
-    The supplied fragment normally has predefined restraints like
+    The supplied fragment normally has predefined restraints like 
     SADI, FLAT and others. 
-    *DFIX* Generates DFIX/DANG restraints from the geometry of the fragment and 
-    replaces the predefined restraints.
+    <b>DFIX</b> Generates DFIX/DANG restraints from the geometry of the fragment and  
+    replaces the predefined restraints. 
     <br>
     ~Invert~
     <br>
-    Inverts the coordinates of the fragment. Useful to fit the inverted geometry 
+    Inverts the coordinates of the fragment. Useful to fit the inverted geometry  
     of the fragment.
     ")
 $-
@@ -70,42 +72,42 @@ $+
 SetVar(fdb_fit, 
     "~Fit!~
     <br> 
-    The button *Fit!* starts the fit of the Fragment into the structure. 
+    The button <b>Fit!</b> starts the fit of the Fragment into the structure. 
     <br>
     ~Edit~
     <br>
     Edit or create new fragments:
     <br>
-    *Change Picture:* 
+    <b>Change Picture:</b> 
     Select a picture for the fragment. Use at least 600dpi pictures.
     <br>
-    *Drawstyle:* 
+    <b>Drawstyle:</b> 
     Save a style file for chemdraw to draw molecular pictures that look 
     the same as the predefined.
     <br>
-    *Name:* 
+    <b>Name:</b>
     Name of the fragment
     <br>
-    *Unit cell:* 
+    <b>Unit cell:</b> 
     Cell parameters of the structure, where the fragment comes from. 
     Use 1 1 1 90 90 90 for cartesian coordinates. The cell constants and the 
     coordinates are converted into Cartesian coordinates during the adding to 
     the database.
     <br>
-    *Use selected atoms:* 
+    <b>Use selected atoms:</b>
     Uses the selected atoms for the Atoms field and creates a picture from the 
     fragment.
     <br>
-    *Atoms:* 
+    <b>Atoms:</b> 
     insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also 
     directly copy atoms from SHELX files or copy coordiinates from Avogadro. 
     http://avogadro.cc/
     <br>
-    *Restraints:* 
+    <b>Restraints:</b>
     Type any SHELX compatible restraint here (except SAME). 
     The length of a line is unlimited.
     <br>
-    *Residue:* 
+    <b>Residue:</b> 
     Define the residue class of the fragment (up to four characters, the first has to be a letter). 
     <br>
     ~No Restraints~
@@ -124,10 +126,10 @@ $+
 SetVar(results, 
     "~Results~
     <br> 
-    This table shows the list of the most disagreeable restraints (in case there are some). 
-    A click on the respective line opens the editor window to adjust the restraints values.
+    This table shows the list of the most disagreeable restraints (in case there are some).  
+    A click on the respective line opens the editor window to adjust the restraints values. 
     <br>
-    The long list shows ALL restraints and the short list only the most disargreeable ones.
+    The long list shows ALL restraints and the short list only the most disargreeable ones. 
     <br>
     The error of a parameter should generally not be higher than 3sigma. A higher 
     value means that the assumption of the target value originating from 
@@ -150,7 +152,7 @@ $-
   <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
   </td> -->
-  <td VALIGN='center' ALIGN='left' colspan=1 width='85%'>
+  <td VALIGN='center' align='left' colspan=1 width='85%'>
       <input
         type='combo'
         name="LIST_FRAGMENTS"
