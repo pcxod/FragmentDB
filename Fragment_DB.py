@@ -84,12 +84,12 @@ class FragmentDB(PT):
     except(RuntimeError, ValueError):
       return
     self.get_resi_class()
-    self.set_resinum(0)
+    self.toggle_resinum(OV.GetParam('fragment_DB.fragment.resitoggle'))
     self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
     self.show_reference()
     resinum = self.find_free_residue_num()
-    olx.html.SetValue('RESIDUE', resinum)
+    #olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     #olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     #self.guess_values()
@@ -134,31 +134,13 @@ class FragmentDB(PT):
     OV.SetParam(varname, occ)
 
 
-  def set_resinum(self, resinum):
+  def toggle_resinum(self, resinum):
     '''
-    Set the residue number and check if it is already used.
-    :param resinum: residue number
-    :type resinum: integer
-    
-    from html:
-    Residue Number:
-    value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
-    onchange="spy.FragmentDB.set_resinum(html.GetValue('~name~'))>>labels -rn"
+    :param resinum: decide wether on or off
+    :type resinum: bool
     '''
-    used = self.get_residue_numbers()
-    try:
-      resinum = int(resinum)
-    except:
-      print('Wrong value. Only Numbers allowed for residue numbers.')
-      return
-    if resinum in used:
-      print('\nResidue number already occupied.')
-      return
-    elif resinum == 0:
-      pass
-    else:
-      olx.html.SetValue('RESIDUE', resinum)
-      OV.SetParam('fragment_DB.fragment.resinum', resinum)
+    OV.SetParam('fragment_DB.fragment.resitoggle', resinum)
+
 
   def set_resiclass(self, resiclass, name):
     '''
@@ -269,9 +251,6 @@ class FragmentDB(PT):
       print('Deleting: {}'.format(' '.join(replatoms)))
     # define the other properties:
     self.define_atom_properties(atom_ids)
-    #self.clear_mainvalues()
-    resinum = self.find_free_residue_num()
-    olx.html.SetValue('RESIDUE', resinum)
     OV.unregisterCallback('onFragmentImport', self.onImport)
 
   def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
@@ -372,7 +351,6 @@ class FragmentDB(PT):
     :type fragId: int
     '''
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
-    resinum = int(olx.html.GetValue('RESIDUE'))
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
     print('Applying fragment properties:')
@@ -391,7 +369,10 @@ class FragmentDB(PT):
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
-    if resinum != 0:
+    resi_on = bool(OV.GetParam('fragment_DB.fragment.resitoggle'))
+    resinum = 0
+    if resi_on:
+      resinum = self.find_free_residue_num()
       if resiclass and resinum or not resiclass and resinum:
         self.make_residue(atomids, resiclass, resinum)
         self.atomrenamer(labeldict)
@@ -1345,7 +1326,7 @@ OV.registerFunction(fdb.find_free_residue_num, False, "FragmentDB")
 OV.registerFunction(fdb.get_frag_for_gui, False, "FragmentDB")
 OV.registerFunction(fdb.set_occu, False, "FragmentDB")
 OV.registerFunction(fdb.set_resiclass, False, "FragmentDB")
-OV.registerFunction(fdb.set_resinum, False, "FragmentDB")
+OV.registerFunction(fdb.toggle_resinum, False, "FragmentDB")
 OV.registerFunction(fdb.store_new_fragment, False, "FragmentDB")
 OV.registerFunction(fdb.set_fragment_picture, False, "FragmentDB")
 OV.registerFunction(fdb.get_chemdrawstyle, False, "FragmentDB")
