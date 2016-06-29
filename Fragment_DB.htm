@@ -263,10 +263,18 @@ $-
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue definition;helpTxt=$GetVar(fdb_resi);1 -->
 
   <td width='24%' align='left'>
-   <b>%Residue Number:%</b>
+   <b>%Use a residue:%</b>
   </td>
   <td width='12%' align='right'>
       <font size="$GetVar('HtmlFontSizeControls')">
+      $+
+      html.Snippet("gui/snippets/input-checkbox",
+      "name=RESIDUE",
+      "checked=spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())",
+      "onclick=spy.SetParam('fragment_DB.fragment.resinum', 0)"
+      )
+      $- 
+      <!--
       <input
         type="spin"
         name="RESIDUE"
@@ -278,13 +286,14 @@ $-
         value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
         onchange="spy.FragmentDB.set_resinum(html.GetValue('~name~'))>>labels -rn"
       >
+      -->
       </font>
   </td>
   
   <td width='22%' align='right'>
   <b>%Residue Class:%</b>
   </td>
-  <td width='12%' align='right'>
+  <td width='5%' align='right'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
@@ -312,8 +321,8 @@ $-
     $- 
     </td>
   
-  <td width='10%' align='right'>
-    <b>%DFIX:%</b>
+  <td width='15%' align='right'>
+    <b>%calc. DFIX:%</b>
   </td>
     <td align='right' width='4%'>
     $+

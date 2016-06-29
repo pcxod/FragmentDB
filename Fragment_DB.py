@@ -63,6 +63,7 @@ class FragmentDB(PT):
     # for edited fragments:
     self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
+    
 
 
   def get_cell(self):
@@ -83,6 +84,7 @@ class FragmentDB(PT):
     except(RuntimeError, ValueError):
       return
     self.get_resi_class()
+    self.set_resinum(0)
     self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
     self.show_reference()
@@ -137,6 +139,11 @@ class FragmentDB(PT):
     Set the residue number and check if it is already used.
     :param resinum: residue number
     :type resinum: integer
+    
+    from html:
+    Residue Number:
+    value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
+    onchange="spy.FragmentDB.set_resinum(html.GetValue('~name~'))>>labels -rn"
     '''
     used = self.get_residue_numbers()
     try:
