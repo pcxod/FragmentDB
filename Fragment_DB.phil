@@ -14,6 +14,10 @@ fragment_DB{
       .type = int
       .help = Database Id of the current fragment.
 
+    resitoggle = False
+      .type = bool
+      .help = Decides wether a residue should be used or not. 
+
     resinum = 0
       .type = int
       .help = Places the fragment in the residue with the respective number.
