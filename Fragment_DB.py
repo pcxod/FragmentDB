@@ -80,8 +80,10 @@ class FragmentDB(PT):
     initialize the plugins main form
     '''
     try:
-      int(OV.GetParam('fragment_DB.fragment.fragId')) #, int(olx.GetVar('fragment_ID')))
+      fragid = int(OV.GetParam('fragment_DB.fragment.fragId'))
     except(RuntimeError, ValueError):
+      return
+    if fragid == 0:
       return
     self.get_resi_class()
     self.toggle_resinum(OV.GetParam('fragment_DB.fragment.resitoggle'))
@@ -93,6 +95,16 @@ class FragmentDB(PT):
     OV.SetParam('fragment_DB.fragment.resinum', resinum)
     #olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     #self.guess_values()
+
+  def set_id(self, fragid=0):
+    '''
+    Sets the fragment id in the phil for the search field
+    '''
+    try:
+      int(fragid)
+    except(ValueError):
+      return 
+    OV.SetParam("fragment_DB.fragment.fragId", fragid)
 
   def guess_values(self):
     '''
@@ -312,21 +324,20 @@ class FragmentDB(PT):
       OV.cmd(r'ImportFrag {3} -p={0} -o={1} {2}'.format(part, occ, fragpath, afix))
     return
 
-  def fit_db_fragment(self, fragId=None):
+  def fit_db_fragment(self):
     '''
     fit a molecular fragment from the database into olex2
     '''
+    try:
+      fragId = int(OV.GetParam('fragment_DB.fragment.fragId'))
+    except(RuntimeError, ValueError):
+      # no fragment chosen-> do nothing
+      return
     OV.cmd("labels false")
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     afix = ''
     if OV.GetParam('fragment_DB.fragment.rigid'):
       afix="-a=6"
-    if not fragId:
-      try:
-        fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) #olx.GetVar('fragment_ID')
-      except(RuntimeError, ValueError):
-        # no fragment chosen-> do nothing
-        fragId = 0
     # alway use "part -1" to prevent atom deletion:
     if fragId != 0 and fragId != None:
       self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy, afix=afix)
@@ -1309,6 +1320,7 @@ fdb = FragmentDB()
 ref = Refmod()
 OV.registerFunction(fdb.det_refmodel, False, "FragmentDB")
 
+OV.registerFunction(fdb.set_id, False, "FragmentDB")
 OV.registerFunction(fdb.imagedisp, False, "FragmentDB")
 OV.registerFunction(fdb.prepare_selected_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.exportfrag, False, "FragmentDB")
