@@ -5,7 +5,7 @@ from ImageTools import ImageTools  # @UnresolvedImport
 import StringIO
 from PIL import Image, ImageFile, ImageDraw  # @UnresolvedImport @UnusedImport
 from helper_functions import check_restraints_consistency, initialize_user_db,\
- IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, atomic_distance
+      invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
 import olex  # @UnresolvedImport
 import gui.maps
