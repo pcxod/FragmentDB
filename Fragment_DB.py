@@ -5,7 +5,7 @@ from ImageTools import ImageTools  # @UnresolvedImport
 import StringIO
 from PIL import Image, ImageFile, ImageDraw  # @UnresolvedImport @UnusedImport
 from helper_functions import check_restraints_consistency, initialize_user_db,\
- IMPL_RESTRAINT_CARDS, invert_atomlist_coordinates, frac_to_cart, atomic_distance
+      invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
 import olex  # @UnresolvedImport
 import gui.maps
@@ -448,12 +448,15 @@ class FragmentDB(PT):
             return
         else:
           line.append(at)
-      # applies the restraint to atoms in line
-      if i[0] in IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
-        OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
-      else:
-        OV.cmd("{} {}".format(i[0], ' '.join(line)))
-      #olx.xf.rm.NewRestraint(i[0], ' '.join(line)) #geht so nicht
+      # applies the implicit restraint to atoms in line:
+      # I disabled implicit restraints because they cause trouble during atom 
+      # renaming.
+      #if i[0] in IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
+      #  OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
+      #else:
+      # applies direct restraints:
+      OV.cmd("{} {}".format(i[0], ' '.join(line)))
+
 
   def prepare_picture(self, im, max_size=120, ratiolim=0.6):
     '''
