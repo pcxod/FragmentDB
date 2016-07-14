@@ -19,6 +19,7 @@ import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
+FDB_VERSION = 4
 
 r'''
 Fragen und Ideen:
@@ -63,7 +64,7 @@ class FragmentDB(PT):
     # for edited fragments:
     self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
-    
+    print('FragmentDB version:', FDB_VERSION)    
 
 
   def get_cell(self):
