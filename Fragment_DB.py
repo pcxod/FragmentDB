@@ -3,7 +3,7 @@ from olexFunctions import OlexFunctions
 from collections import OrderedDict
 from ImageTools import ImageTools  # @UnresolvedImport
 import StringIO
-from PIL import Image, ImageFile, ImageDraw  # @UnresolvedImport @UnusedImport
+from PIL import Image, ImageFile, ImageDraw, ImageChops
 from helper_functions import check_restraints_consistency, initialize_user_db,\
       invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
@@ -1158,6 +1158,18 @@ class FragmentDB(PT):
     spath = "%s/drawstyle.cds" % (self.p_path)
     copyfile(spath, stylename)
 
+  def trim(self, im):
+    """
+    Trims a given PIL picture to remove whitespace
+    :return: image object
+    """
+    bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
+    diff = ImageChops.difference(im, bg)
+    diff = ImageChops.add(diff, diff, 2.0, -100)
+    bbox = diff.getbbox()
+    if bbox:
+      return im.crop(bbox)
+
   def make_selctions_picture(self):
     '''
     creates a picture from the currently selected fragment in Olex2 and
@@ -1171,6 +1183,7 @@ class FragmentDB(PT):
     picfile = "fdb_tmp.png"
     #OV.cmd('save model "fragdb"') # does not work!
     gui.maps.mu.MapView('off')
+    OV.cmd("legend false")
     OV.cmd("sel atom bonds")
     OV.cmd("ShowQ a false")
     OV.cmd("labels false")
@@ -1189,8 +1202,10 @@ class FragmentDB(PT):
     OV.cmd("showP -m")
     OV.cmd("showh a True")
     OV.cmd('telp 50')
+    OV.cmd("legend true")
     im = Image.open(picfile)
-    im = IT.trim_image(im)
+    im = self.trim(im)
+    #im = IT.trim_image(im)  # works not so well as trim above
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
