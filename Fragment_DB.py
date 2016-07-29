@@ -1205,6 +1205,7 @@ class FragmentDB(PT):
     OV.cmd("legend true")
     im = Image.open(picfile)
     im = self.trim(im)
+    #im = IT.trim_image(im)  # works not so well as trim above
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
