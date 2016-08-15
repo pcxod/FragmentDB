@@ -19,7 +19,7 @@ import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
-FDB_VERSION = 5
+FDB_VERSION = 4
 
 r'''
 Fragen und Ideen:
