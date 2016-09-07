@@ -33,7 +33,7 @@ IMPL_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG', 'FLAT', 'TRIA',
                         'CHIV', 'DELU', 'SIMU', 'ISOR') 
 
 ABS_RESTR_CARDS = ('DFIX', 'DANG', 'BUMP', 'TRIA', 'CHIV')
-REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY', 'FLAT')
+REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY', 'FLAT', 'DELU')
 
 def make_sortkey(full_name):
     """
