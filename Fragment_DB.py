@@ -678,7 +678,7 @@ class FragmentDB(PT):
     atoms_all = olex.f("sel(a)").split()
     if not atoms_all:
       print('No atoms selected!')
-      return
+      return []
     return atoms_all
 
   def prepare_selected_atoms(self):
