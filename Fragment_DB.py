@@ -24,6 +24,9 @@ FDB_VERSION = 5
 r'''
 Fragen und Ideen:
 
+- FragmentDB vanishes fromTools menu when changing panel width
+-
+
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (rotation, style, )
     e.g. (save model 'fred' -g) 
