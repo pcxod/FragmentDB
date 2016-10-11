@@ -19,10 +19,14 @@ import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
-FDB_VERSION = 5
+# FragmentDB version number:
+FDB_VERSION = 6
 
 r'''
 Fragen und Ideen:
+
+- FragmentDB vanishes fromTools menu when changing panel width
+-
 
 - check_same_thread=False ?
 - ask oleg to save/load only graphical things in the model (rotation, style, )
