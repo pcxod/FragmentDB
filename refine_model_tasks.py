@@ -212,8 +212,8 @@ class html_Table(object):
         bgcolor = r"""bgcolor='{}'""".format(self.grade_2_colour)
       if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
         bgcolor = r"""bgcolor='{}'""".format(self.grade_4_colour)        
-    except():
-      pass
+    except ValueError:
+      print("Unknown restraint occured.")
     for num, item in enumerate(rowdata): 
       try:
         # align right for numbers:
