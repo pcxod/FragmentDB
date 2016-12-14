@@ -20,7 +20,7 @@ import pprint
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 6
+FDB_VERSION = 7
 
 r'''
 Fragen und Ideen:

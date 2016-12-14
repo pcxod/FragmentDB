@@ -582,7 +582,7 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.find_fragment_by_name('cf3', selection=3)
-    [(3, u'Trifluoroethanol, OCH2CF3-'), [1000003, u'Trifluoroethanol, OCH2CF3-  *user*'], (58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-')]
+    [[3, u'Trifluoroethanol, OCH2CF3-'], [1000003, u'Trifluoroethanol, OCH2CF3-  *user*'], [58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-']]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
