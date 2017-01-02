@@ -81,12 +81,19 @@
             <td><b>
               <input type="button"
               bgcolor="$GetVar(HtmlInputBgColour)"
-              value="Use selected atoms:"
+              value="Use Selected Atoms:"
               onclick="spy.FragmentDB.prepare_selected_atoms()>>spy.FragmentDB.make_selctions_picture()'"
               name="use_atoms" 
-              width='50%'
+              width='45%'
               height="24">
             </b>
+              <input type="button"
+              bgcolor="$GetVar(HtmlInputBgColour)"
+              value="Export Fragment"
+              onclick="spy.FragmentDB.exportfrag()"
+              name="exportfrag"
+              width='45%'
+              height="24">
             </td>
           </tr>          
           <tr>
