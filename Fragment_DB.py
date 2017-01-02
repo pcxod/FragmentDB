@@ -20,7 +20,7 @@ import pprint
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 7
+FDB_VERSION = 8
 
 r'''
 Fragen und Ideen:
@@ -920,7 +920,7 @@ class FragmentDB(PT):
     if reference:
       return reference
 
-  def prepare_atoms_list(self, fragId, element=False):
+  def prepare_atoms_list(self, fragId, element=False, as_html=False):
     '''
     prepare the atom list to display in a multiline edit field
     '''
@@ -929,10 +929,10 @@ class FragmentDB(PT):
     try:
       atoms_list = self.db[fragId]
     except IndexError:
-      return
+      return False
       #print('Database Fragment {} not found.'.format(fragId))
     if not atoms_list:
-      return
+      return False
     atoms_list = [[i for i in y] for y in atoms_list]
     for i in atoms_list:
       try:
@@ -942,7 +942,10 @@ class FragmentDB(PT):
           atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
       except(UnicodeEncodeError):
         print('Invalid atomline found. Non-ASCII character in line.')
-    at = ' \n'.join(atlist)
+    if not as_html:
+      at = ' \n'.join(atlist)
+    else:
+      at = ' <br>'.join(atlist)
     return at
 
   def prepare_fragname(self, fragId):
@@ -952,7 +955,8 @@ class FragmentDB(PT):
     try:
       name = str(self.db.get_fragment_name(fragId)[0])
     except:
-      name = 'Could not get a name from the database.'
+      print('Could not get a name from the database.')
+      return False
     return name
 
   def prepare_restraints(self, fragId):
@@ -961,7 +965,7 @@ class FragmentDB(PT):
     '''
     restr_list = self.db.get_restraints(fragId)
     if not restr_list:
-      return
+      return False
     restr_list = [[str(i) for i in y] for y in restr_list]
     restr = '\n'.join(['  '.join(i) for i in restr_list])
     return restr
@@ -1062,6 +1066,8 @@ class FragmentDB(PT):
     if not at:
       return False
     name = self.prepare_fragname(fragId)
+    if name == False:
+      name = "Could not get a fragment name from the database"
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
     reference = self.db.get_reference(fragId)
@@ -1258,32 +1264,49 @@ class FragmentDB(PT):
     return atoms
 
   def exportfrag(self):
-    '''
+    """
     print the fragment details on screen for DSR
-    
+
     Type "spy.FragmentDB.exportfrag" to export the current fragment.
-    '''
+    """
+    fragtext = []
+    htm = ' '
     try:
       fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except(RuntimeError):
-      return
+      return False
+    if fragId == 0:
+      print("No fragment selected!")
+      return False
+    pop_name = "Inputfrag"
+    screen_height = int(olx.GetWindowSize('gl').split(',')[3])
+    screen_width = int(olx.GetWindowSize('gl').split(',')[2])
+    box_x = int(screen_width*0.2)
+    box_y = int(screen_height*0.1)
+    width, height = 650, 710
     name = self.prepare_fragname(fragId)
+    if name == False:
+      return False
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
     reference = self.db.get_reference(fragId)
     cell = 'FRAG 17 1 1 1 90 90 90'
-    print(' ')
-    print('REM Name:', name)
-    print('REM Src:', reference)
-    print(restr)
-    print('RESI',  residue)
-    print(cell)
-    at = self.prepare_atoms_list(fragId, element=True)
+    #fragtext.append('<font face="courier" ')
+    fragtext.append('REM Name: {}'.format(name))
+    fragtext.append('REM Src: {}'.format(reference))
+    fragtext.append(' <br>'.join(restr.split('\n')))
+    fragtext.append('RESI {}'.format(residue))
+    fragtext.append(cell)
+    at = self.prepare_atoms_list(fragId, element=True, as_html=True)
     if not at:
-      print('not atoms found!')
+      print('Not atoms found in fragment!')
       return
-    print(at)
-    print(' ')
+    fragtext.append(at)
+    #fragtext.append('</font>')
+    fragtext.append('<br><b> Please send new fragments to Daniel Kratzert (dkratzert@gmx.de) <br> if you whish them to be in the FragmentDB database.</b>')
+    htm = ' <br>\n'.join(fragtext)
+    OV.write_to_olex('exportfragPop.htm', htm)
+    olx.Popup(pop_name, 'exportfragPop.htm', b="tcrp", t="{}".format(name), w=width, h=height, x=box_x, y=box_y)
 
   def imagedisp(self, name, height=120):
     '''
