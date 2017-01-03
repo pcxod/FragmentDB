@@ -77,14 +77,14 @@ class FragmentTable():
   >>> for num, i in enumerate(db):
   ...   print(i)
   ...   if num >= 5: break
-  (54, u'1,2-Dichlorobenzene, C6H4Cl2')
-  (5, u'1,2-Difluorobenzene, C6H4F2')
-  [1000005, u'1,2-Difluorobenzene, C6H4F2  *user*']
-  (48, u'1,2-Dimethoxyethane, coordinated to Na+, C4H10O2, DME')
-  (18, u'1,2-Dimethoxyethane, not coordinated, C4H10O2, DME')
-  (22, u'1,4-Diazabicyclo[2.2.2]octane, DABCO')
-
+  [4, u'Acetate anion, C2H3O2-']
+  [1000004, u'Acetate anion, C2H3O2-  *user*']
+  [47, u'Acetone, C3H6O']
+  [28, u'Acetonitrile, C2H3N, NMe']
+  [63, u'Adamantane, C10H16']
+  [37, u'Adamantane-N, C10H16N']
   '''
+
   def __init__(self, dbfile, userdb_path=''):
     '''
     Class to modify the database tables of the fragment database in "dbfile"
@@ -269,9 +269,9 @@ class FragmentTable():
     ...   print(i)
     ...   if num > 1:
     ...     break
-    (54, u'1,2-Dichlorobenzene, C6H4Cl2')
-    (5, u'1,2-Difluorobenzene, C6H4F2')
-    [1000005, u'1,2-Difluorobenzene, C6H4F2  *user*']
+    [4, u'Acetate anion, C2H3O2-']
+    [1000004, u'Acetate anion, C2H3O2-  *user*']
+    [47, u'Acetone, C3H6O']
     '''
     all_fragments = self.get_all_fragment_names()
     if all_fragments:
