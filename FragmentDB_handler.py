@@ -581,7 +581,7 @@ class FragmentTable():
     
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
-    >>> db.find_fragment_by_name('cf3', selection=3)
+    >>> db.find_fragment_by_name('nona', selection=3)
     [[3, u'Trifluoroethanol, OCH2CF3-'], [1000003, u'Trifluoroethanol, OCH2CF3-  *user*'], [58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-']]
     
     :param name: (part of) the name of a fragment to find
@@ -603,7 +603,7 @@ class FragmentTable():
     '''
     search_results = {}
     for i in self:
-      db_entry = i[1]
+      db_entry = make_sortkey(i[1])
       coefficient = dice_coefficient(search_string, db_entry)
       search_results[coefficient] = i
     # select the best [selection] results:

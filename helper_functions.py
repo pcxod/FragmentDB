@@ -37,11 +37,12 @@ REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY', 'FLAT', 'DELU
 
 def make_sortkey(full_name):
     """
-    Algorythm inspired by W. Sage J. Chem. Inf: Comput. Sci. 1983, 23, 186-197
+    Algorythm inspired by W. Sage J. Chem. Inf: Comput. Sci. 1983, 23, 186-197.
     Turns a full chemical name into a sort key for regular sorting.
     """
     full_name = ''.join(e for e in full_name if e not in ('{}()[],'))
-    full_name = full_name.split(',')[0].lower()
+    #full_name = full_name.split(' ')[0].lower()
+    #numbers = ''.join(e for e in full_name if e in r'0123456789')
     if full_name.startswith('tert-'):
         full_name = full_name[4:]
     if full_name.startswith('sec-'):
@@ -62,11 +63,16 @@ def make_sortkey(full_name):
         full_name = full_name[1:]
     if full_name.startswith('n-'):
         full_name = full_name[1:]
+    if full_name.startswith('nn-'):
+        full_name = full_name[1:]
+    if full_name.startswith('nnn-'):
+        full_name = full_name[1:]
     if full_name.startswith('m-'):
         full_name = full_name[1:]
     if full_name.startswith('i-'):
         full_name = full_name[1:]
     full_name = ''.join(e for e in full_name if e not in ('+-_.\'1234567890, '))
+    #keylist = [full_name, numbers]
     return full_name
 
 def atomic_distance(p1, p2, cell):
@@ -97,33 +103,40 @@ def atomic_distance(p1, p2, cell):
     return(sqrt(dsq))
 
 def dice_coefficient(a, b):
-  '''
-  dice coefficient 2nt/na + nb
-  Compares the similarity of a and b
-  :param a: string
-  :param b: string
-  '''
-  a = a.lower()
-  b = b.lower()
-  if not len(a) or not len(b): return 0.0
-  if len(a) == 1:
-    a = a+'.'
-  if len(b) == 1:
-    b = b + '.'
-  a_bigram_list = []
-  for i in range(len(a)-1):
-    a_bigram_list.append(a[i:i+2])
-  b_bigram_list = []
-  for i in range(len(b)-1):
-    b_bigram_list.append(b[i:i+2])
-  a_bigrams = set(a_bigram_list)
-  b_bigrams = set(b_bigram_list)
-  overlap = len(a_bigrams & b_bigrams)
-  dice_coeff = overlap * 2.0/(len(a_bigrams) + len(b_bigrams))
-  dice_coeff = 1-dice_coeff # invert the result
-  if dice_coeff < 0.5:  # make a cutoff for the best matches
-    return 0.0
-  return round(dice_coeff, 6)
+    """
+    dice coefficient 2nt/na + nb
+    Compares the similarity of a and b
+    :param a: string
+    :param b: string
+    >>> print(dice_coefficient('hallo', 'holla'))
+    0.75
+    >>> print(dice_coefficient('Banze', 'Benzene'))
+    0.555556
+    >>> print(dice_coefficient('cf3', 'Toluene'))
+    1.0
+    """
+    a = a.lower()
+    b = b.lower()
+    if not len(a) or not len(b):
+      return 0.0
+    if len(a) == 1:
+      a += '.'
+    if len(b) == 1:
+      b += '.'
+    a_bigram_list = []
+    for i in range(len(a) - 1):
+      a_bigram_list.append(a[i:i + 2])
+    b_bigram_list = []
+    for i in range(len(b) - 1):
+      b_bigram_list.append(b[i:i + 2])
+    a_bigrams = set(a_bigram_list)
+    b_bigrams = set(b_bigram_list)
+    overlap = len(a_bigrams & b_bigrams)
+    dice_coeff = overlap * 2.0 / (len(a_bigrams) + len(b_bigrams))
+    dice_coeff = 1 - dice_coeff  # invert the result
+    if dice_coeff < 0.45:  # make a cutoff for the best matches
+      return 0.0
+    return round(dice_coeff, 6)
 
 def check_restraints_consistency(restraints, atoms, fragment_name):
   '''
