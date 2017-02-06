@@ -51,6 +51,7 @@ class FragmentDB(PT):
 
   def __init__(self):
     super(FragmentDB, self).__init__()
+    self.cite_str = "Kratzert, D., Holstein, J.J. & Krossing, I. (2015). J. Appl. Cryst. 48, 933-938."
     self.p_name = p_name
     self.p_path = p_path
     self.p_scope = p_scope
@@ -330,14 +331,14 @@ class FragmentDB(PT):
     return
 
   def fit_db_fragment(self):
-    '''
+    """
     fit a molecular fragment from the database into olex2
-    '''
+    """
     try:
       fragId = int(OV.GetParam('fragment_DB.fragment.fragId'))
     except(RuntimeError, ValueError):
       # no fragment chosen-> do nothing
-      return
+      return False
     OV.cmd("labels false")
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
     afix = ''
@@ -348,6 +349,9 @@ class FragmentDB(PT):
       self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy, afix=afix)
     else:
       print('Please select a fragment first, or type text and hit Enter key to search.')
+      return False
+    gui.report.add_to_citation_list(self.cite_str)
+    return True
 
   def atomrenamer(self, labeldict):
     '''
