@@ -1,11 +1,12 @@
-'''
+"""
 Created on 23.10.2015
 
 @author: daniel
-'''
-#import pprint
+"""
+# import pprint
 from helper_functions import REL_RESTR_CARDS, SHX_CARDS, remove_partsymbol
 import os
+
 try:
   import olx  # @UnresolvedImport
   from olexFunctions import OlexFunctions
@@ -17,117 +18,123 @@ try:
   IT = ImageTools()
 except:
   pass
-#import cProfile
-#import pstats
-#cp = cProfile.Profile()
-#cp.enable(subcalls=True, builtins=True)
+
+
+# import cProfile
+# import pstats
+# cp = cProfile.Profile()
+# cp.enable(subcalls=True, builtins=True)
 
 class Refmod(object):
-    '''
-    handles the refinement model of olex2
-    '''
-    def __init__(self):
-      '''
-      Constructor
-      '''
-      self.htm = html_Table()
-      
-    def fileparser(self, lstfile):
-      '''
-      gathers the residuals of the lst file
-      It searches for the final cycle summary and then for " Disagreeable restraints".
-      End is reached with ' Summary of restraints'
-      '''  
-      if not lstfile:
-        return
-      disag = False
-      final = False
-      disargeelist = []
-      num = 0
-      with open(lstfile, 'r') as f:
-        for line in f:
-          splitline = line.split()
-          if not splitline:
-            continue
-          if splitline[0].startswith('Observed'):
-            continue
-          if line.startswith(" Final Structure Factor"):
-            final = True
-          if final and line.startswith(' Disagreeable restraints'):
-            disag = True
-            continue
-          if line.startswith(' Summary of restraints'):
-            final = False
-            disag = False
-          if disag: 
-            # in this case, the desired line is found:
-            fline = self.lineformatter(splitline)
-            # fline is a list of list
-            disargeelist.append(fline)
-            num = num+1
-            if num > 1000:
-              print('Cutting restraints list. Too many restraints...')
-              return disargeelist
-        return disargeelist
-    
-    def lineformatter(self, line):
-      '''
-      takes care of some extra things with different restraints. For example
-      RIGU xy should be in one column
-      :type line: list
-      '''
-      for num, i in enumerate(line):
-        i = i.replace('/', ' ')
-        if i[0].isalpha():
-          pos = num
-          break
-      # remove the part symbol from e.g. F1_2a:
-      for num, i in enumerate(line):
-        line[num] = remove_partsymbol(i)
-      # joining columns without numbers:
-      line[pos:] = [' '.join(line[pos:])]
-      tline = ' '.join(line)
-      for n in REL_RESTR_CARDS:
-        if n in tline:
-          # adding placeholders for empty fields:
-          line = ['-', '-']+line
-          break
-      return line
-    
-    def get_listfile(self):
-      '''
-      returns the path of the current SHELXL list file
-      '''
-      try:
-        lstfile = os.path.abspath(OV.FilePath()+os.path.sep+OV.FileName()+'.lst')
-        if not os.path.isfile(lstfile):
-          #print('No list file found.')
-          return ''
-      except:
-        print('somethin is wrong with the lst file path.')
-        return ''
-      return lstfile
-    
-    def results(self):  
-      '''
-      prepare the results for the plugin 
-      '''
-      filedata = self.fileparser(self.get_listfile()) # raw table
-      if not filedata:
-        filedata = []
-      html = self.htm.table_maker(filedata)
-      return html
+  """
+  handles the refinement model of olex2
+  """
 
-    
+  def __init__(self):
+    """
+    Constructor
+    """
+    self.htm = html_Table()
+
+  def fileparser(self, lstfile):
+    """
+    gathers the residuals of the lst file
+    It searches for the final cycle summary and then for " Disagreeable restraints".
+    End is reached with ' Summary of restraints'
+    """
+    if not lstfile:
+      return
+    disag = False
+    final = False
+    disargeelist = []
+    num = 0
+    with open(lstfile, 'r') as f:
+      for line in f:
+        splitline = line.split()
+        if not splitline:
+          continue
+        if splitline[0].startswith('Observed'):
+          continue
+        if line.startswith(" Final Structure Factor"):
+          final = True
+        if final and line.startswith(' Disagreeable restraints'):
+          disag = True
+          continue
+        if line.startswith(' Summary of restraints'):
+          final = False
+          disag = False
+        if "RIGU" in line:
+          continue
+        if disag:
+          # in this case, the desired line is found:
+          fline = self.lineformatter(splitline)
+          # fline is a list of list
+          disargeelist.append(fline)
+          num = num + 1
+          if num > 1000:
+            print('Cutting restraints list. Too many restraints...')
+            return disargeelist
+      return disargeelist
+
+  def lineformatter(self, line):
+    """
+    takes care of some extra things with different restraints. For example
+    RIGU xy should be in one column
+    :type line: list
+    """
+    for num, i in enumerate(line):
+      i = i.replace('/', ' ')
+      if i[0].isalpha():
+        pos = num
+        break
+    # remove the part symbol from e.g. F1_2a:
+    for num, i in enumerate(line):
+      line[num] = remove_partsymbol(i)
+    # joining columns without numbers:
+    line[pos:] = [' '.join(line[pos:])]
+    tline = ' '.join(line)
+    for n in REL_RESTR_CARDS:
+      if n in tline:
+        # adding placeholders for empty fields:
+        line = ['-', '-'] + line
+        break
+    return line
+
+  def get_listfile(self):
+    """
+    returns the path of the current SHELXL list file
+    """
+    try:
+      lstfile = os.path.abspath(OV.FilePath() + os.path.sep + OV.FileName() + '.lst')
+      if not os.path.isfile(lstfile):
+        # print('No list file found.')
+        return ''
+    except:
+      print('somethin is wrong with the lst file path.')
+      return ''
+    return lstfile
+
+  def results(self):
+    '''
+    prepare the results for the plugin
+    '''
+    filedata = self.fileparser(self.get_listfile())  # raw table
+    if not filedata:
+      filedata = []
+    html = self.htm.table_maker(filedata)
+    return html
+
+
 class html_Table(object):
   '''
   html table generator
   '''
+
   def __init__(self):
     try:
       # more than two colors here are too crystmas treelike:
       grade_2_colour = OV.GetParam('gui.skin.diagnostics.colour_grade2')
-      self.grade_2_colour = self.rgb2hex(IT.adjust_colour(grade_2_colour, luminosity=1.8)) 
+      self.grade_2_colour = self.rgb2hex(IT.adjust_colour(grade_2_colour, luminosity=1.8))
       grade_4_colour = OV.GetParam('gui.skin.diagnostics.colour_grade4')
       self.grade_4_colour = self.rgb2hex(IT.adjust_colour(grade_4_colour, luminosity=1.8))
     except(ImportError, NameError):
@@ -139,13 +146,13 @@ class html_Table(object):
     return the hexadecimal string representation of an rgb colour
     """
     return '#%02x%02x%02x' % rgb
-  
+
   def table_maker(self, tabledata=[]):
     '''
     builds a html table out of a datalist from the final 
     cycle summary of a shelxl list file.
     '''
-    table=[]
+    table = []
     for line in tabledata:
       table.append(self.row(line))
     header = r"""
@@ -196,9 +203,8 @@ class html_Table(object):
       {2}
       """.format(header, '\n'.join(table), footer)
     if not table:
-      return header+empty_data
-    return html  
-    
+      return header + empty_data
+    return html
 
   def row(self, rowdata):
     '''
@@ -208,23 +214,23 @@ class html_Table(object):
     td = []
     bgcolor = ''
     try:
-      if abs(float(rowdata[2])) > 2.5*float(rowdata[3]):
+      if abs(float(rowdata[2])) > 2.5 * float(rowdata[3]):
         bgcolor = r"""bgcolor='{}'""".format(self.grade_2_colour)
-      if abs(float(rowdata[2])) > 3.5*float(rowdata[3]):
-        bgcolor = r"""bgcolor='{}'""".format(self.grade_4_colour)        
+      if abs(float(rowdata[2])) > 3.5 * float(rowdata[3]):
+        bgcolor = r"""bgcolor='{}'""".format(self.grade_4_colour)
     except ValueError:
       print("Unknown restraint occured.")
-    for num, item in enumerate(rowdata): 
+    for num, item in enumerate(rowdata):
       try:
         # align right for numbers:
         float(item)
-        if num < 2: 
+        if num < 2:
           # do not colorize the first two columns:
           td.append(r"""<td align='right'> {} </td>""".format(item))
         else:
           td.append(r"""<td align='right' {0}> {1} </td>""".format(bgcolor, item))
       except:
-        if item.startswith('-'):  
+        if item.startswith('-'):
           # only a minus sign
           td.append(r"""<td align='center'> {} </td>""".format(item))
         else:
@@ -262,19 +268,18 @@ class html_Table(object):
       else:
         atoms.append(remove_partsymbol(i))
     OV.cmd('editatom {}'.format(' '.join(atoms)))
-    
-  
-  
+
+
 htm = html_Table()
 try:
   OV.registerFunction(htm.edit_restraints, False, "Refmod")
 except:
   pass
 
-
 if __name__ == '__main__':
   import cProfile
   import pstats
+
   cp = cProfile.Profile()
   cp.enable(subcalls=True, builtins=True)
   ref = Refmod()
@@ -286,6 +291,5 @@ if __name__ == '__main__':
   tab = htm.table_maker(lst)
   print(tab)
   cp.disable()
-  
+
   pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)
-  
