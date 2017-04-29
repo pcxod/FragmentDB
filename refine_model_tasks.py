@@ -277,19 +277,18 @@ except:
   pass
 
 if __name__ == '__main__':
-  import cProfile
+  #import cProfile
   import pstats
 
-  cp = cProfile.Profile()
-  cp.enable(subcalls=True, builtins=True)
+  #cp = cProfile.Profile()
+  #cp.enable(subcalls=True, builtins=True)
+
   ref = Refmod()
-  try:
-    lst = ref.fileparser(r'D:\Programme\DSR\example\p21c.lst')
-    lst = ref.fileparser(r'D:\tmp\big_strukt\p-1.lst')
-  except:
-    lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
+  lst = ref.fileparser(r'D:\Programme\DSR\example\p21c.lst')
+  # lst = ref.fileparser(r'D:\tmp\big_strukt\p-1.lst')
+  # lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   tab = htm.table_maker(lst)
   print(tab)
-  cp.disable()
+  #cp.disable()
 
-  pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)
+  #pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)
