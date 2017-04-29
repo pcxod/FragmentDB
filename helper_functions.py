@@ -37,12 +37,12 @@ REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY', 'FLAT', 'DELU
 
 def make_sortkey(full_name):
     """
-    Algorythm inspired by W. Sage J. Chem. Inf: Comput. Sci. 1983, 23, 186-197.
-    Turns a full chemical name into a sort key for regular sorting.
+    Algorythm inspired by W. Sage J. Chem. Inf: Comput. Sci. 1983, 23, 186-197
     """
-    full_name = ''.join(e for e in full_name if e not in ('{}()[],'))
-    #full_name = full_name.split(' ')[0].lower()
-    #numbers = ''.join(e for e in full_name if e in r'0123456789')
+    keylist = []
+    full_name = ''.join(e for e in full_name if e not in '{}()[],')
+    full_name = full_name.split(' ')[0].lower()
+    numbers = ''.join(e for e in full_name if e in r'0123456789')
     if full_name.startswith('tert-'):
         full_name = full_name[4:]
     if full_name.startswith('sec-'):
@@ -71,12 +71,13 @@ def make_sortkey(full_name):
         full_name = full_name[1:]
     if full_name.startswith('i-'):
         full_name = full_name[1:]
-    full_name = ''.join(e for e in full_name if e not in ('+-_.\'1234567890, '))
-    #keylist = [full_name, numbers]
-    return full_name
+    full_name = ''.join(e for e in full_name if e not in '+-_.\'1234567890, ')
+    keylist = [full_name, numbers]
+    return keylist
+
 
 def atomic_distance(p1, p2, cell):
-    '''
+    """
     p1 and p2 are x, y , z coordinates as list ['x', 'y', 'z']
     cell are the cell parameters as list: ['a', 'b', 'c', 'alpha', 'beta', 'gamma']
     returns the distance between the two points.
@@ -86,7 +87,7 @@ def atomic_distance(p1, p2, cell):
     >>> coord2 = (-0.155278,   0.264593,   0.600644) 
     >>> atomic_distance(coord1, coord2, cell)
     1.5729229943265979
-    '''
+    """
     cell = [float(y) for y in cell]
     a , b, c =  cell[:3]
     al = radians(cell[3])
@@ -102,41 +103,62 @@ def atomic_distance(p1, p2, cell):
           2*dx*dz*a*c*cos(be)+2*dx*dy*a*b*cos(ga)
     return(sqrt(dsq))
 
-def dice_coefficient(a, b):
-    """
-    dice coefficient 2nt/na + nb
-    Compares the similarity of a and b
-    :param a: string
-    :param b: string
-    >>> print(dice_coefficient('hallo', 'holla'))
-    0.75
-    >>> print(dice_coefficient('Banze', 'Benzene'))
-    0.555556
-    >>> print(dice_coefficient('cf3', 'Toluene'))
+
+def dice_coefficient2(a, b, case_insens=True):
+    """ 
+    :type a: str
+    :type b: str
+    :type case_insens: bool
+    duplicate bigrams in a word should be counted distinctly
+    (per discussion), otherwise 'AA' and 'AAAA' would have a 
+    dice coefficient of 1...
+    https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Dice%27s_coefficient#Python
+    >>> dice_coefficient2('hallo', 'holla')
+    0.25
+    >>> dice_coefficient2('Banze', 'Benzene')
+    0.4
+    >>> dice_coefficient2('halo', 'Haaallo')
+    0.666667
+    >>> dice_coefficient2('hallo', 'Haaallo')
+    0.8
+    >>> dice_coefficient2('hallo', 'Hallo')
     1.0
+    >>> dice_coefficient2('aaa', 'BBBBB')
+    0.0
     """
-    a = a.lower()
-    b = b.lower()
+    if case_insens:
+      a = a.lower()
+      b = b.lower()
     if not len(a) or not len(b):
       return 0.0
-    if len(a) == 1:
-      a += '.'
-    if len(b) == 1:
-      b += '.'
-    a_bigram_list = []
-    for i in range(len(a) - 1):
-      a_bigram_list.append(a[i:i + 2])
-    b_bigram_list = []
-    for i in range(len(b) - 1):
-      b_bigram_list.append(b[i:i + 2])
-    a_bigrams = set(a_bigram_list)
-    b_bigrams = set(b_bigram_list)
-    overlap = len(a_bigrams & b_bigrams)
-    dice_coeff = overlap * 2.0 / (len(a_bigrams) + len(b_bigrams))
-    dice_coeff = 1 - dice_coeff  # invert the result
-    if dice_coeff < 0.45:  # make a cutoff for the best matches
+    # quick case for true duplicates
+    if a == b:
+      return 1.0
+    # if a != b, and a or b are single chars, then they can't possibly match
+    if len(a) == 1 or len(b) == 1:
       return 0.0
-    return round(dice_coeff, 6)
+    # use python list comprehension, preferred over list.append()
+    a_bigram_list = [a[i:i + 2] for i in range(len(a) - 1)]
+    b_bigram_list = [b[i:i + 2] for i in range(len(b) - 1)]
+    a_bigram_list.sort()
+    b_bigram_list.sort()
+    # assignments to save function calls
+    lena = len(a_bigram_list)
+    lenb = len(b_bigram_list)
+    # initialize match counters
+    matches = i = j = 0
+    while i < lena and j < lenb:
+      if a_bigram_list[i] == b_bigram_list[j]:
+        matches += 2
+        i += 1
+        j += 1
+      elif a_bigram_list[i] < b_bigram_list[j]:
+        i += 1
+      else:
+        j += 1
+    score = float(matches) / float(lena + lenb)
+    return round(score, 6)
+
 
 def check_restraints_consistency(restraints, atoms, fragment_name):
   '''
@@ -196,15 +218,15 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
   return status
 
 def pairwise(iterable):
-    '''
-     s -> (s0,s1), (s2,s3), (s4, s5), ...
-     
-     >>> liste = ['C1', 'C2', 'C2', 'C3', 'C4', 'C5', 'C5', 'C6']
-     >>> pairwise(liste)
-     [('C1', 'C2'), ('C2', 'C3'), ('C4', 'C5'), ('C5', 'C6')]
-     '''
-    a = iter(iterable)
-    return zip(a, a)
+  """
+  s -> (s0,s1), (s2,s3), (s4, s5), ...
+  
+  >>> liste = ['C1', 'C2', 'C2', 'C3', 'C4', 'C5', 'C5', 'C6']
+  >>> pairwise(liste)
+  [('C1', 'C2'), ('C2', 'C3'), ('C4', 'C5'), ('C5', 'C6')]
+  """
+  a = iter(iterable)
+  return zip(a, a)
 
 def mean(values):
     '''

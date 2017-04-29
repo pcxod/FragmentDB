@@ -6,7 +6,7 @@ Created on 09.10.2014
 '''
 import sys
 
-from helper_functions import dice_coefficient, SHX_CARDS, make_sortkey
+from helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
@@ -575,44 +575,46 @@ class FragmentTable():
       return 'no reference found'
 
   def find_fragment_by_name(self, name, selection=5):
-    '''
+    """
+    :type selection: int
+    :param selection: return only this number of hits
+    
     find a fragment by its name in the database. This method will output a
     selection of (default=5) best hits.
     
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.find_fragment_by_name('nona', selection=3)
-    [[50, u'n-Nonane, C8H18'], [9, u'PF-Anion, [Al{OC(CF3)3}4]-'], [58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-']]
+    [[50, u'n-Nonane, C8H18', 0.75], [58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-', 0.272727], [47, u'Acetone, C3H6O', 0.222222]]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
     :return fragment_id: list of id numbers of the found fragments e.g. [1, 5]
     :type fragment_id: int
-    '''
+    """
     return self._search_name(name, selection)
 
   def _search_name(self, search_string, selection=5):
-    '''
+    """
     searches the names in the database for a given name
     :param search_string: search for this string
     :type search_string: str
-    :param frags: fragments in the database
-    :type frags: list
     :param selection: return this amount of results
     :type selection: int
-    '''
-    search_results = {}
+    """
+    search_results = []
     for i in self:
-      db_entry = make_sortkey(i[1])
-      coefficient = dice_coefficient(search_string, db_entry)
-      search_results[coefficient] = i
-    # select the best [selection] results:
-    selected_results = [search_results[i] for i in sorted(search_results)[0:selection]]
+      db_entry = make_sortkey(i[1])[0]
+      coefficient = dice_coefficient2(search_string, db_entry)
+      i.append(coefficient)
+      search_results.append(i)
+    # select the best n results:
+    selected_results = sorted(search_results, key=lambda coeff: coeff[-1], reverse=True)[:selection]
     return selected_results
 
   def store_fragment(self, fragment_name=None, atoms=None, resiclass=None, restraints=None,
                      reference=None, comment=None, picture=None):
-    '''
+    """
     Store a complete new fragment into the database. Minimal requirement is a
     fragment name (Full chemical name) and a list of atoms. Restraints, 
     reference and comments are optional.
@@ -630,7 +632,7 @@ class FragmentTable():
     :param picture: a picture of the molecule
     :type picture: binary
     :rtype int: FragmentId -> last_rowid
-    '''
+    """
     # first stores the meta-information in the Fragment table:
     # The FragmentId is the last_rowid from sqlite
     if not fragment_name or fragment_name == '':
@@ -739,7 +741,6 @@ class FragmentTable():
         req = '''INSERT INTO userdb.Restraints (FragmentId, ShelxName, atoms)
                   VALUES(?, ?, ?)'''
         self.database.db_request(req, restr_table)
-
 
 
 class Restraints():
