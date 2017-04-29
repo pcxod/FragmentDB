@@ -604,12 +604,12 @@ class FragmentTable():
     """
     search_results = []
     for i in self:
-      db_entry = make_sortkey(i[1])[0]
-      coefficient = dice_coefficient2(search_string, db_entry)
-      i.append(coefficient)
+      key = make_sortkey(i[1])
+      coefficient = dice_coefficient2(search_string, key[0]+key[1])
+      i.append([coefficient, key[1]])
       search_results.append(i)
     # select the best n results:
-    selected_results = sorted(search_results, key=lambda coeff: coeff[-1], reverse=True)[:selection]
+    selected_results = sorted(search_results, key=lambda coeff: (coeff[-1][0], coeff[-1][1]), reverse=False)[:selection]
     return selected_results
 
   def store_fragment(self, fragment_name=None, atoms=None, resiclass=None, restraints=None,
