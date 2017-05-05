@@ -4,7 +4,7 @@
 echo %FDBDIR%
 rem set FDBDIR="C:\Program Files\Olex2-1.2\util\pyUtil\PluginLib\plugin-Fragment_DB"
 set FDBDIR2="D:\downloads\olex2-gui\util\pyUtil\PluginLib\plugin-Fragment_DB"
-set GIT="D:\GitHub\DSR-db"
+set GIT="D:\GitHub\FragmentDB"
 
 
 rem xcopy /Y %GIT%\Fragment_DB.htm %FDBDIR%
