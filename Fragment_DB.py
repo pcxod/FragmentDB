@@ -20,17 +20,11 @@ import pprint
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 8
+FDB_VERSION = 9
 
 r'''
 Fragen und Ideen:
 
-- FragmentDB vanishes fromTools menu when changing panel width
--
-
-- check_same_thread=False ?
-- ask oleg to save/load only graphical things in the model (rotation, style, )
-    e.g. (save model 'fred' -g) 
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
 - http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
@@ -354,22 +348,22 @@ class FragmentDB(PT):
     return True
 
   def atomrenamer(self, labeldict):
-    '''
+    """
     Renames atoms according to the database names after ImportFrag.
     :param labeldict: dictionary with names and ids of the atoms
     :type labeldict: dict
-    '''
+    """
     for at in labeldict:
       olx.Name('#c'+labeldict[at], at)
 
   def define_atom_properties(self, atomids, fragId=None):
-    '''
+    """
     Defines the atoms properties of the fitted fragment after ImportFrag
     :param atomids: atomic olex2 ids of the atoms
     :type atomids: list
     :param fragId: fragment id
     :type fragId: int
-    '''
+    """
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
@@ -1307,7 +1301,8 @@ class FragmentDB(PT):
       return
     fragtext.append(at)
     #fragtext.append('</font>')
-    fragtext.append('<br><b> Please send new fragments to Daniel Kratzert (dkratzert@gmx.de) <br> if you whish them to be in the FragmentDB database.</b>')
+    fragtext.append('<br><b> Please send new fragments to Daniel Kratzert (dkratzert@gmx.de) '
+                    '<br> if you whish them to be in the FragmentDB database.</b>')
     htm = ' <br>\n'.join(fragtext)
     OV.write_to_olex('exportfragPop.htm', htm)
     olx.Popup(pop_name, 'exportfragPop.htm', b="tcrp", t="{}".format(name), w=width, h=height, x=box_x, y=box_y)
