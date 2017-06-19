@@ -259,7 +259,7 @@ class FragmentTable():
     return deleted
 
   def __iter__(self):
-    '''
+    """
     This method is called when an iterator is required for FragmentTable.
     Returns the Id and the Name as tuple.
 
@@ -272,7 +272,7 @@ class FragmentTable():
     [4, u'Acetate anion, C2H3O2-']
     [1000004, u'Acetate anion, C2H3O2-  *user*']
     [47, u'Acetone, C3H6O']
-    '''
+    """
     all_fragments = self.get_all_fragment_names()
     if all_fragments:
       return iter(all_fragments)
@@ -280,16 +280,16 @@ class FragmentTable():
       return False
 
   def has_name(self, name):
-    '''
+    """
     Returns True if a partial name is found in the DB.
-    
+
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_name('Benzene')
     'userdb'
     >>> db.has_name('Benzil')
     False
-    '''
+    """
     req = '''SELECT Name FROM Fragment WHERE Name like "%{}%" '''.format(name)
     req_usr = '''SELECT Name FROM userdb.Fragment WHERE Name like "%{}%" '''.format(name)
     # user modifications have highest priority:
@@ -301,18 +301,18 @@ class FragmentTable():
       return False
   
   def has_exact_name(self, name):
-    '''
+    """
     Returns True if an exact name is found in the DB. Returns 'userdb if
     the name is found in the userdb.
-    
+
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_name('1,2-Dichlorobenzene, C6H4Cl2')
     True
-    
+
     >>> db.has_exact_name('Benzene')
     False
-    '''
+    """
     req = '''SELECT Name FROM Fragment WHERE Fragment.Name = "{}" '''.format(name)
     req_usr = '''SELECT Name FROM userdb.Fragment WHERE Fragment.Name = "{}" '''.format(name)
     # user modifications have highest priority:
@@ -324,16 +324,16 @@ class FragmentTable():
       return False
   
   def has_exact_resi_class(self, resi_class):
-    '''
+    """
     Returns True if an exact residue class is found in the DB.
-    
+
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.has_exact_resi_class('BENZ')
     True
     >>> db.has_exact_resi_class('Benzene')
     False
-    '''
+    """
     req = '''SELECT class FROM Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
     req_usr = '''SELECT class FROM userdb.Fragment WHERE Fragment.class = "{}" '''.format(resi_class)
     # user modifications have highest priority:
@@ -345,22 +345,22 @@ class FragmentTable():
       return False
   
   def has_index(self, fragment_id):
-    '''
+    """
     Returns True if db has index Id
     :param Id: Id of the respective fragment
     :type Id: int
     :rtype: bool
-    
+
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.has_index('5')
     True
     >>> db.has_index('999')
     False
-    '''
+    """
     try:
       fragment_id = int(fragment_id)
-    except(TypeError):
+    except TypeError:
       print('Wrong type for database index. Only numbers allowed.')
       return False
     req = '''SELECT Id FROM Fragment WHERE Fragment.Id = ?'''
@@ -376,15 +376,15 @@ class FragmentTable():
       return False
   
   def get_all_rowids(self):
-    '''
+    """
     returns all Ids in the database as list.
-    :rtype: list 
-    
+    :rtype: list
+
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.get_all_rowids()
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006]
-    '''
+    """
     req = '''SELECT Id FROM Fragment ORDER BY Id'''
     req_usr = '''SELECT Id FROM userdb.Fragment ORDER BY Id'''
     rows = [i[0] for i in self.database.db_request(req)]
@@ -398,9 +398,9 @@ class FragmentTable():
     return rows
   
   def get_all_fragment_names(self):
-    '''
+    """
     returns all fragment names in the database, sorted by name
-    '''
+    """
     req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
     req_usr = '''SELECT Fragment.Id, Fragment.name FROM userdb.Fragment'''
     allrows = []
@@ -414,7 +414,8 @@ class FragmentTable():
       else:
         allrows = rows
     for num, i in enumerate(allrows):
-      key = make_sortkey(i[1])
+      # searchkey also adds sum formula etc to sortkey:
+      key = make_sortkey(i[1], searchkey=False)
       allrows[num].append(key)
     if allrows:
       allrows.sort(key=lambda x: x[2])
@@ -432,12 +433,12 @@ class FragmentTable():
     return int(fragment_id)
   
   def _get_fragment(self, fragment_id):
-    '''
+    """
     returns a full fragment with all atoms, atom types as a tuple.
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     :rtype: tuple
-    '''
+    """
     fragment_id = self.fragid_toint(fragment_id)   
     req_atoms = '''SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
       FROM Fragment, Atoms on Fragment.Id=Atoms.FragmentId WHERE
@@ -453,16 +454,16 @@ class FragmentTable():
     return atomrows
 
   def get_fragment_name(self, fragment_id):
-    '''
+    """
     returns the "Name" column entry of fragment with id "fragment_id"
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)    
+    >>> db = FragmentTable(dbfile)
     >>> db.get_fragment_name(8)[0]
     u'Hexafluorophosphate, PF6'
-    
+
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
-    '''
+    """
     fragment_id = self.fragid_toint(fragment_id)   
     if fragment_id < 1000000:
       req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ? '''
@@ -474,16 +475,16 @@ class FragmentTable():
     return name
   
   def get_picture(self, fragment_id):
-    '''
-    returns a picture of the fragment if one exist in the database. Otherwise 
+    """
+    returns a picture of the fragment if one exist in the database. Otherwise
     it returns False.
-    
+
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> db = FragmentTable(dbfile)    
+    >>> db = FragmentTable(dbfile)
     >>> pic = db.get_picture(2)
     >>> print(str(pic[1:4]))
     PNG
-    '''
+    """
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
       req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
@@ -604,8 +605,8 @@ class FragmentTable():
     """
     search_results = []
     for i in self:
-      key = make_sortkey(i[1])
-      coefficient = dice_coefficient2(search_string, key[0]+key[1])
+      key = make_sortkey(i[1], searchkey=True)
+      coefficient = dice_coefficient2(search_string, key[0] + key[1])
       i.append([coefficient, key[1]])
       search_results.append(i)
     # select the best n results:

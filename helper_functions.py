@@ -35,13 +35,16 @@ IMPL_RESTRAINT_CARDS = ('SAME', 'SADI', 'DFIX', 'BUMP', 'DANG', 'FLAT', 'TRIA',
 ABS_RESTR_CARDS = ('DFIX', 'DANG', 'BUMP', 'TRIA', 'CHIV')
 REL_RESTR_CARDS = ('SAME', 'SADI', 'SIMU', 'RIGU', 'ISOR', 'NCSY', 'FLAT', 'DELU')
 
-def make_sortkey(full_name):
+
+def make_sortkey(full_name, searchkey=False):
     """
     Algorythm inspired by W. Sage J. Chem. Inf: Comput. Sci. 1983, 23, 186-197
     """
     keylist = []
     full_name = ''.join(e for e in full_name if e not in '{}()[],')
-    full_name = full_name.split(' ')[0].lower()
+    full_name = full_name.split(' ')
+    rest = " "+' '.join(full_name[1:])
+    full_name = full_name[0].lower()
     numbers = ''.join(e for e in full_name if e in r'0123456789')
     if full_name.startswith('tert-'):
         full_name = full_name[4:]
@@ -72,7 +75,10 @@ def make_sortkey(full_name):
     if full_name.startswith('i-'):
         full_name = full_name[1:]
     full_name = ''.join(e for e in full_name if e not in '+-_.\'1234567890, ')
-    keylist = [full_name, numbers]
+    if searchkey:
+        keylist = [full_name + rest, numbers]  # enables search for sum formulae
+    else:
+        keylist = [full_name, numbers]
     return keylist
 
 

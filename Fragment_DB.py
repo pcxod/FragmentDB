@@ -41,6 +41,7 @@ p_img = [("FragmentDB",'h1')]
 
 from PluginTools import PluginTools as PT  # @UnresolvedImport
 
+
 class FragmentDB(PT):
 
   def __init__(self):
@@ -67,18 +68,18 @@ class FragmentDB(PT):
 
 
   def get_cell(self):
-    '''
+    """
     returns the cell from the refinement model
-    '''
+    """
     precell = olex_core.GetRefinementModel(False)['aunit']['cell']
     cell = [ precell['a'][0], precell['b'][0], precell['c'][0], precell['alpha'][0],
             precell['beta'][0], precell['gamma'][0] ]
     return cell
 
   def init_plugin(self):
-    '''
+    """
     initialize the plugins main form
-    '''
+    """
     try:
       fragid = int(OV.GetParam('fragment_DB.fragment.fragId'))
     except(RuntimeError, ValueError):
@@ -97,9 +98,9 @@ class FragmentDB(PT):
     #self.guess_values()
 
   def set_id(self, fragid=0):
-    '''
+    """
     Sets the fragment id in the phil for the search field
-    '''
+    """
     try:
       int(fragid)
     except(ValueError):
@@ -107,16 +108,16 @@ class FragmentDB(PT):
     OV.SetParam("fragment_DB.fragment.fragId", fragid)
 
   def guess_values(self):
-    '''
+    """
     guesses the values for FVAR, occopancy and PART for a selected target atom
-    '''
+    """
     # I need a funtion that returns the atom ids of the selected atoms
     pass
 
   def clear_mainvalues(self):
-    '''
+    """
     clears the state of the main interface
-    '''
+    """
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
     if olx.fs.Exists('largefdbimg.png') == 'true':
       im = Image.new('RGBA', (1,1), self.params.html.table_bg_colour.rgb)
@@ -187,19 +188,19 @@ class FragmentDB(PT):
       #olx.html.SetValue(name, OV.GetParam(varname))
 
   def list_fragments(self):
-    '''
+    """
     returns the available fragments in the database
     the list of names is separated by semicolon
     i[0] => number
     i[1] => name
-    '''
+    """
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
     return items
 
   def search_fragments(self, search_string):
-    '''
+    """
     performs a search for an unsharp name in a list
-    '''
+    """
     selected_list = ''
     if not search_string:
       print("Empty search string.")
