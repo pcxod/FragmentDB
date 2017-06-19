@@ -20,17 +20,11 @@ import pprint
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 8
+FDB_VERSION = 9
 
 r'''
 Fragen und Ideen:
 
-- FragmentDB vanishes fromTools menu when changing panel width
--
-
-- check_same_thread=False ?
-- ask oleg to save/load only graphical things in the model (rotation, style, )
-    e.g. (save model 'fred' -g) 
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
 - http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
@@ -46,6 +40,7 @@ p_htm = "Fragment_DB"
 p_img = [("FragmentDB",'h1')]
 
 from PluginTools import PluginTools as PT  # @UnresolvedImport
+
 
 class FragmentDB(PT):
 
@@ -73,18 +68,18 @@ class FragmentDB(PT):
 
 
   def get_cell(self):
-    '''
+    """
     returns the cell from the refinement model
-    '''
+    """
     precell = olex_core.GetRefinementModel(False)['aunit']['cell']
     cell = [ precell['a'][0], precell['b'][0], precell['c'][0], precell['alpha'][0],
             precell['beta'][0], precell['gamma'][0] ]
     return cell
 
   def init_plugin(self):
-    '''
+    """
     initialize the plugins main form
-    '''
+    """
     try:
       fragid = int(OV.GetParam('fragment_DB.fragment.fragId'))
     except(RuntimeError, ValueError):
@@ -103,9 +98,9 @@ class FragmentDB(PT):
     #self.guess_values()
 
   def set_id(self, fragid=0):
-    '''
+    """
     Sets the fragment id in the phil for the search field
-    '''
+    """
     try:
       int(fragid)
     except(ValueError):
@@ -113,16 +108,16 @@ class FragmentDB(PT):
     OV.SetParam("fragment_DB.fragment.fragId", fragid)
 
   def guess_values(self):
-    '''
+    """
     guesses the values for FVAR, occopancy and PART for a selected target atom
-    '''
+    """
     # I need a funtion that returns the atom ids of the selected atoms
     pass
 
   def clear_mainvalues(self):
-    '''
+    """
     clears the state of the main interface
-    '''
+    """
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
     if olx.fs.Exists('largefdbimg.png') == 'true':
       im = Image.new('RGBA', (1,1), self.params.html.table_bg_colour.rgb)
@@ -193,19 +188,19 @@ class FragmentDB(PT):
       #olx.html.SetValue(name, OV.GetParam(varname))
 
   def list_fragments(self):
-    '''
+    """
     returns the available fragments in the database
     the list of names is separated by semicolon
     i[0] => number
     i[1] => name
-    '''
+    """
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
     return items
 
   def search_fragments(self, search_string):
-    '''
+    """
     performs a search for an unsharp name in a list
-    '''
+    """
     selected_list = ''
     if not search_string:
       print("Empty search string.")
@@ -354,22 +349,22 @@ class FragmentDB(PT):
     return True
 
   def atomrenamer(self, labeldict):
-    '''
+    """
     Renames atoms according to the database names after ImportFrag.
     :param labeldict: dictionary with names and ids of the atoms
     :type labeldict: dict
-    '''
+    """
     for at in labeldict:
       olx.Name('#c'+labeldict[at], at)
 
   def define_atom_properties(self, atomids, fragId=None):
-    '''
+    """
     Defines the atoms properties of the fitted fragment after ImportFrag
     :param atomids: atomic olex2 ids of the atoms
     :type atomids: list
     :param fragId: fragment id
     :type fragId: int
-    '''
+    """
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
@@ -1307,7 +1302,8 @@ class FragmentDB(PT):
       return
     fragtext.append(at)
     #fragtext.append('</font>')
-    fragtext.append('<br><b> Please send new fragments to Daniel Kratzert (dkratzert@gmx.de) <br> if you whish them to be in the FragmentDB database.</b>')
+    fragtext.append('<br><b> Please send new fragments to Daniel Kratzert (dkratzert@gmx.de) '
+                    '<br> if you whish them to be in the FragmentDB database.</b>')
     htm = ' <br>\n'.join(fragtext)
     OV.write_to_olex('exportfragPop.htm', htm)
     olx.Popup(pop_name, 'exportfragPop.htm', b="tcrp", t="{}".format(name), w=width, h=height, x=box_x, y=box_y)
