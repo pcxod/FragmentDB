@@ -418,7 +418,7 @@ class FragmentTable():
       key = make_sortkey(i[1], searchkey=False)
       allrows[num].append(key)
     if allrows:
-      allrows.sort(key=lambda x: x[2])
+      allrows.sort(key=lambda x: (x[2][0], x[2][1]))
       for i in allrows:
         del i[-1]
       return allrows
@@ -586,7 +586,7 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> db.find_fragment_by_name('nona', selection=3)
-    [[50, u'n-Nonane, C8H18', 0.75], [58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-', 0.272727], [47, u'Acetone, C3H6O', 0.222222]]
+    [[50, u'n-Nonane, C8H18', [0.571429, '']], [34, u'Nitrate anion, [NO3]-', [0.8, '']], [58, u'Nonafluoro-tert-butoxy, [(CF3)3CO]-', [0.8, '']]]
     
     :param name: (part of) the name of a fragment to find
     :type name: str
