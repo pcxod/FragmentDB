@@ -325,6 +325,8 @@ class FragmentDB(PT):
     OV.cmd("file")
     if afix:
       afix = "-a=6"
+    else:
+      afix = ''
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       print('Applying DFIX restraints')
       OV.cmd(r'ImportFrag {3} -p={0} -o={1} -d {2}'.format(part, occ, fragpath, afix))
