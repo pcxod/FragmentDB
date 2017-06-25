@@ -129,10 +129,10 @@ class FragmentDB(PT):
     #olx.SetVar('fragment_ID', 0)
 
   def set_occu(self, occ):
-    '''
+    """
     sets the occupancy, even if you enter a comma value instead of point as
     decimal separator.
-    '''
+    """
     if ',' in occ:
       occ = occ.replace(',', '.')
     try:
@@ -148,18 +148,18 @@ class FragmentDB(PT):
 
 
   def toggle_resinum(self, resinum):
-    '''
+    """
     :param resinum: decide wether on or off
     :type resinum: bool
-    '''
+    """
     OV.SetParam('fragment_DB.fragment.resitoggle', resinum)
 
 
   def set_resiclass(self, resiclass, name):
-    '''
+    """
     sets the residue class and ensures that it is of len(4)
     and .isalpha is the first character.
-    '''
+    """
     varname = ''
     if name.upper() == 'RESIDUE_CLASS'.upper():
       varname = 'fragment_DB.fragment.resi_class'
@@ -224,9 +224,9 @@ class FragmentDB(PT):
     self.init_plugin()
 
   def format_atoms_for_importfrag(self, atoms):
-    '''
+    """
     format the input atoms to use them with importfarg
-    '''
+    """
     newlist = []
     finallist = []
     if OV.GetParam('fragment_DB.fragment.invert'):
@@ -242,15 +242,15 @@ class FragmentDB(PT):
     return text
 
   def onImport(self, atom_ids):
-    '''
-    Function is called when ImportFrag terminates after import. It gets the 
+    """
+    Function is called when ImportFrag terminates after import. It gets the
     atomIds from ImportFrag via the onFragmentImport callback.
 
     Essentially, this runs during fragment fit!
 
     :param atom_ids: list of atoms as olex2 atom ids
-    :type atom_ids: string
-    '''
+    :type atom_ids: str
+    """
     print('Imported atom ids: {}'.format(atom_ids))
     atom_ids = atom_ids.split()
     replatoms = None
@@ -267,14 +267,16 @@ class FragmentDB(PT):
     OV.unregisterCallback('onFragmentImport', self.onImport)
 
   def find_atoms_to_replace(self, frag_atoms, remdist=1.22):
-    '''
-    this method looks around every atom of the fitted fragment and removes 
+    """
+    this method looks around every atom of the fitted fragment and removes
     atoms that are near a certain distance.
-    go through all fragment atoms and look for each atom for all atoms in 
+    go through all fragment atoms and look for each atom for all atoms in
     part 0 if they are nearer as remdist to them
     :param frag_atoms: atom ids of the fitting fragment ['21', '22', '23', '24']
+    :type frag_atoms: list
     :param remdist: distance below atoms shoud be deleted.
-    '''
+    :type remdist: float
+    """
     atoms_to_delete = []
     all_atoms_dict = self.get_atoms_list(part=0, notype='')
     frag_crd_dict = {}
@@ -294,14 +296,18 @@ class FragmentDB(PT):
             atoms_to_delete.append(str(aa_id))
     return list(set(atoms_to_delete))
 
-  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1, afix=''):
-    '''
+  def insert_frag_with_ImportFrag(self, fragId, part=-1, occ=1, afix=False):
+    """
     Input a fragment with ImportFrag
+    :param afix: rigid afix group or not
+    :type afix: bool
     :param fragId: FragmentId
+    :type fragId: int
     :param part: SHELX part
+    :type part: int
     :param occ: occupancy
     :param dfix: generate dfix restraints or not after fit.
-    '''
+    """
     # this callback runs in the moment when ImportFrag is finished. onImport
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onImport)
@@ -317,6 +323,8 @@ class FragmentDB(PT):
       print('Unable to write fragment to temporary file. Not fit possible!')
       return
     OV.cmd("file")
+    if afix:
+      afix = "-a=6"
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       print('Applying DFIX restraints')
       OV.cmd(r'ImportFrag {3} -p={0} -o={1} -d {2}'.format(part, occ, fragpath, afix))
@@ -336,11 +344,11 @@ class FragmentDB(PT):
       return False
     OV.cmd("labels false")
     occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
-    afix = ''
+    afix = False
     if OV.GetParam('fragment_DB.fragment.rigid'):
-      afix="-a=6"
+      afix = True
     # alway use "part -1" to prevent atom deletion:
-    if fragId != 0 and fragId != None:
+    if fragId != 0 and fragId is not None:
       self.insert_frag_with_ImportFrag(fragId, part=-1, occ=occupancy, afix=afix)
     else:
       print('Please select a fragment first, or type text and hit Enter key to search.')
@@ -399,20 +407,20 @@ class FragmentDB(PT):
     return atomids
 
   def make_part(self, atoms, partnum):
-    '''
+    """
     Assign part number to a fragment
     :param atoms: list of atoms
     :type atoms: list
     :param partnum: SHELX part number
-    :type partnum: integer
-    '''
+    :type partnum: int
+    """
     OV.cmd("sel #c{}".format(' #c'.join(atoms)))
     OV.cmd("PART {}".format(partnum))
 
   def make_residue(self, atoms, resiclass, resinum):
-    '''
+    """
     selects the atoms and applies "RESI class number" to them
-    '''
+    """
     if resiclass:
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
       OV.cmd("RESI {} {}".format(resiclass, resinum))
@@ -421,14 +429,14 @@ class FragmentDB(PT):
       OV.cmd("RESI {}".format(resinum))
 
   def make_restraints(self, labeldict, fragId, resinum=0, resiclass=''):
-    '''
+    """
     Applies restraints to atoms.
     :param labeldict: a dictionary where the keys are atom names and the
                       values are Olex2 atom Ids
     :type labeldict: dictionary
     :param fragId: the database Id of the fragment
     :type fragId: integer
-    '''
+    """
     restraints = self.db.get_restraints(fragId)
     if not restraints:
       return
@@ -452,18 +460,18 @@ class FragmentDB(PT):
             return
         else:
           line.append(at)
-      # applies the implicit restraint to atoms in line:
+      # Applies the implicit restraint to atoms in line:
       # I disabled implicit restraints because they cause trouble during atom 
-      # renaming.
-      #if i[0] in IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
-      #  OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
-      #else:
+      # renaming. Update: It seems to work now, enabling again.
+      if i[0] in helper_functions.IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
+        OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
+      else:
       # applies direct restraints:
-      OV.cmd("{} {}".format(i[0], ' '.join(line)))
+        OV.cmd("{} {}".format(i[0], ' '.join(line)))
 
 
   def prepare_picture(self, im, max_size=120, ratiolim=0.6):
-    '''
+    """
     resizes and colorizes the picture to diplay it in olex2
     needs a PIL Image instance
     :param im: PIL Image instance
@@ -474,7 +482,7 @@ class FragmentDB(PT):
     :type control: string
     :param ratiolim: limits the resize for small fragments
     :type ratiolim: float
-    '''
+    """
     for i in im.size:
       if i < 50:
         print('This picture is too small.')
@@ -499,7 +507,7 @@ class FragmentDB(PT):
     return IM
 
   def set_fragment_picture(self, max_size=120):
-    '''
+    """
     displays a picture of the fragment from the database in Olex2
     :param name: name of the zimg html name
     :type name: string
@@ -507,7 +515,7 @@ class FragmentDB(PT):
     :type max_size: int
     :param control: name of the htmnl control
     :type control: string
-    '''
+    """
     max_size = int(max_size)
     fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
     pic = self.db.get_picture(fragId)
@@ -523,16 +531,16 @@ class FragmentDB(PT):
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
 
   def display_image(self, zimgname, image_file):
-    '''
+    """
     display an image in zimgname
-    '''
+    """
     try:
       olx.html.SetImage(zimgname, image_file)
     except RuntimeError:
       pass
 
   def store_picture(self, title, ffilter, location, default_name=''):
-    '''
+    """
     opens a file dialog and stores the selected picture in the olex-vfs
     :param title: Title of the file dialog
     :type title: string
@@ -542,7 +550,7 @@ class FragmentDB(PT):
     :type location: string
     :param default_name: default preselected file name for the dialog
     :type default_name: string
-    '''
+    """
     picfile = olx.FileOpen(title, ffilter, location, default_name)
     if not picfile:
       return
@@ -565,16 +573,16 @@ class FragmentDB(PT):
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'displayimg.png')
 
   def range_resolver(self, restraintat, atom_names):
-    '''
+    """
     resolves the atom names of ranges like "C1 > C5"
     works for each restraint line separately.
     :param restraintat: atoms with a range definition
     :type restraintat: list
     :param atom_names: names of atoms in the fragment
     :type atom_names: list
-    '''
+    """
     # dict with lists of positions of the > or < sign:
-    rightleft = {'>':[], '<': []}
+    rightleft = {'>': [], '<': []}
     for rl in rightleft:
       for num, i in enumerate(restraintat):
         i = i.upper()
@@ -600,11 +608,12 @@ class FragmentDB(PT):
     return ' '.join(restraintat)
 
   def find_free_residue_num(self):
-    '''
+    """
     Determines which residue number is unused.
     Either finds the first unused residue in the list of residue numbers
     or returns the last used + 1.
-    '''
+    :rtype: int
+    """
     residues = self.get_residue_numbers()
     # find unused numbers in the list:
     resi = False
@@ -614,21 +623,23 @@ class FragmentDB(PT):
         if i != j:
           resi = j
           break
-    except(IndexError):
+    except IndexError:
       return 1
     # no gap, thus use next number:
     if not resi:
       try:
         resi = residues[-1]+1
-      except(IndexError):
+      except IndexError:
         # no residue at all in the structure
         return 1
     return resi
 
   def get_residue_numbers(self):
-    '''
+    """
     returns a list of residue numbers in the structure
-    '''
+    :return: list of residue number
+    :rtype: list
+    """
     residues = []
     # get the properties of the atoms:
     for resi in olex_core.GetRefinementModel(False)['aunit']['residues']:
@@ -641,9 +652,9 @@ class FragmentDB(PT):
     return residues
 
   def get_resi_class(self):
-    '''
+    """
     sets the residue class from the respective database fragment.
-    '''
+    """
     try:
       fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) # olx.GetVar('fragment_ID')
     except(RuntimeError, ValueError) as e:
@@ -656,9 +667,10 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
 
   def show_reference(self, edit=False):
-    '''
+    """
     show the reference of a fragment in the GUI
-    '''
+    :type edit: bool
+    """
     try:
       fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
     except(RuntimeError, ValueError):
@@ -673,11 +685,11 @@ class FragmentDB(PT):
       olx.html.SetValue('REFERENCE_edit', ref)
 
   def get_selected_atom_names(self):
-    '''
+    """
     returns the names of the currently selected atoms.
     Hydrogen atoms are discarded.
     :type atoms_all: list of strings
-    '''
+    """
     atoms_all = olex.f("sel(a)").split()
     if not atoms_all:
       print('No atoms selected!')
@@ -685,10 +697,11 @@ class FragmentDB(PT):
     return atoms_all
 
   def prepare_selected_atoms(self):
-    '''
-    prepares atoms for fragment_DB.new_fragment.frag_atoms 
-    atom field in inputfrag. 
-    '''
+    """
+    prepares atoms for fragment_DB.new_fragment.frag_atoms
+    atom field in inputfrag.
+    :rtype: list
+    """
     atoms_all = self.get_selected_atom_names()
     if len(atoms_all) < 3:
       print('Please select at least three atoms.')
@@ -716,9 +729,9 @@ class FragmentDB(PT):
     return atlist
 
   def open_edit_fragment_window(self):
-    '''
+    """
     opens a new window to input/update a database fragment
-    '''
+    """
     blank = False
     try:
       fragId = OV.GetParam('fragment_DB.fragment.fragId')
@@ -740,9 +753,9 @@ class FragmentDB(PT):
       self.display_image('Inputfrag.MOLEPIC2', 'blank.png')
 
   def display_large_image(self):
-    '''
+    """
     display the current fragment image in large to be able to read the labels
-    '''
+    """
     if olx.fs.Exists("largefdbimg.png") == 'false':
       print('No larger picture available.')
       return
@@ -766,9 +779,9 @@ class FragmentDB(PT):
               h=height, x=box_x, y=box_y)
 
   def save_picture(self):
-    '''
+    """
     save the enlarged picture to a file
-    '''
+    """
     title = 'Save Pictue'
     ffilter = '*.png;*.PNG'
     location = ''
@@ -779,9 +792,9 @@ class FragmentDB(PT):
     olx.fs.Dump("largefdbimg.png", img_name)
 
   def set_frag_name(self, enable_check=True):
-    '''
+    """
     handles the name of a new/edited fragment
-    '''
+    """
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
     if fragname == '':
       return False
@@ -793,10 +806,11 @@ class FragmentDB(PT):
       return True
 
   def set_frag_cell(self):
-    '''
+    """
     set the unit cell of a new fragment to convert its coordinates to cartesian
     the resulting cell is retrieved from phil and stored in self.frag_cell
-    '''
+    :rtype: bool
+    """
     self.frag_cell = ''
     try:
       frag_cell = olx.html.GetValue('Inputfrag.set_cell').split()
@@ -823,11 +837,12 @@ class FragmentDB(PT):
     return True
 
   def set_frag_atoms(self):
-    '''
+    """
     -handles the fragment atoms of a new/edited fragment
     -returns a list of lists:
-     [['C4', '0.282212', '0.368636', '0.575493'], ...]
-    '''
+      [['C4', '0.282212', '0.368636', '0.575493'], ...]
+    :rtype: list
+    """
     atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split('\n')
@@ -841,12 +856,13 @@ class FragmentDB(PT):
     return finalatoms
 
   def atoms_parser(self, atoms):
-    '''
+    """
     formats the atoms from shelx as long list to a list of list with
     exactly four items: Atom  x y z
     :param atoms: line of atoms
     :type atoms: list
-    '''
+    :rtype list
+    """
     # go through all atoms and cut their line to 4 list elements At  x y z:
     for num, line in enumerate(atoms):
       # line with sfac
@@ -887,9 +903,10 @@ class FragmentDB(PT):
     return atoms
 
   def set_frag_restraints(self):
-    '''
+    """
     handles the restraints of a new/edited fragment
-    '''
+    :rtype: list
+    """
     restraints = []  # @UnusedVariable
     restr = OV.GetParam('fragment_DB.new_fragment.frag_restraints')
     try:
@@ -904,25 +921,30 @@ class FragmentDB(PT):
     return restr
 
   def prepare_residue_class(self):
-    '''
+    """
     set the residue class of a new fragment
-    '''
+    :rtype: str
+    """
     resi_class = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
     if resi_class:
       return resi_class
 
   def prepare_reference(self):
-    '''
+    """
     prepare the reference for a new/edited fragment
-    '''
+    :rtype: str
+    """
     reference = OV.GetParam('fragment_DB.new_fragment.frag_reference')
     if reference:
       return reference
 
   def prepare_atoms_list(self, fragId, element=False, as_html=False):
-    '''
+    """
     prepare the atom list to display in a multiline edit field
-    '''
+    :type fragId: int
+    :type element: bool
+    :type as_html: bool
+    """
     atlist = []
     atoms_list = []
     try:
@@ -933,24 +955,32 @@ class FragmentDB(PT):
     if not atoms_list:
       return False
     atoms_list = [[i for i in y] for y in atoms_list]
-    for i in atoms_list:
+    for num, i in enumerate(atoms_list):
       try:
-        if not element:
-          atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+        if element:
+          if as_html:
+            atlist.append('<tr width=60%><td align=left  width=20%>{:4.4s}&nbsp;</td>  '
+                              '<td align=right>1 &nbsp;&nbsp;</td> '
+                              '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
+                              '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
+                              '<td align=right>{:>10.4f}&nbsp;&nbsp;</td></tr>'.format(i[0], i[2], i[3], i[4]))
+          else:
+            atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
         else:
-          atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
-      except(UnicodeEncodeError):
-        print('Invalid atomline found. Non-ASCII character in line.')
+          atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+      except UnicodeEncodeError:
+        print('Invalid atomline found. Non-ASCII character in line {}.'.format(num+1))
     if not as_html:
       at = ' \n'.join(atlist)
     else:
-      at = ' <br>'.join(atlist)
+      at = ' '.join(atlist)
     return at
 
   def prepare_fragname(self, fragId):
-    '''
+    """
     prepare the fragment name to display in a multiline edit field
-    '''
+    :type fragId: int
+    """
     try:
       name = str(self.db.get_fragment_name(fragId)[0])
     except:
@@ -959,9 +989,9 @@ class FragmentDB(PT):
     return name
 
   def prepare_restraints(self, fragId):
-    '''
+    """
     prepare the fragment restraints to display in a multiline edit field
-    '''
+    """
     restr_list = self.db.get_restraints(fragId)
     if not restr_list:
       return False
@@ -970,9 +1000,9 @@ class FragmentDB(PT):
     return restr
 
   def add_new_frag(self):
-    '''
+    """
     execute this to add a new fragment
-    '''
+    """
     # add _new_frag must check the restraints vor validity!
     state = self.set_frag_name()
     if not state:
@@ -990,10 +1020,10 @@ class FragmentDB(PT):
     self.store_new_fragment(atoms, restraints, resiclass, reference)
 
   def update_fragment(self):
-    '''
+    """
     execute this to update a fragment
     updates the database information of a fragment
-    '''
+    """
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
     state = self.set_frag_name(enable_check=False)
     if not state:
@@ -1031,18 +1061,19 @@ class FragmentDB(PT):
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
 
-
   def prepare_coords_for_storage(self, atlines):
-    '''
+    """
     transform the string formated atoms into a list of atoms lists
-    :param atlines: texte lines with atoms from the input field
-    :type atlines: string
-    '''
+
+    :param atlines: atoms from the input field
+    :type atlines: list
+    :rtype: list
+    """
     coords = []
     for line in atlines:
       try:
         frac_coord = [ float(i) for i in line[1:4] ]
-      except(ValueError):
+      except ValueError:
         print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
         return
       if len(frac_coord) < 3:
@@ -1054,9 +1085,9 @@ class FragmentDB(PT):
     return coords
 
   def get_frag_for_gui(self):
-    '''
+    """
     get the fragment to display in the multiline edit field
-    '''
+    """
     try:
       fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except(RuntimeError):
@@ -1086,9 +1117,13 @@ class FragmentDB(PT):
     return True
 
   def store_new_fragment(self, atlines, restraints, resiclass, reference):
-    '''
+    """
     add a new fragment to the database
-    '''
+    :type atlines: list
+    :type restraints: list
+    :type resiclass: str
+    :type reference: str
+    """
     # check if the given name already exist in the database
     # store fragment with a new number
     fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
@@ -1135,10 +1170,10 @@ class FragmentDB(PT):
       OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
 
   def delete_fragment(self, reset=True):
-    '''
+    """
     deletes a fragment from the database
     # Todo: reset all fields (oic, atoms, ...) after deltion
-    '''
+    """
     try:
       fragId = OV.GetParam('fragment_DB.fragment.fragId')
     except(RuntimeError):
@@ -1152,9 +1187,9 @@ class FragmentDB(PT):
       self.blank_state()
 
   def get_chemdrawstyle(self):
-    '''
+    """
     opens a file dialog window to save the standard chemdraw style
-    '''
+    """
     from shutil import copyfile
     title = "Save Chemdrawstyle file"
     ffilter = ''
@@ -1164,13 +1199,14 @@ class FragmentDB(PT):
     stylename = olx.FileSave(title, ffilter, location, default_name)
     if not stylename:
       return
-    spath = "%s/drawstyle.cds" % (self.p_path)
+    spath = "{}/drawstyle.cds".format(self.p_path)
     copyfile(spath, stylename)
 
   def trim(self, im):
     """
     Trims a given PIL picture to remove whitespace
-    :return: image object
+    :type im: Image
+    :rtype: Image
     """
     bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
     diff = ImageChops.difference(im, bg)
@@ -1178,12 +1214,15 @@ class FragmentDB(PT):
     bbox = diff.getbbox()
     if bbox:
       return im.crop(bbox)
+    else:
+      print("Trim of image failed.")
+      return im
 
   def make_selctions_picture(self):
-    '''
+    """
     creates a picture from the currently selected fragment in Olex2 and
     stores it in 'storepic.png' as well as 'displaypic.png'
-    '''
+    """
     if not olex.f("sel()").split():
       return
     if len(olex.f("sel()").split()) < 3:
@@ -1239,12 +1278,12 @@ class FragmentDB(PT):
     return fvar
 
   def get_atoms_list(self, part=None, notype=''):
-    '''
+    """
     returns all atoms of the crystal
     if part is defined, only collect atoms of defined part
     {0: [u'F1', (0.16726, 0.42638, -0.23772), 0, 0, 'F'],
      id: [u'label', (x, y, z), part, resinum, type], ...}
-    '''
+    """
     model = olex_core.GetRefinementModel(False)
     asym_unit = model['aunit']
     atoms = {}
@@ -1272,7 +1311,7 @@ class FragmentDB(PT):
     htm = ' '
     try:
       fragId = OV.GetParam('fragment_DB.fragment.fragId')
-    except(RuntimeError):
+    except RuntimeError:
       return False
     if fragId == 0:
       print("No fragment selected!")
@@ -1280,8 +1319,8 @@ class FragmentDB(PT):
     pop_name = "Inputfrag"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-    box_x = int(screen_width*0.2)
-    box_y = int(screen_height*0.1)
+    box_x = int(screen_width * 0.2)
+    box_y = int(screen_height * 0.1)
     width, height = 650, 710
     name = self.prepare_fragname(fragId)
     if name == False:
@@ -1290,7 +1329,7 @@ class FragmentDB(PT):
     residue = self.prepare_residue_class()
     reference = self.db.get_reference(fragId)
     cell = 'FRAG 17 1 1 1 90 90 90'
-    #fragtext.append('<font face="courier" ')
+    fragtext.append('<font face="courier" size="11pt"> ')
     fragtext.append('REM Name: {}'.format(name))
     fragtext.append('REM Src: {}'.format(reference))
     fragtext.append(' <br>'.join(restr.split('\n')))
@@ -1300,8 +1339,8 @@ class FragmentDB(PT):
     if not at:
       print('Not atoms found in fragment!')
       return
-    fragtext.append(at)
-    #fragtext.append('</font>')
+    fragtext.append("<table cellspacing=2 cellpadding=1>" + at + "</table>")
+    fragtext.append('</font>')
     fragtext.append('<br><b> Please send new fragments to Daniel Kratzert (dkratzert@gmx.de) '
                     '<br> if you whish them to be in the FragmentDB database.</b>')
     htm = ' <br>\n'.join(fragtext)
@@ -1309,11 +1348,11 @@ class FragmentDB(PT):
     olx.Popup(pop_name, 'exportfragPop.htm', b="tcrp", t="{}".format(name), w=width, h=height, x=box_x, y=box_y)
 
   def imagedisp(self, name, height=120):
-    '''
+    """
     todo:
-    make an object for each picture place with a clear state for every 
+    make an object for each picture place with a clear state for every
     state of the plugin.
-    '''
+    """
     if olx.fs.Exists('displayimg.png') == 'false':
       imgname = 'blank.png'
     else:
@@ -1329,7 +1368,7 @@ class FragmentDB(PT):
     return html
 
   def det_refmodel(self):
-    '''
+    """
     For the graph:
     - each node the atom id
     - the weight is the distance
@@ -1351,7 +1390,7 @@ class FragmentDB(PT):
    'part': 0,
    'tag': 11,
    'type': u'C}
-    '''
+    """
     model = olex_core.GetRefinementModel(True)
     asym_unit = model['aunit']
     atoms = {}
