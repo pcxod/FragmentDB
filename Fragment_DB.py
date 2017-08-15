@@ -28,6 +28,7 @@ Fragen und Ideen:
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
 - http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
+- spy.styles.set_rim_colour(#hex)
 '''
 
 instance_path = OV.DataDir()
