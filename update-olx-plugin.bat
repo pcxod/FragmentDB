@@ -41,3 +41,4 @@ xcopy /Y %FDBDIR2%\helper_functions.pyc %GIT%
 xcopy /Y %FDBDIR2%\refine_model_tasks.pyc %GIT%
 xcopy /Y %FDBDIR2%\natsort.pyc %GIT%
 
+pause
