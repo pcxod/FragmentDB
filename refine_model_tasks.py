@@ -126,9 +126,9 @@ class Refmod(object):
 
 
 class html_Table(object):
-  '''
+  """
   html table generator
-  '''
+  """
 
   def __init__(self):
     try:
@@ -148,10 +148,10 @@ class html_Table(object):
     return '#%02x%02x%02x' % rgb
 
   def table_maker(self, tabledata=[]):
-    '''
-    builds a html table out of a datalist from the final 
+    """
+    builds a html table out of a datalist from the final
     cycle summary of a shelxl list file.
-    '''
+    """
     table = []
     for line in tabledata:
       table.append(self.row(line))
@@ -207,10 +207,10 @@ class html_Table(object):
     return html
 
   def row(self, rowdata):
-    '''
+    """
     creates a table row for the restraints list.
     :type rowdata: list
-    '''
+    """
     td = []
     bgcolor = ''
     try:
@@ -250,12 +250,12 @@ class html_Table(object):
     return row
 
   def edit_restraints(self, restr):
-    '''
-    this method gets the atom list of an disagreeable restraint in olex2.
+    """
+    this method gets the atom list of a disagreeable restraint in olex2.
     The text string is then formated so that "editatom" can handle it.
     editatom opens an editor window with the respective atoms. 
     :type restr: string like "SAME/SADI Co N11 Co N22"
-    '''
+    """
     # separate SAME/SADI:
     restr = restr.replace('/', ' ')
     restrlist = restr.split()
@@ -266,7 +266,8 @@ class html_Table(object):
       if i in ['xz', 'yz', 'xy', 'etc.']:
         continue
       else:
-        atoms.append(remove_partsymbol(i))
+        #atoms.append(remove_partsymbol(i))  # Have to remove this, because new names needed for 'edit'
+        atoms.append(i)
     OV.cmd('editatom {}'.format(' '.join(atoms)))
 
 
@@ -284,7 +285,7 @@ if __name__ == '__main__':
   #cp.enable(subcalls=True, builtins=True)
 
   ref = Refmod()
-  lst = ref.fileparser(r'D:\Programme\DSR\example\p21c.lst')
+  lst = ref.fileparser(r'Z:\dkratzer\Strukturen\service\!Ehemalige\Tobi_Engesser\01_IKte_litcapf\p1_a.lst')
   # lst = ref.fileparser(r'D:\tmp\big_strukt\p-1.lst')
   # lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   tab = htm.table_maker(lst)
