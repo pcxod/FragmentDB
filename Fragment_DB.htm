@@ -1,153 +1,8 @@
 
-
-$+
-SetVar(fdb_chooser, 
-    "Choose the desired fragment from the list in the drop-down menu. 
-    <br>
-    ~Searching~
-    <br>
-    Do an unsharp search with a partial name and <b>hit enter key</b>. 
-    <br>
-    For example a search for cf3 finds all the fragments containing cf3 in their 
-    name and similar. <br>
-    The search results in a shortened drop down menue.
-    <br>
-    ~Reset~
-    <br>
-    The reset button restores the full fragment list after a search.
-    <br>
-    ~User Defined Database~
-    <br>
-    The main database is write protected, but you can add and change as many 
-    fragments you like. They will be stored in a separate database. The user 
-    database will never be overwritten by plugin updates!
-    <br>
-    Fragments created or changed by the user will get a #user# at 
-    the end of their names.  
-    ")
-$-
-$+
-SetVar(fdb_picture, 
-    "
-    Displays a picture of the fragment. User defined fragments 
-    only have pictures if the user provided one.
-    <br>
-    Click on the picture to display a magnified version of the picture.
-    ")
-$-
-$+
-SetVar(fdb_props, 
-    "Define PART, free variables (FVAR) and the occupancy here.
-    <br>
-    A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
-    -31.0 On the other hand is set with a free variable of -3. The corresponding free
-    variable is assigned automatically.
-    <br>
-    <br>
-    All parameters will be displayed simultaneously through atomic labels.")
-$-
-$+
-SetVar(fdb_resi, 
-    "
-    ~Use a residue~ 
-    <br>
-    Disable or enable putting the fitted fragment into a residue. 
-    The residue class has to start with a letter and can be up to four  
-    characters. Usually, the class provided by the database is sufficient.
-    <br>
-    ~DFIX~
-    <br> 
-    The supplied fragment normally has predefined restraints like 
-    SADI, FLAT and others. 
-    <b>DFIX</b> Generates DFIX/DANG restraints from the geometry of the fragment and  
-    replaces the predefined restraints. 
-    <br>
-    ~Invert~
-    <br>
-    Inverts the coordinates of the fragment. Useful to fit the inverted geometry  
-    of the fragment.
-    ")
-$-
-$+
-SetVar(fdb_fit, 
-    "~Fit!~
-    <br> 
-    The button <b>Fit!</b> starts the fit of the Fragment into the structure. 
-    <br>
-    ~Edit~
-    <br>
-    Edit or create new fragments:
-    <br>
-    <b>Change Picture:</b> 
-    Select a picture for the fragment. Use at least 600dpi pictures.
-    <br>
-    <b>Drawstyle:</b> 
-    Save a style file for chemdraw to draw molecular pictures that look 
-    the same as the predefined.
-    <br>
-    <b>Name:</b>
-    Name of the fragment
-    <br>
-    <b>Unit cell:</b> 
-    Cell parameters of the structure, where the fragment comes from. 
-    Use 1 1 1 90 90 90 for cartesian coordinates. The cell constants and the 
-    coordinates are converted into Cartesian coordinates during the adding to 
-    the database.
-    <br>
-    <b>Use selected atoms:</b>
-    Uses the selected atoms for the Atoms field and creates a picture from the 
-    fragment.
-    <br>
-    <b>Atoms:</b> 
-    insert atoms here like O2  8  1.3984  -0.3778   0.4922. You can also 
-    directly copy atoms from SHELX files or copy coordiinates from Avogadro. 
-    http://avogadro.cc/
-    <br>
-    <b>Restraints:</b>
-    Type any SHELX compatible restraint here (except SAME). 
-    The length of a line is unlimited.
-    <br>
-    <b>Residue:</b> 
-    Define the residue class of the fragment (up to four characters, the first has to be a letter). 
-    <br>
-    ~No Restraints~
-    <br>
-    No restraints will be applied to the fitting fragment.
-    <br>
-    ~Replace Mode~
-    <br>
-    If enabled, all atoms inside PART 0 lying in a radius of 1.22 A around the 
-    atoms of the fitted fragment will be deleted. This is particular useful to 
-    replace atoms of a disordered structure just solved using SHELXT. 
-    It will not delete atoms in different PARTs than PART 0. 
-    ")
-$-
-$+
-SetVar(results, 
-    "~Results~
-    <br> 
-    This table shows the list of the most disagreeable restraints (in case there are some).  
-    A click on the respective line opens the editor window to adjust the restraints values. 
-    <br>
-    The long list shows ALL restraints and the short list only the most disargreeable ones. 
-    <br>
-    The error of a parameter should generally not be higher than 3sigma. A higher 
-    value means that the assumption of the target value originating from 
-    general observations is not met. The reason for this can be either, for 
-    example, a distorted molecular geometry like a bend aromatic ring or 
-    systematic errors in the data.
-    <br>
-    <br>
-    Disagreeable restraints will be highlighted in yellow if the error is above 
-    2.5sigma. They will be highlighted in red if the error is above 
-    3.5sigma. 
-    ")
-$-
-
 <!-- #include tool-top gui/blocks/tool-top.htm;image=#image;onclick=#onclick;1; -->
 
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment_Chooser;1; -->
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment Chooser;helpTxt=$GetVar(fdb_chooser);1; -->
 <!--
   <td halign='left' width='16%'>
     <b>%Fragment:%</b> 
@@ -173,7 +28,7 @@ $-
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture; help_ext=Fragment picture;helpTxt=$GetVar(fdb_picture);1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture;help_ext=Picture;1; -->
 
   <td width="100%" align="center">
   <a target="" href="spy.FragmentDB.display_large_image()"> 
@@ -184,7 +39,7 @@ $-
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 
-<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Define Properties;helpTxt=$GetVar(fdb_props);1 -->
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Properies;1 -->
 
   <td width='10%' align='left'><b>%PART:%</b>
   </td>
@@ -256,7 +111,7 @@ $-
 
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Residue/DFIX/invert;helpTxt=$GetVar(fdb_resi);1 -->
+<!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Properies_2;1 -->
 
   <td width='20%' align='left'>
    <b>%Use a residue:%</b>
@@ -333,7 +188,7 @@ $-
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons; help_ext=Fit the Fragment;helpTxt=$GetVar(fdb_fit);1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons;help_ext=Fit;1; -->
 
   <td  align='left'>
     $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
@@ -375,7 +230,7 @@ $-
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=results; help_ext=Display Results;helpTxt=$GetVar(results);1; -->
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm; help_ext=Results;1; -->
   $spy.FragmentDB.results()
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 

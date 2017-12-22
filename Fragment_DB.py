@@ -20,11 +20,10 @@ import pprint
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 11
+FDB_VERSION = 12
 
 r'''
-Fragen und Ideen:
-
+Ideas:
 - onreturn="html.Call(~name~.onchange)"
 - list of rings for FLAT restraints
 - http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
@@ -73,8 +72,8 @@ class FragmentDB(PT):
     returns the cell from the refinement model
     """
     precell = olex_core.GetRefinementModel(False)['aunit']['cell']
-    cell = [ precell['a'][0], precell['b'][0], precell['c'][0], precell['alpha'][0],
-            precell['beta'][0], precell['gamma'][0] ]
+    cell = [precell['a'][0], precell['b'][0], precell['c'][0], precell['alpha'][0],
+            precell['beta'][0], precell['gamma'][0]]
     return cell
 
   def init_plugin(self):
@@ -1234,7 +1233,7 @@ class FragmentDB(PT):
     picfile = "fdb_tmp.png"
     #OV.cmd('save model "fragdb"') # does not work!
     gui.maps.mu.MapView('off')
-    OV.cmd("legend false")
+    OV.cmd("Legend False")
     OV.cmd("sel atom bonds")
     OV.cmd("ShowQ a false")
     OV.cmd("labels false")
