@@ -147,28 +147,16 @@ class html_Table(object):
     """
     return '#%02x%02x%02x' % rgb
 
-  def table_maker(self, tabledata=[]):
+  def table_maker(self, tabledata=None):
     """
     builds a html table out of a datalist from the final
     cycle summary of a shelxl list file.
     """
+    if tabledata is None:
+      tabledata = []
     table = []
     for line in tabledata:
       table.append(self.row(line))
-    header = r"""
-        <table> 
-        <tr> 
-          <td width=60% align='left'> 
-          <b>List of most disagreeable restraints:</b>
-              &nbsp;
-          </td>
-          <td width=40% align='right'>
-            $spy.MakeHoverButton('small-Short@bitmap', delins more>>addins more -1>>refine 4)
-                &nbsp; 
-            $spy.MakeHoverButton('small-Full@bitmap', delins more>>addins more -4>>refine 4)            
-          </td>
-        </tr>
-        </table>"""
     footer = ""
     empty_data = """
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
@@ -188,7 +176,6 @@ class html_Table(object):
       </tr>
     </table>"""
     html = r"""
-      {0}
     <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
       <tr>
          <td align='center'> Observed </td>
@@ -198,12 +185,12 @@ class html_Table(object):
          <td align='left'> Restraint  </td> 
       </tr>
 
-      {1}
+      {0}
     </table>
-      {2}
-      """.format(header, '\n'.join(table), footer)
+      {1}
+      """.format('\n'.join(table), footer)
     if not table:
-      return header + empty_data
+      return empty_data
     return html
 
   def row(self, rowdata):
