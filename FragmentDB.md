@@ -26,7 +26,6 @@ Fragments created or changed by the user will get a \*user\* at the end of their
 #Picture    
 Displays a picture of the fragment.   
 Click on the picture to display a magnified version of the picture.  
-
 User defined fragments only have pictures if the user provided one.
 
 #Properies
@@ -36,7 +35,6 @@ Define PART, free variables (FVAR) and the occupancy here.
 A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
 -31.0 On the other hand is set with a free variable of -3. The corresponding free
 variable is assigned automatically.  
-  
 All parameters will be displayed simultaneously through atomic labels.
 
 #Properies 2
@@ -51,7 +49,7 @@ of the fragment.
 
 ##DFIX
 The supplied fragment normally has predefined restraints like 
-SADI, FLAT and others. 
+SADI, FLAT and others.  
 **DFIX** Generates DFIX/DANG restraints from the geometry of the fragment and 
 replaces the predefined restraints. 
 
@@ -109,14 +107,11 @@ It will not delete atoms in different PARTs than PART 0.
 #Results
 This table shows the list of the most disagreeable restraints (in case there are some).  
 A click on the respective line opens the editor window to adjust the restraints values.  
-  
 The long list shows ALL restraints and the short list only the most disargreeable ones.  
-  
 The error of a parameter should generally not be higher than 3sigma. A higher 
 value means that the assumption of the target value originating from 
 general observations is not met. The reason for this can be either, for 
 example, a distorted molecular geometry like a bend aromatic ring or 
 systematic errors in the data.  
-  
 Disagreeable restraints will be highlighted in yellow if the error is above 
 2.5sigma. They will be highlighted in red if the error is above 3.5sigma. 
