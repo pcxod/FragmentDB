@@ -22,9 +22,15 @@
         readonly="False"
         manage="False" >
   </td>
-  <td align='right' width='10%'>
-  $spy.MakeHoverButton('small-reset@bitmap', 'html.SetItems('LIST_FRAGMENTS', spy.FragmentDB.list_fragments())>>spy.fragmentDB.clear_mainvalues()')
-  </td>
+
+  $+
+    html.Snippet(GetVar(default_link),
+    "value=reset",
+    "name=RESET_BUTTON",
+    "onclick=spy.fragmentDB.clear_mainvalues()"
+    )
+  $-
+
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
@@ -124,27 +130,14 @@
       "checked=spy.GetParam(fragment_DB.fragment.resitoggle)",
       "onclick=spy.SetParam('fragment_DB.fragment.resitoggle', html.GetState('~name~'))"
       )
-      $- 
-      <!--
-      <input
-        type="spin"
-        name="RESIDUE"
-        width="100%"
-        height="$GetVar('HtmlInputHeight')"
-        max='99'
-        min='0'
-        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
-        value="spy.SetParam(fragment_DB.fragment.resinum, spy.FragmentDB.find_free_residue_num())"
-        onchange="spy.FragmentDB.set_resinum(html.GetValue('~name~'))>>labels -rn"
-      >
-      -->
+      $-
       </font>
   </td>
   
   <td width='22%' align='left'>
   <b>%Residue Class:%</b>
   </td>
-  <td width='9%' align='left'>
+  <td width='11%' align='left'>
     <font size="$GetVar('HtmlFontSizeControls')">
     <input
       type="text"
@@ -190,11 +183,23 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons;help_ext=Fit;1; -->
 
-  <td  align='left'>
-    $spy.MakeHoverButton('small-Fit!@bitmap', 'spy.FragmentDB.fit_db_fragment()')
-    &nbsp;
-    $spy.MakeHoverButton('small-Edit@bitmap', 'spy.FragmentDB.open_edit_fragment_window()')
-  </td>
+    $+
+      html.Snippet(GetVar(default_link),
+      "value=Fit!",
+      "name=FIT_BUTTON",
+      "onclick=spy.FragmentDB.fit_db_fragment()",
+      "td1=<td align='left' width='15%'>"
+      )
+    $-
+    $+
+      html.Snippet(GetVar(default_link),
+      "value=Edit",
+      "name=EDIT_BUTTON",
+      "onclick=spy.FragmentDB.open_edit_fragment_window()",
+      "td1=<td align='left' width='15%'>"
+      )
+    $-
+
   <td  align='right'><b>No Restraints:</b></td>
   <td align='left' width='4%'>
     $+

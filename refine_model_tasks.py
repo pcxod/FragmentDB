@@ -115,9 +115,9 @@ class Refmod(object):
     return lstfile
 
   def results(self):
-    '''
+    """
     prepare the results for the plugin
-    '''
+    """
     filedata = self.fileparser(self.get_listfile())  # raw table
     if not filedata:
       filedata = []

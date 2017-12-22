@@ -127,6 +127,13 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE', resinum)
     OV.SetParam('fragment_DB.fragment.fragId', 0)
     #olx.SetVar('fragment_ID', 0)
+    OV.SetParam('fragment_DB.fragment.frag_part', 0)
+    olx.html.SetValue('FRAGMENT_PART', 0)
+    OV.SetParam('fragment_DB.fragment.frag_fvar', 1)
+    olx.html.SetValue('FRAG_FVAR', 1)
+    self.set_occu('1.0')
+    self.get_fvar_occ()
+
 
   def set_occu(self, occ):
     """
@@ -144,6 +151,7 @@ class FragmentDB(PT):
       print('Invalid value for occupancy provided')
       return
     varname = 'fragment_DB.fragment.frag_occ'
+    olx.html.SetValue('FRAG_OCCUPANCY', occ)
     OV.SetParam(varname, occ)
 
 
