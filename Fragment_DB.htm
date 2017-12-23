@@ -3,25 +3,18 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_chooser;help_ext=Fragment_Chooser;1; -->
 
-<!--
-  <td halign='left' width='16%'>
-    <b>%Fragment:%</b> 
-  </td> -->
-  <td VALIGN='center' align='left' colspan=1 width='85%'>
-      <input
-        type='combo'
-        name="LIST_FRAGMENTS"
-        width="100%"
-        height="$GetVar(HtmlComboHeight)"
-        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
-        items='spy.FragmentDB.list_fragments()'
-        value='select or search fragments here'
-        onenter='html.SetValue(~name~, "")'
-        onchange="spy.FragmentDB.set_id(html.GetValue(~name~))>>spy.FragmentDB.init_plugin()"
-        onreturn="spy.FragmentDB.search_fragments(html.GetValue(~name~))"
-        readonly="False"
-        manage="False" >
-  </td>
+  $+
+    html.Snippet("gui/snippets/input-combo-td",
+    "name=LIST_FRAGMENTS",
+    "value='select or search fragments here'",
+    "items=spy.FragmentDB.list_fragments()",
+    "onenter=html.SetValue(~name~, '')",
+    "onchange=spy.FragmentDB.set_id(html.GetValue(~name~))>>spy.FragmentDB.init_plugin()",
+    "onreturn=spy.FragmentDB.search_fragments(html.GetValue(~name~))",
+    "readonly=False",
+    "td1=<td width='85%'>"
+    )
+  $-
 
   $+
     html.Snippet(GetVar(default_link),
@@ -31,15 +24,15 @@
     )
   $-
 
-
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
+
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture;help_ext=Picture;1; -->
 
   <td width="100%" align="center">
-  <a target="" href="spy.FragmentDB.display_large_image()"> 
-  $spy.fragmentdb.imagedisp('FDBMOLEPIC')
-  </a>
+    <a target="" href="spy.FragmentDB.display_large_image()">
+      $spy.fragmentdb.imagedisp('FDBMOLEPIC')
+    </a>
   </td>
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
@@ -47,197 +40,157 @@
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Properies;1 -->
 
-  <td width='10%' align='left'><b>%PART:%</b>
-  </td>
-  <td align='right' width='12%'>
-    <font size="$GetVar('HtmlFontSizeControls')">
-      <input
-        type="spin"
-        name="FRAGMENT_PART"
-        width="100%"
-        height="$GetVar('HtmlSpinHeight')"
-        max='99'
-        min='-99'
-        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
-        value="spy.GetParam(fragment_DB.fragment.frag_part)"
-        onchange='spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))>>labels -p '
-      >
-    </font>
-  </td>
+  <td align='left'><b>%PART:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-spin-td",
+      "name=FRAGMENT_PART",
+      "value=spy.GetParam(fragment_DB.fragment.frag_part)",
+      "min='-99'",
+      "max='99'",
+      "onchange=spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))>>labels -p",
+      "td1=<td width='12%'>"
+      )
+    $-
 
-  <td width='22%' align="right"><b>%Free Variable:%</b>
-  </td>
-  <td align='left' width='13%'>
-    <font size="$GetVar('HtmlFontSizeControls')">
-      <input
-        type="spin"
-        name="FRAG_FVAR"
-        width="100%"
-        height="$GetVar('HtmlSpinHeight')"
-        max='99'
-        min='-99'
-        bgcolor="spy.GetParam(gui.html.input_bg_colour)"
-        value="spy.GetParam(fragment_DB.fragment.frag_fvar)"
-        onchange='spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>
-                  spy.FragmentDB.get_fvar_occ()'
-      >
-    </font>
-  </td>
+  <td align="right"><b>%Free Variable:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-spin-td",
+      "name=FRAG_FVAR",
+      "value=spy.GetParam(fragment_DB.fragment.frag_fvar)",
+      "min='-99'",
+      "max='99'",
+      "onchange=spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>
+                  spy.FragmentDB.get_fvar_occ()",
+      "td1=<td width='12%'>"
+      )
+    $-
 
-  <td width='18%' align='right'><b>%Occupancy:%</b>
-  </td>
-  <td align='right' width='10%'>
-    <font size="$GetVar('HtmlFontSizeControls')">
-    <input
-      type="text"
-      height="$GetVar('HtmlInputHeight')"
-      width="100%"
-      bgcolor="$GetVar('HtmlInputBgColour')"
-      name = "FRAG_OCCUPANCY"
-      value = "spy.GetParam(fragment_DB.fragment.frag_occ)"
-      min='-4'
-      max='4'
-      onchange='spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o>>
-                spy.FragmentDB.get_fvar_occ()'
-    >
-    </font>
-  </td>
-  <td width='1%' align='left'><b>=></b><td>
-    <td width='10%' align="left"><font color="black"> 
-    <input
-    type="text" 
-    name="FVAROCC"
-    height="$GetVar('HtmlInputHeight')"
-    value="spy.GetParam('fragment_DB.fragment.fvarocc')"
-    bgcolor="$GetVar(HtmlTableBgColour)"
-    fgcolor="$GetVar(HtmlFontColour)"
-    width="100%" >
-  </font>
-  </td>
+  <td align='right'><b>%Occupancy:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-text-td",
+      "name=FRAG_OCCUPANCY",
+      "value=spy.GetParam(fragment_DB.fragment.frag_occ)",
+      "min='-4'",
+      "max='4'",
+      "onchange=spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o>>
+                spy.FragmentDB.get_fvar_occ()",
+      "td1=<td width='11%'>"
+      )
+    $-
+
+  <td width='1%'><b>=></b><td>
+    $+
+      html.Snippet("gui/snippets/input-text-td",
+      "name=FVAROCC",
+      "value=spy.GetParam('fragment_DB.fragment.fvarocc')",
+      "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc",
+      "td1=<td width='11%'>"
+      )
+    $-
 
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
+
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Properies_2;1 -->
 
-  <td width='20%' align='left'>
-   <b>%Use a residue:%</b>
-  </td>
-  <td width='4%' align='left'>
-      <font size="$GetVar('HtmlFontSizeControls')">
-      $+
-      html.Snippet("gui/snippets/input-checkbox",
+  <td valign='left'><b>%Use a residue:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-checkbox-td",
       "name=RESIDUE",
       "checked=spy.GetParam(fragment_DB.fragment.resitoggle)",
-      "onclick=spy.SetParam('fragment_DB.fragment.resitoggle', html.GetState('~name~'))"
+      "onclick=spy.SetParam('fragment_DB.fragment.resitoggle', html.GetState('~name~'))",
+      valign="left"
       )
-      $-
-      </font>
-  </td>
-  
-  <td width='22%' align='left'>
-  <b>%Residue Class:%</b>
-  </td>
-  <td width='11%' align='left'>
-    <font size="$GetVar('HtmlFontSizeControls')">
-    <input
-      type="text"
-      align="right"
-      height="$GetVar('HtmlInputHeight')"
-      width="100%"
-      bgcolor="$GetVar('HtmlInputBgColour')"
-      name = "RESIDUE_CLASS"
-      value = "spy.GetParam('fragment_DB.fragment.resi_class')"
-      onchange='spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc'
-    >
-    </font>
-  </td>
-  
-  <td width='10%' align='right'>
-    <b>%Invert:%</b>
-  </td>
-    <td align='left' width='4%'>
-    $+
-    html.Snippet("gui/snippets/input-checkbox",
-    "name=invert",
-    "checked=spy.GetParam('fragment_DB.fragment.invert')",
-    "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))"
-    )
-    $- 
-    </td>
-  
-  <td width='20%' align='right'>
-    <b>%calculate DFIX:%</b>
-  </td>
-    <td align='left' width='4%'>
-    $+
-    html.Snippet("gui/snippets/input-checkbox",
-    "name=dfixornot",
-    "checked=spy.GetParam('fragment_DB.fragment.use_dfix')",
-    "onclick=spy.SetParam('fragment_DB.fragment.use_dfix', html.GetState('~name~'))"
-    )
     $-
-  </td>
+  
+  <td align='left'><b>%Residue Class:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-text-td",
+      "name=RESIDUE_CLASS",
+      "value=spy.GetParam('fragment_DB.fragment.resi_class')",
+      "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc",
+      "td1=<td width='13%'>"
+      )
+    $-
+  
+  <td align='right'><b>%Invert:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-checkbox-td",
+      "name=invert",
+      "checked=spy.GetParam('fragment_DB.fragment.invert')",
+      "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))",
+      "valign=left"
+      )
+    $-
+  
+  <td align='right'><b>%calculate DFIX:%</b></td>
+    $+
+      html.Snippet("gui/snippets/input-checkbox-td",
+      "name=dfixornot",
+      "checked=spy.GetParam('fragment_DB.fragment.use_dfix')",
+      "onclick=spy.SetParam('fragment_DB.fragment.use_dfix', html.GetState('~name~'))",
+      "valign=right"
+      )
+    $-
 
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons;help_ext=Fit;1; -->
 
-    $+
-      html.Snippet(GetVar(default_link),
-      "value=Fit!",
-      "name=FIT_BUTTON",
-      "onclick=spy.FragmentDB.fit_db_fragment()",
-      "td1=<td align='left' width='15%'>"
-      )
-    $-
-    $+
-      html.Snippet(GetVar(default_link),
-      "value=Edit",
-      "name=EDIT_BUTTON",
-      "onclick=spy.FragmentDB.open_edit_fragment_window()",
-      "td1=<td align='left' width='15%'>"
-      )
-    $-
+  $+
+    html.Snippet(GetVar(default_link),
+    "value=Fit!",
+    "name=FIT_BUTTON",
+    "onclick=spy.FragmentDB.fit_db_fragment()",
+    "td1=<td align='left' width='13%'>"
+    )
+  $-
+  $+
+    html.Snippet(GetVar(default_link),
+    "value=Edit",
+    "name=EDIT_BUTTON",
+    "onclick=spy.FragmentDB.open_edit_fragment_window()",
+    "td1=<td align='left' width='13%'>"
+    )
+  $-
 
-  <td  align='right'><b>No Restraints:</b></td>
-  <td align='left' width='4%'>
+  <td align='right'><b>No Restraints:</b></td>
     $+
-    html.Snippet("gui/snippets/input-checkbox",
+    html.Snippet("gui/snippets/input-checkbox-td",
     "name=ROFF",
     "checked=spy.GetParam('fragment_DB.fragment.roff')",
-    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))"
+    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))",
+    "valign=left"
     )
-    $- 
-  </td>
+    $-
 
-  <td  align='right'><b>Rigid Group:</b></td>
-  <td align='left' width='4%'>
+  <td align='right'><b>Rigid Group:</b></td>
     $+
-    html.Snippet("gui/snippets/input-checkbox",
+    html.Snippet("gui/snippets/input-checkbox-td",
     "name=RIGID",
     "checked=spy.GetParam('fragment_DB.fragment.rigid')",
-    "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))"
+    "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))",
+    "valign=left"
     )
-    $- 
-  </td>
+    $-
 
-  <td  align='right'><b>Replace Mode:</b></td>
-  <td align='left' width='4%'>
+  <td align='right'><b>Replace Mode:</b></td>
     $+
-    html.Snippet("gui/snippets/input-checkbox",
-    "name=REPLACE",
-    "checked=spy.GetParam('fragment_DB.fragment.replace')",
-    "onclick=spy.SetParam('fragment_DB.fragment.replace', html.GetState('~name~'))"
-    )
-    $- 
-  </td>
+      html.Snippet("gui/snippets/input-checkbox-td",
+      "name=REPLACE",
+      "checked=spy.GetParam('fragment_DB.fragment.replace')",
+      "onclick=spy.SetParam('fragment_DB.fragment.replace', html.GetState('~name~'))",
+      "valign=left"
+      )
+    $-
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
+
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm; help_ext=Results;1; -->
   <tr>
-    <td width=60% align='left'>
+    <td align='left'>
       <b>List of most disagreeable restraints:</b>
     </td>
     $+
@@ -245,7 +198,7 @@
       "value=Short",
       "name=SHORT_BUTTON",
       "onclick=delins more>>addins more -1>>refine 4",
-      "td1=<td width=20% align='right'>"
+      "td1=<td width='13%' align='right'>"
       )
     $-
     $+
@@ -253,11 +206,12 @@
       "value=Full",
       "name=FULL_BUTTON",
       "onclick=delins more>>addins more -4>>refine 4",
-      "td1=<td width=20% align='right'>"
+      "td1=<td width='13%' align='right'>"
       )
     $-
   </tr>
   $spy.FragmentDB.results()
+
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
 <!-- #include tool-footer gui/blocks/tool-footer.htm;colspan=2;1; -->
