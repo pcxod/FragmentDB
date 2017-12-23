@@ -35,15 +35,15 @@
           <tr >
             <td width='10%' align='right'> click to enlarge:</td>
             <td width="100%" align="center" bgcolor="$GetVar(HtmlTableBgColour)">
-            <a target="" href="spy.FragmentDB.display_large_image()">  
-            <zimg name="MOLEPIC2" 
-            border="0" 
-            src="blank.png" 
-            height=120 
-            width=120 
-            align="center"
-            > 
-            </a>
+              <a target="" href="spy.FragmentDB.display_large_image()">
+              <zimg name="MOLEPIC2"
+              border="0"
+              src="blank.png"
+              height=120
+              width=120
+              align="center"
+              >
+              </a>
             </td>
           </tr>
           
@@ -52,7 +52,8 @@
             <td width='90%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
             <input type="text"
-              bgcolor="$GetVar(HtmlInputBgColour)"
+              bgcolor="GetVar('HtmlInputBgColour')"
+              fgcolor="GetVar(HtmlFontColour)"
               name="set_name" 
               width="100%" 
               onchange='spy.SetParam(fragment_DB.new_fragment.frag_name, html.GetValue(~name~))'
@@ -65,14 +66,17 @@
             <td width='10%' align='right'><b> Unit cell: </b></td>
             <td width='90%'>
             <font face='courier' size="$GetVar('HtmlFontSizeControls')"> 
-            <input type="text"
-              bgcolor="$GetVar(HtmlInputBgColour)"
+            <input
+              type="text"
+              bgcolor="GetVar('HtmlInputBgColour')"
+              fgcolor="GetVar(HtmlFontColour)"
               name="set_cell" 
               value="1 1 1 90 90 90"
               width="100%" 
               onchange='spy.SetParam(fragment_DB.new_fragment.frag_cell, html.GetValue(~name~))'
               multiline="False"
-            ></font>
+            >
+            </font>
             </td>
           </tr>
           <tr>

@@ -20,7 +20,7 @@
     html.Snippet(GetVar(default_link),
     "value=reset",
     "name=RESET_BUTTON",
-    "onclick=spy.fragmentDB.clear_mainvalues()"
+    "onclick=spy.fragmentDB.clear_mainvalues()",
     "td1=<td width='12%'>"
     )
   $-
@@ -60,8 +60,7 @@
       "value=spy.GetParam(fragment_DB.fragment.frag_fvar)",
       "min='-99'",
       "max='99'",
-      "onchange=spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>
-                  spy.FragmentDB.get_fvar_occ()",
+      "onchange=spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>spy.FragmentDB.get_fvar_occ()",
       "td1=<td width='12%'>"
       )
     $-
@@ -73,8 +72,7 @@
       "value=spy.GetParam(fragment_DB.fragment.frag_occ)",
       "min='-4'",
       "max='4'",
-      "onchange=spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o>>
-                spy.FragmentDB.get_fvar_occ()",
+      "onchange=spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o>>spy.FragmentDB.get_fvar_occ()",
       "td1=<td width='11%'>"
       )
     $-
@@ -191,9 +189,7 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm; help_ext=Results;1; -->
   <tr>
-    <td align='left'>
-      <b>List of most disagreeable restraints:</b>
-    </td>
+    <td align='left'><b>List of most disagreeable restraints:</b></td>
     $+
       html.Snippet(GetVar(default_link),
       "value=Short",
