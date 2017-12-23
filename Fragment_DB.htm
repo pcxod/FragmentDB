@@ -29,7 +29,7 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture;help_ext=Picture;1; -->
 
-  <td width="100%" align="center">
+  <td width="90%" align="center">
     <a target="" href="spy.FragmentDB.display_large_image()">
       $spy.fragmentdb.imagedisp('FDBMOLEPIC')
     </a>
@@ -40,7 +40,7 @@
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='FRAG_FVAR_1';help_ext=Properies;1 -->
 
-  <td align='left'><b>%PART:%</b></td>
+  <td align='left' width="10%"><b>PART:</b></td>
     $+
       html.Snippet("gui/snippets/input-spin-td",
       "name=FRAGMENT_PART",
@@ -48,11 +48,11 @@
       "min='-99'",
       "max='99'",
       "onchange=spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))>>labels -p",
-      "td1=<td width='12%'>"
+      "td1=<td width='13%'>"
       )
     $-
 
-  <td align="right"><b>%Free Variable:%</b></td>
+  <td align="right" width="21%"><b>Free Variable:</b></td>
     $+
       html.Snippet("gui/snippets/input-spin-td",
       "name=FRAG_FVAR",
@@ -65,7 +65,7 @@
       )
     $-
 
-  <td align='right'><b>%Occupancy:%</b></td>
+  <td align='right'><b>Occupancy:</b></td>
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=FRAG_OCCUPANCY",
@@ -78,7 +78,7 @@
       )
     $-
 
-  <td width='1%'><b>=></b><td>
+  <td><b>=></b><td>
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=FVAROCC",
@@ -93,43 +93,43 @@
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Properies_2;1 -->
 
-  <td valign='left'><b>%Use a residue:%</b></td>
+  <td align='left' width="18%"><b>Use a residue:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=RESIDUE",
       "checked=spy.GetParam(fragment_DB.fragment.resitoggle)",
       "onclick=spy.SetParam('fragment_DB.fragment.resitoggle', html.GetState('~name~'))",
-      valign="left"
+      "td1=<td align='left' width="5%">"
       )
     $-
   
-  <td align='left'><b>%Residue Class:%</b></td>
+  <td align='right' width="20%"><b>Residue Class:</b></td>
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=RESIDUE_CLASS",
       "value=spy.GetParam('fragment_DB.fragment.resi_class')",
       "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc",
-      "td1=<td width='13%'>"
+      "td1=<td width='12%' halign=left>"
       )
     $-
   
-  <td align='right'><b>%Invert:%</b></td>
+  <td align='right' width="12%"><b>Invert:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=invert",
       "checked=spy.GetParam('fragment_DB.fragment.invert')",
       "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))",
-      "valign=left"
+      "td1=<td align='left' width="5%">"
       )
     $-
   
-  <td align='right'><b>%calculate DFIX:%</b></td>
+  <td align='right' width="20%"><b>Calculate DFIX:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=dfixornot",
       "checked=spy.GetParam('fragment_DB.fragment.use_dfix')",
       "onclick=spy.SetParam('fragment_DB.fragment.use_dfix', html.GetState('~name~'))",
-      "valign=right"
+      "td1=<td align='left' width="5%">"
       )
     $-
 
@@ -155,33 +155,33 @@
     )
   $-
 
-  <td align='right'><b>No Restraints:</b></td>
+  <td align='right' width="18%"><b>No Restraints:</b></td>
     $+
     html.Snippet("gui/snippets/input-checkbox-td",
     "name=ROFF",
     "checked=spy.GetParam('fragment_DB.fragment.roff')",
     "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))",
-    "valign=left"
+    "td1=<td align='left' width="5%">"
     )
     $-
 
-  <td align='right'><b>Rigid Group:</b></td>
+  <td align='right' width="18%"><b>Rigid Group:</b></td>
     $+
     html.Snippet("gui/snippets/input-checkbox-td",
     "name=RIGID",
     "checked=spy.GetParam('fragment_DB.fragment.rigid')",
     "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))",
-    "valign=left"
+    "td1=<td align='left' width="5%">"
     )
     $-
 
-  <td align='right'><b>Replace Mode:</b></td>
+  <td align='right' width="20%"><b>Replace Mode:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=REPLACE",
       "checked=spy.GetParam('fragment_DB.fragment.replace')",
       "onclick=spy.SetParam('fragment_DB.fragment.replace', html.GetState('~name~'))",
-      "valign=left"
+      "td1=<td align='left' width="5%">"
       )
     $-
 
