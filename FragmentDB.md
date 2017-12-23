@@ -50,7 +50,7 @@ of the fragment.
 ##DFIX
 The supplied fragment normally has predefined restraints like 
 SADI, FLAT and others.  
-**DFIX** Generates DFIX/DANG restraints from the geometry of the fragment and 
+*DFIX* Generates DFIX/DANG restraints from the geometry of the fragment and 
 replaces the predefined restraints. 
 
 
