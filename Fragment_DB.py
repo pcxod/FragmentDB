@@ -968,14 +968,15 @@ class FragmentDB(PT):
     for num, i in enumerate(atoms_list):
       try:
         if element:
-          if as_html:
-            atlist.append('<tr width=60%><td align=left  width=20%>{:4.4s}&nbsp;</td>  '
-                              '<td align=right>1 &nbsp;&nbsp;</td> '
-                              '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
-                              '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
-                              '<td align=right>{:>10.4f}&nbsp;&nbsp;</td></tr>'.format(i[0], i[2], i[3], i[4]))
-          else:
-            atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
+          # Have to remove this, because a table is bad to copy&paste:
+          #if as_html:
+          #  atlist.append('<tr width=60%><td align=left  width=20%>{:4.4s}&nbsp;</td>  '
+          #                    '<td align=right>1 &nbsp;&nbsp;</td> '
+          #                    '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
+          #                    '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
+          #                    '<td align=right>{:>10.4f}&nbsp;&nbsp;</td></tr>'.format(i[0], i[2], i[3], i[4]))
+          #else:
+          atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
         else:
           atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
       except UnicodeEncodeError:
@@ -983,7 +984,7 @@ class FragmentDB(PT):
     if not as_html:
       at = ' \n'.join(atlist)
     else:
-      at = ' '.join(atlist)
+      at = '<br>'.join(atlist)
     return at
 
   def prepare_fragname(self, fragId):
