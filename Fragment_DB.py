@@ -133,6 +133,9 @@ class FragmentDB(PT):
     olx.html.SetValue('FRAG_FVAR', 1)
     self.set_occu('1.0')
     self.get_fvar_occ()
+    OV.SetParam('fragment_DB.fragment.resi_class', "")
+    OV.SetParam('fragment_DB.new_fragment.frag_resiclass', "")
+    olx.html.SetValue('RESIDUE_CLASS', "")
 
 
   def set_occu(self, occ):

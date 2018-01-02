@@ -110,7 +110,7 @@ class Refmod(object):
         # print('No list file found.')
         return ''
     except:
-      print('somethin is wrong with the lst file path.')
+      print('Something is wrong with the lst file path.')
       return ''
     return lstfile
 
@@ -159,7 +159,7 @@ class html_Table(object):
       table.append(self.row(line))
     footer = ""
     empty_data = """
-    <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
+    <table width="100%" border="0" cellpadding="0" cellspacing="3" > 
       <tr>
          <td align='center'> Observed </td>
          <td align='center'> Target   </td>
@@ -176,7 +176,7 @@ class html_Table(object):
       </tr>
     </table>"""
     html = r"""
-    <table border="0" cellpadding="0" cellspacing="6" width="100%" > 
+    <table width="100%" border="0" cellpadding="0" cellspacing="3"> 
       <tr>
          <td align='center'> Observed </td>
          <td align='center'> Target   </td>

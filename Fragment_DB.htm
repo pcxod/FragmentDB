@@ -53,7 +53,7 @@
       )
     $-
 
-  <td align="right" width="21%"><b>Free Variable:</b></td>
+  <td align="right" width="23%"><b>Free Variable:</b></td>
     $+
       html.Snippet("gui/snippets/input-spin-td",
       "name=FRAG_FVAR",
@@ -65,7 +65,7 @@
       )
     $-
 
-  <td align='right'><b>Occupancy:</b></td>
+  <td align='right' width="19%"><b>Occupancy:</b></td>
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=FRAG_OCCUPANCY",
@@ -77,7 +77,7 @@
       )
     $-
 
-  <td><b>=></b><td>
+  <td align='right' width="2%"><b>=></b><td>
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=FVAROCC",
@@ -92,13 +92,13 @@
 
 <!-- #include tool-row-help gui\blocks\tool-row-help.htm;name='Residues';help_ext=Properies_2;1 -->
 
-  <td align='right' width="17%"><b>Use a residue:</b></td>
+  <td align='right' width="20%"><b>Use a residue:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=RESIDUE",
       "checked=spy.GetParam(fragment_DB.fragment.resitoggle)",
       "onclick=spy.SetParam('fragment_DB.fragment.resitoggle', html.GetState('~name~'))",
-      "td1=<td align='left' width="6%">"
+      "td1=<td align='left' width="4%">"
       )
     $-
   
@@ -154,7 +154,7 @@
     )
   $-
 
-  <td align='right' width="18%"><b>No Restraints:</b></td>
+  <td align='right' width="20%"><b>No Restraints:</b></td>
     $+
     html.Snippet("gui/snippets/input-checkbox-td",
     "name=ROFF",
@@ -164,7 +164,7 @@
     )
     $-
 
-  <td align='right' width="18%"><b>Rigid Group:</b></td>
+  <td align='right' width="17%"><b>Rigid Group:</b></td>
     $+
     html.Snippet("gui/snippets/input-checkbox-td",
     "name=RIGID",
@@ -189,13 +189,13 @@
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm; help_ext=Results;1; -->
   <tr>
-    <td align='left'><b>List of most disagreeable restraints:</b></td>
+    <td align='left' width="76%"><b>List of most disagreeable restraints:</b></td>
     $+
       html.Snippet(GetVar(default_link),
       "value=Short",
       "name=SHORT_BUTTON",
       "onclick=delins more>>addins more -1>>refine 4",
-      "td1=<td width='13%' align='right'>"
+      "td1=<td width='12%' align='right'>"
       )
     $-
     $+
@@ -203,7 +203,7 @@
       "value=Full",
       "name=FULL_BUTTON",
       "onclick=delins more>>addins more -4>>refine 4",
-      "td1=<td width='13%' align='right'>"
+      "td1=<td width='12%' align='right'>"
       )
     $-
   </tr>
