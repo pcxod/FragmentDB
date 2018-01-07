@@ -1,5 +1,6 @@
 @ECHO OFF
 
+rem This file is for development only.
 
 echo %FDBDIR%
 rem set FDBDIR="C:\Program Files\Olex2-1.2\util\pyUtil\PluginLib\plugin-Fragment_DB"
