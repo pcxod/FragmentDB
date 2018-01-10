@@ -28,39 +28,13 @@ Displays a picture of the fragment.
 Click on the picture to display a magnified version of the picture.  
 User defined fragments only have pictures if the user provided one.
 
-#Properies
-#Properies 
-Define PART, free variables (FVAR) and the occupancy here. 
-  
-A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
--31.0 On the other hand is set with a free variable of -3. The corresponding free
-variable is assigned automatically.  
-All parameters will be displayed simultaneously through atomic labels.
-
-#Properies 2
-##Use a residue 
-Disable or enable putting the fitted fragment into a residue. 
-The residue class has to start with a letter and can be up to four  
-characters. Usually, the class provided by the database is sufficient.
-
-##Invert
-Inverts the coordinates of the fragment. Useful to fit the inverted geometry  
-of the fragment.
-
-##DFIX
-The supplied fragment normally has predefined restraints like 
-SADI, FLAT and others.  
-*DFIX* Generates DFIX/DANG restraints from the geometry of the fragment and 
-replaces the predefined restraints. 
-
-
-#Fit
 ##Fit!
 The button <b>Fit!</b> starts the fit of the Fragment into the structure. 
 
 ##Edit
 Edit the currenty selected or create new fragments.
-  
+
+##Editor Options
 ###Change Picture
 Select a picture for the fragment. Use at least 600dpi pictures.
   
@@ -93,8 +67,37 @@ The length of a line is unlimited.
 ###Residue
 Define the residue class of the fragment (up to four characters, the first has to be a letter). 
 
-##No Restraints
-No restraints will be applied to the fitting fragment.
+
+
+
+#Properies
+#Properies 
+Define **PART**, free variables (**FVAR**) and the **occupancy** here. 
+  
+A free variable of 3 and an occupancy of 1 means 31.0 in SHELXL notation. 
+-31.0 On the other hand is set with a free variable of -3. The corresponding free
+variable is assigned automatically.  
+All parameters will be displayed simultaneously through atomic labels.
+
+#Properies 2
+##Use a residue 
+Disable or enable putting the fitted fragment into a residue. 
+The residue class has to start with a letter and can be up to four  
+characters. Usually, the class provided by the database is sufficient.
+
+##Invert
+Inverts the coordinates of the fragment. Useful to fit the inverted geometry  
+of the fragment.
+
+##Calculate DFIX
+The supplied fragment normally has predefined restraints like 
+SADI, FLAT and others.  
+*DFIX* Generates DFIX/DANG restraints from the geometry of the fragment and 
+replaces the predefined restraints. 
+
+
+
+#Properies 3
 
 ##Replace Mode
 If enabled, all atoms inside PART 0 lying in a radius of 1.22 A around the 
@@ -102,6 +105,13 @@ atoms of the fitted fragment will be deleted. This is particular useful to
 replace atoms of a disordered structure just solved using SHELXT.  
 It will not delete atoms in different PARTs than PART 0. 
 
+
+##No Restraints
+No restraints will be applied to the fitting fragment.
+
+
+##Rigid group
+Keeps the fitted fragment rigid during refinement.
 
 #Results
 #Results

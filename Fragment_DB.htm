@@ -12,7 +12,7 @@
     "onchange=spy.FragmentDB.set_id(html.GetValue(~name~))>>spy.FragmentDB.init_plugin()",
     "onreturn=spy.FragmentDB.search_fragments(html.GetValue(~name~))",
     "readonly=False",
-    "td1=<td width='85%'>"
+    "td1=<td width='86%'>"
     )
   $-
 
@@ -21,7 +21,7 @@
     "value=reset",
     "name=RESET_BUTTON",
     "onclick=spy.fragmentDB.clear_mainvalues()",
-    "td1=<td width='12%'>"
+    "td1=<td width='14%'>"
     )
   $-
 
@@ -29,12 +29,30 @@
 
 
 <!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Fragment_picture;help_ext=Picture;1; -->
+  $+
+    html.Snippet(GetVar(default_link),
+    "value=Fit!",
+    "name=FIT_BUTTON",
+    "onclick=spy.FragmentDB.fit_db_fragment()",
+    "td1=<td align='left' width='14%'>"
+    )
+  $-
 
-  <td width="90%" align="center">
+  <td width="72%" align="center" bgcolor="#bgcolor">
     <a target="" href="spy.FragmentDB.display_large_image()">
       $spy.fragmentdb.imagedisp('FDBMOLEPIC')
     </a>
   </td>
+
+
+  $+
+    html.Snippet(GetVar(default_link),
+    "value=Edit",
+    "name=EDIT_BUTTON",
+    "onclick=spy.FragmentDB.open_edit_fragment_window()",
+    "td1=<td align='left' width='14%'>"
+    )
+  $-
 
 <!--  Creates high cpu load and plugin does not open:
   $+
@@ -144,44 +162,7 @@
 <!-- #include row_table_off gui\blocks\row_table_off.htm;1; -->
 
 
-<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons;help_ext=Fit;1; -->
-
-  $+
-    html.Snippet(GetVar(default_link),
-    "value=Fit!",
-    "name=FIT_BUTTON",
-    "onclick=spy.FragmentDB.fit_db_fragment()",
-    "td1=<td align='left' width='13%'>"
-    )
-  $-
-  $+
-    html.Snippet(GetVar(default_link),
-    "value=Edit",
-    "name=EDIT_BUTTON",
-    "onclick=spy.FragmentDB.open_edit_fragment_window()",
-    "td1=<td align='left' width='13%'>"
-    )
-  $-
-
-  <td align='right' width="20%"><b>No Restraints:</b></td>
-    $+
-    html.Snippet("gui/snippets/input-checkbox-td",
-    "name=ROFF",
-    "checked=spy.GetParam('fragment_DB.fragment.roff')",
-    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))",
-    "td1=<td align='left' width="5%">"
-    )
-    $-
-
-  <td align='right' width="17%"><b>Rigid Group:</b></td>
-    $+
-    html.Snippet("gui/snippets/input-checkbox-td",
-    "name=RIGID",
-    "checked=spy.GetParam('fragment_DB.fragment.rigid')",
-    "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))",
-    "td1=<td align='left' width="5%">"
-    )
-    $-
+<!-- #include tool-row-help gui/blocks/tool-row-help.htm;name=Buttons;help_ext=Properies_3;1; -->
 
   <td align='right' width="20%"><b>Replace Mode:</b></td>
     $+
@@ -192,6 +173,28 @@
       "td1=<td align='left' width="5%">"
       )
     $-
+
+  <td align='right' width="20%">No Restraints:</td>
+    $+
+    html.Snippet("gui/snippets/input-checkbox-td",
+    "name=ROFF",
+    "checked=spy.GetParam('fragment_DB.fragment.roff')",
+    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))",
+    "td1=<td align='left' width="5%">"
+    )
+    $-
+
+  <td align='right' width="18%">Rigid Group:</td>
+    $+
+    html.Snippet("gui/snippets/input-checkbox-td",
+    "name=RIGID",
+    "checked=spy.GetParam('fragment_DB.fragment.rigid')",
+    "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))",
+    "td1=<td align='left' width="5%">"
+    )
+    $-
+
+
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
