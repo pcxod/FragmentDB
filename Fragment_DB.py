@@ -1017,7 +1017,7 @@ class FragmentDB(PT):
     """
     execute this to add a new fragment
     """
-    # add _new_frag must check the restraints vor validity!
+    # add_new_frag must check the restraints vor validity!
     state = self.set_frag_name()
     if not state:
       print('Please define a fragment name. Fragment is not stored!')
