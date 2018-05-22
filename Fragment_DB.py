@@ -339,8 +339,9 @@ class FragmentDB(PT):
     else:
       afix = ''
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
-      print('Applying DFIX restraints')
+      print('Applying DFIX restraints ...')
       OV.cmd(r'ImportFrag {3} -p={0} -o={1} -d {2}'.format(part, occ, fragpath, afix))
+      print('Finished.')
       # onImport() runs after ImportFrag
     else:
       OV.cmd(r'ImportFrag {3} -p={0} -o={1} {2}'.format(part, occ, fragpath, afix))
@@ -376,7 +377,7 @@ class FragmentDB(PT):
     :type labeldict: dict
     """
     for at in labeldict:
-      olx.Name('#c'+labeldict[at], at)
+      olx.Name('#c'+labeldict[at.upper()], at)
 
   def define_atom_properties(self, atomids, fragId=None):
     """
@@ -389,7 +390,8 @@ class FragmentDB(PT):
     resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
     freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
     partnum = OV.GetParam('fragment_DB.fragment.frag_part')
-    print('Applying fragment properties:')
+    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
+      print('Applying fragment properties:')
     if not fragId:
       try:
         fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) #olx.GetVar('fragment_ID')
@@ -398,7 +400,7 @@ class FragmentDB(PT):
         return
     labeldict = OrderedDict()
     atomids = [str(x) for x in atomids]
-    dbatom_names = [ i[0] for i in self.db[fragId]]
+    dbatom_names = [i[0].upper() for i in self.db[fragId]]
     for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
     # select all atomids to do the fit:
@@ -413,8 +415,7 @@ class FragmentDB(PT):
         self.make_residue(atomids, resiclass, resinum)
         self.atomrenamer(labeldict)
     # Placing restraints:
-    if not OV.GetParam('fragment_DB.fragment.use_dfix') \
-      and not OV.GetParam('fragment_DB.fragment.roff'):
+    if not OV.GetParam('fragment_DB.fragment.use_dfix') and not OV.GetParam('fragment_DB.fragment.roff'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
     self.make_part(atomids, partnum)
     return atomids
@@ -456,7 +457,7 @@ class FragmentDB(PT):
     for num, i in enumerate(restraints):
       # i[0] is restraint like SADI or DFIX
       # i[1] is a string of atoms like 'C1 C2'
-      restraint_atoms = i[1]
+      restraint_atoms = i[1].upper()
       if '>' in restraint_atoms or '<' in restraint_atoms:
         restraint_atoms = self.range_resolver(restraint_atoms.split(), labeldict.keys())
       line = []
@@ -464,11 +465,11 @@ class FragmentDB(PT):
         # is it a potential atom (starts with alphabetic character):
         if at[0].isalpha():
           try:
-            line.append('#c'+labeldict[at])
-          except(KeyError):
+            line.append('#c'+labeldict[at.upper()])
+          except KeyError:
             # in this case, an atom name in the restraint does not
             # exist in the fragments atom list!
-            print('\nUnknown restraint found in restraints line {}.\n'.format(num+1))
+            print('\nUnknown restraint or atom found in restraints line {}.\n'.format(num+1))
             # I must exit here!
             return
         else:
@@ -522,12 +523,8 @@ class FragmentDB(PT):
   def set_fragment_picture(self, max_size=120):
     """
     displays a picture of the fragment from the database in Olex2
-    :param name: name of the zimg html name
-    :type name: string
     :param max_size: maximum size of the picture in pixels
     :type max_size: int
-    :param control: name of the htmnl control
-    :type control: string
     """
     max_size = int(max_size)
     fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
@@ -701,7 +698,6 @@ class FragmentDB(PT):
     """
     returns the names of the currently selected atoms.
     Hydrogen atoms are discarded.
-    :type atoms_all: list of strings
     """
     atoms_all = olex.f("sel(a)").split()
     if not atoms_all:
@@ -1312,7 +1308,7 @@ class FragmentDB(PT):
           resnum = residue['number']
         except KeyError:
           resnum = 0
-        atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
+        atoms[atom['aunit_id']] = [atom['label'], atom['crd'][0], atom['part'], resnum, atom['type']]
     return atoms
 
   def exportfrag(self):
