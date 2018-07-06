@@ -9,4 +9,7 @@ please contact Daniel Kratzert: dkratzert@gmx.de
 Please also contact me also if you like to have any additional features.
 
 ![Program Window](https://github.com/dkratzert/FragmentDB/blob/master/pictures/main_plugin.png?raw=true)
+
+
+![Program Window](https://github.com/dkratzert/FragmentDB/blob/master/pictures/fragment_editor.png?raw=true)
  
