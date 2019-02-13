@@ -64,7 +64,7 @@ class FragmentDB(PT):
     # for edited fragments:
     self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
-    print('FragmentDB version:', FDB_VERSION)    
+    print('FragmentDB version:', FDB_VERSION)
 
 
   def get_cell(self):
@@ -104,7 +104,7 @@ class FragmentDB(PT):
     try:
       int(fragid)
     except(ValueError):
-      return 
+      return
     OV.SetParam("fragment_DB.fragment.fragId", fragid)
 
   def guess_values(self):
@@ -322,7 +322,7 @@ class FragmentDB(PT):
     # this callback runs in the moment when ImportFrag is finished. onImport
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onImport)
-    fragpath = os.sep.join(['.olex', 'fragment.txt'])
+    fragpath = os.sep.join([OV.StrDir(), 'fragment.txt'])
     try:
       atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
     except(IndexError):
@@ -475,7 +475,7 @@ class FragmentDB(PT):
         else:
           line.append(at)
       # Applies the implicit restraint to atoms in line:
-      # I disabled implicit restraints because they cause trouble during atom 
+      # I disabled implicit restraints because they cause trouble during atom
       # renaming. Update: It seems to work now, enabling again.
       if i[0] in helper_functions.IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
         OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
