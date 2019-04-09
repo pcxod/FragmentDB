@@ -335,16 +335,16 @@ class FragmentDB(PT):
       return
     OV.cmd("file")
     if afix:
-      afix = "-a=6"
+      afix = "6"
     else:
-      afix = ''
+      afix = '0'
     if OV.GetParam('fragment_DB.fragment.use_dfix'):
       print('Applying DFIX restraints ...')
-      OV.cmd(r'ImportFrag {3} -p={0} -o={1} -d "{2}"'.format(part, occ, fragpath, afix))
+      olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=True)
       print('Finished.')
       # onImport() runs after ImportFrag
     else:
-      OV.cmd(r'ImportFrag {3} -p={0} -o={1} "{2}"'.format(part, occ, fragpath, afix))
+      olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=False)
     return
 
   def fit_db_fragment(self):
