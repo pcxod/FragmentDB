@@ -12,7 +12,7 @@ import gui.maps
 import olx  # @UnresolvedImport
 import OlexVFS  # @UnresolvedImport
 import olex_core  # @UnresolvedImport
-from FragmentDB_handler import FragmentTable
+from fragmentdb_handler import FragmentTable
 from refine_model_tasks import Refmod
 import helper_functions
 import pprint
