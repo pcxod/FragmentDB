@@ -3,9 +3,10 @@ Created on 23.10.2015
 
 @author: daniel
 """
+import os
+
 # import pprint
 from helper_functions import REL_RESTR_CARDS, SHX_CARDS, remove_partsymbol
-import os
 
 try:
   import olx  # @UnresolvedImport
@@ -240,7 +241,7 @@ class html_Table(object):
     """
     this method gets the atom list of a disagreeable restraint in olex2.
     The text string is then formated so that "editatom" can handle it.
-    editatom opens an editor window with the respective atoms. 
+    editatom opens an editor window with the respective atoms.
     :type restr: string like "SAME/SADI Co N11 Co N22"
     """
     # separate SAME/SADI:
@@ -253,7 +254,7 @@ class html_Table(object):
       if i in ['xz', 'yz', 'xy', 'etc.']:
         continue
       else:
-        #atoms.append(remove_partsymbol(i))  # Have to remove this, because new names needed for 'edit'
+        # atoms.append(remove_partsymbol(i))  # Have to remove this, because new names needed for 'edit'
         atoms.append(i)
     OV.cmd('editatom {}'.format(' '.join(atoms)))
 
@@ -265,11 +266,10 @@ except:
   pass
 
 if __name__ == '__main__':
-  #import cProfile
-  import pstats
+  # import cProfile
 
-  #cp = cProfile.Profile()
-  #cp.enable(subcalls=True, builtins=True)
+  # cp = cProfile.Profile()
+  # cp.enable(subcalls=True, builtins=True)
 
   ref = Refmod()
   lst = ref.fileparser(r'Z:\dkratzer\Strukturen\service\!Ehemalige\Tobi_Engesser\01_IKte_litcapf\p1_a.lst')
@@ -277,6 +277,6 @@ if __name__ == '__main__':
   # lst = ref.fileparser('/Users/daniel/Documents/DSR/example/p21c.lst')
   tab = htm.table_maker(lst)
   print(tab)
-  #cp.disable()
+  # cp.disable()
 
-  #pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)
+  # pstats.Stats(cp).strip_dirs().sort_stats('cumtime').print_stats(30)

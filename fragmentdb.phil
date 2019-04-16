@@ -1,5 +1,5 @@
 
-fragment_DB{
+FragmentDB{
   gui{
     location = 'tools'
       .type = str
@@ -8,7 +8,7 @@ fragment_DB{
       .type = str
       .help = The tool before which the FragementDB GUI shall appear.
     }
-  
+
   fragment{
     fragId = 0
       .type = int
@@ -16,40 +16,40 @@ fragment_DB{
 
     resitoggle = False
       .type = bool
-      .help = Decides wether a residue should be used or not. 
+      .help = Decides wether a residue should be used or not.
 
     resinum = 0
       .type = int
       .help = Places the fragment in the residue with the respective number.
-      
+
     resi_class = ""
       .type = str
       .help = Defines the class (name) of the residue.
-    
+
     frag_part = 0
       .type = int
       .help = Defines the part number of the fragment.
-    
+
     frag_occ = 1.0
       .type = float
       .help = Defines the occupancy of the whole fragment.
-      
+
     frag_fvar = 1
       .type = int
       .help = Defines the free variable for the occupancy of a fragment.
-      
+
     errormessage = ""
       .type = str
       .help = error messages from FragmentDB plugin
-    
+
     use_dfix = False
       .type = bool
       .help = Enables DFIX/DANG/FLAT restraints calculated from fragments geometry.
-      
+
     invert = False
       .type = bool
       .help = Inverts the fragment geometry.
-    
+
     replace = False
       .type = bool
       .help = Enables replace mode.
@@ -57,42 +57,42 @@ fragment_DB{
     rigid = False
       .type = bool
       .help = Put the fragment into a rigid group.
-      
+
     fvarocc = 11.0
       .type = float
       .help = Defines the shelx free variable/occupancy number
-      
+
     roff = False
       .type = bool
       .help = Decides if restraints should be applied to the fragment or not.
     }
-  
+
   new_fragment{
-  
+
     frag_name = ""
         .type = str
         .help = The name of the fragment.
-    
+
     frag_atoms = ""
       .type = str
       .help = Insert atoms here like "C1 1 0.3412 1.231 0.9876"
-  
+
     frag_cell = ""
       .type = str
       .help = Unit cell of the fragment like "12.3 11.23 8.01 90 102.4 90"
-    
+
     frag_resiclass = ""
       .type = str
       .help = Insert residue class here. Up to four characters and numbers beginning with a character.
-    
+
     frag_restraints = ""
       .type = str
       .help = Enter restraints here.
-    
+
     frag_reference = ""
       .type = str
       .help = Reference of the fragment
-  } 
+  }
 
 
 }

@@ -1,176 +1,177 @@
-
 <html>
 <body>
 
-<table border="0" cellpadding="0" cellspacing="5" width="100%" > 
-  <tr >
-  <!-- Left boxes and buttons -->
-    <tr>
-      <td>
-        <table border="0" cellpadding="0" cellspacing="5" width="100%">
-          <tr >
-            <td width='10%' align='right'> </td>
-            <td width='90%'>
+<table border="0" cellpadding="0" cellspacing="5" width="100%">
+  <tr>
+    <!-- Left boxes and buttons -->
+  <tr>
+    <td>
+      <table border="0" cellpadding="0" cellspacing="5" width="100%">
+        <tr>
+          <td width='10%' align='right'></td>
+          <td width='90%'>
+            $+
+            html.Snippet("gui/snippets/input-button",
+            "name=picture",
+            "value=Change picture",
+            "onclick=spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg',
+            '')",
+            "width=50%"
+            )
+            $-
+            $+
+            html.Snippet("gui/snippets/input-button",
+            "name=chemdraw_style",
+            "value=Drawstyle",
+            "onclick=spy.FragmentDB.get_chemdrawstyle()",
+            "width=50%"
+            )
+            $-
+          </td>
+        </tr>
+        <tr>
+          <td width='10%' align='right'> click to enlarge:</td>
+          <td width="100%" align="center" bgcolor="$GetVar(HtmlTableBgColour)">
+            <a target="" href="spy.FragmentDB.display_large_image()">
+              <zimg name="MOLEPIC2"
+                    border="0"
+                    src="blank.png"
+                    height=120
+                    width=120
+                    align="center">
+              </zimg>
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <td width='10%' align='right'><b> Name: </b></td>
+          <td width='90%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')">
               $+
-                html.Snippet("gui/snippets/input-button",
-                "name=picture",
-                "value=Change picture",
-                "onclick=spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg', '')",
-                "width=50%"
-                )
-              $-
-              $+
-                html.Snippet("gui/snippets/input-button",
-                "name=chemdraw_style",
-                "value=Drawstyle",
-                "onclick=spy.FragmentDB.get_chemdrawstyle()",
-                "width=50%"
+              html.Snippet("gui/snippets/input-text",
+              "name=set_name",
+              "width='100%'",
+              "onchange=spy.SetParam(FragmentDB.new_fragment.frag_name, html.GetValue(~name~))",
+              "multiline=False"
               )
               $-
-            </td>
-          </tr>
-          <tr >
-            <td width='10%' align='right'> click to enlarge:</td>
-            <td width="100%" align="center" bgcolor="$GetVar(HtmlTableBgColour)">
-              <a target="" href="spy.FragmentDB.display_large_image()">
-                <zimg name="MOLEPIC2"
-                      border="0"
-                      src="blank.png"
-                      height=120
-                      width=120
-                      align="center">
-                </zimg>
-              </a>
-            </td>
-          </tr>
-          
-          <tr>
-            <td width='10%' align='right'> <b> Name: </b></td>
-            <td width='90%'>
-              <font face='courier' size="$GetVar('HtmlFontSizeControls')">
+            </font>
+          </td>
+        </tr>
+
+        <tr>
+          <td width='10%' align='right'><b> Unit cell: </b></td>
+          <td width='90%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')">
               $+
-                html.Snippet("gui/snippets/input-text",
-                "name=set_name",
-                "width='100%'",
-                "onchange=spy.SetParam(fragment_DB.new_fragment.frag_name, html.GetValue(~name~))",
-                "multiline=False"
-                )
+              html.Snippet("gui/snippets/input-text",
+              "name=set_cell",
+              "width='100%'",
+              "value='1 1 1 90 90 90'",
+              "onchange=spy.SetParam(FragmentDB.new_fragment.frag_cell, html.GetValue(~name~))",
+              "multiline=False"
+              )
               $-
-              </font>
-            </td>
-          </tr>
-          
-          <tr>
-            <td width='10%' align='right'><b> Unit cell: </b></td>
-            <td width='90%'>
-              <font face='courier' size="$GetVar('HtmlFontSizeControls')">
-                $+
+            </font>
+          </td>
+        </tr>
+        <tr>
+          <td>
+          </td>
+          <td><b>
+            $+
+            html.Snippet("gui/snippets/input-button",
+            "name=use_atoms",
+            "value=Use Selected Atoms:",
+            "onclick=spy.FragmentDB.prepare_selected_atoms()>>spy.FragmentDB.make_selctions_picture()",
+            "width=45%"
+            )
+            $-
+          </b>
+            $+
+            html.Snippet("gui/snippets/input-button",
+            "name=exportfrag",
+            "value=Export Fragment",
+            "onclick=spy.FragmentDB.exportfrag()",
+            "width=45%"
+            )
+            $-
+          </td>
+        </tr>
+        <tr>
+          <td width='10%' align='right'><b>Atoms: </b></td>
+          <td width='90%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')">
+              $+
+              html.Snippet("gui/snippets/input-text",
+              "name=SET_ATOM",
+              "width='100%'",
+              "height=160",
+              "onchange=spy.SetParam('FragmentDB.new_fragment.frag_atoms', html.GetValue('~name~'))",
+              "multiline=True"
+              )
+              $-
+            </font>
+          </td>
+        </tr>
+
+        <tr>
+          <td width='10%' align='right'><b> restraints: </b></td>
+          <td width='90%'>
+            <font face='courier' size="$GetVar('HtmlFontSizeControls')">
+              $+
+              html.Snippet("gui/snippets/input-text",
+              "name=restraints",
+              "width='100%'",
+              "height=120",
+              "onchange=spy.SetParam(FragmentDB.new_fragment.frag_restraints, html.GetValue(~name~))",
+              "multiline=True"
+              )
+              $-
+            </font>
+          </td>
+        </tr>
+
+        <tr>
+          <td width='10%' align='right'><b>  residue:  </b></td>
+          <td width='90%'>
+            <table align='left' border="0" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td align="left" width='15%'>
+                  $+
                   html.Snippet("gui/snippets/input-text",
-                  "name=set_cell",
-                  "width='100%'",
-                  "value='1 1 1 90 90 90'",
-                  "onchange=spy.SetParam(fragment_DB.new_fragment.frag_cell, html.GetValue(~name~))",
+                  "name=residue",
+                  "width='95%'",
+                  "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)",
                   "multiline=False"
                   )
-                $-
-              </font>
-            </td>
-          </tr>
-          <tr>
-            <td>
-            </td>
-            <td><b>
-              $+
-              html.Snippet("gui/snippets/input-button",
-              "name=use_atoms",
-              "value=Use Selected Atoms:",
-              "onclick=spy.FragmentDB.prepare_selected_atoms()>>spy.FragmentDB.make_selctions_picture()",
-              "width=45%"
-              )
-              $-
-            </b>
-              $+
-              html.Snippet("gui/snippets/input-button",
-              "name=exportfrag",
-              "value=Export Fragment",
-              "onclick=spy.FragmentDB.exportfrag()",
-              "width=45%"
-              )
-              $-
-            </td>
-          </tr>          
-          <tr>
-            <td width='10%' align='right'><b>Atoms: </b></td>
-            <td width='90%'>
-              <font face='courier' size="$GetVar('HtmlFontSizeControls')">
-                $+
-                  html.Snippet("gui/snippets/input-text",
-                  "name=SET_ATOM",
-                  "width='100%'",
-                  "height=160",
-                  "onchange=spy.SetParam('fragment_DB.new_fragment.frag_atoms', html.GetValue('~name~'))",
-                  "multiline=True"
-                  )
-                $-
-              </font>
-            </td>
-          </tr>
-                                
-          <tr>
-            <td width='10%' align='right'><b> restraints: </b></td>
-            <td width='90%'>
-              <font face='courier' size="$GetVar('HtmlFontSizeControls')">
-                $+
-                  html.Snippet("gui/snippets/input-text",
-                  "name=restraints",
-                  "width='100%'",
-                  "height=120",
-                  "onchange=spy.SetParam(fragment_DB.new_fragment.frag_restraints, html.GetValue(~name~))",
-                  "multiline=True"
-                  )
-                $-
-              </font>
-            </td>
-          </tr>
-          
-          <tr>
-            <td width='10%' align='right'><b>  residue:  </b> </td>
-            <td width='90%'>
-              <table align='left' border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td align="left" width='15%'>
+                  $-
+                </td>
+                <td width='15%'><b>reference: </b></td>
+                <td width='60%'>
+                  <font face='courier' size="$GetVar('HtmlFontSizeControls')">
                     $+
-                      html.Snippet("gui/snippets/input-text",
-                      "name=residue",
-                      "width='95%'",
-                      "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)",
-                      "multiline=False"
-                      )
+                    html.Snippet("gui/snippets/input-text",
+                    "name=reference_ed",
+                    "width='100%'",
+                    "onchange=spy.SetParam(FragmentDB.new_fragment.frag_reference,
+                    html.GetValue(~name~))",
+                    "multiline=False"
+                    )
                     $-
-                  </td>
-                  <td width='15%'> <b>reference: </b> </td>
-                  <td width='60%'>
-                    <font face='courier' size="$GetVar('HtmlFontSizeControls')">
-                      $+
-                        html.Snippet("gui/snippets/input-text",
-                        "name=reference_ed",
-                        "width='100%'",
-                        "onchange=spy.SetParam(fragment_DB.new_fragment.frag_reference, html.GetValue(~name~))",
-                        "multiline=False"
-                        )
-                      $-
-                    </font>
-                  </td>
-                </tr>
-              </table>
-          </tr>
+                  </font>
+                </td>
+              </tr>
+            </table>
+        </tr>
 
-          <tr>
-            <td width='10%'> </td>
-            <td width='90%'>
-              <table  border="0" cellpadding="10" cellspacing="0" width="100%">
-                <tr>
-                  <td>
+        <tr>
+          <td width='10%'></td>
+          <td width='90%'>
+            <table border="0" cellpadding="10" cellspacing="0" width="100%">
+              <tr>
+                <td>
                   $+
                   html.Snippet("gui/snippets/input-button",
                   "name=AddFrag",
@@ -179,8 +180,8 @@
                   "width=100%"
                   )
                   $-
-                  </td>
-                  <td>
+                </td>
+                <td>
                   $+
                   html.Snippet("gui/snippets/input-button",
                   "name=UpdateFragment",
@@ -189,8 +190,8 @@
                   "width=100%"
                   )
                   $-
-                  </td>
-                  <td>
+                </td>
+                <td>
                   $+
                   html.Snippet("gui/snippets/input-button",
                   "name=DeleteFragment",
@@ -199,21 +200,20 @@
                   "width=100%"
                   )
                   $-
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
 
-        </table>
-      </td>
-    </tr>               
+      </table>
+    </td>
+  </tr>
 
 
-    
-    <tr>  
-      <!-- html.SetValue('message', "Error") -->
-    </tr>
+  <tr>
+    <!-- html.SetValue('message', "Error") -->
+  </tr>
 </table>
 
 

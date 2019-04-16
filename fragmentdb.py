@@ -1,21 +1,24 @@
 from __future__ import print_function
-from olexFunctions import OlexFunctions
-from collections import OrderedDict
-from ImageTools import ImageTools  # @UnresolvedImport
+
 import StringIO
-from PIL import Image, ImageFile, ImageDraw, ImageChops
-from helper_functions import check_restraints_consistency, initialize_user_db,\
-      invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
-import olex  # @UnresolvedImport
-import gui.maps
-import olx  # @UnresolvedImport
-import OlexVFS  # @UnresolvedImport
-import olex_core  # @UnresolvedImport
-from fragmentdb_handler import FragmentTable
-from refine_model_tasks import Refmod
-import helper_functions
 import pprint
+from collections import OrderedDict
+
+import OlexVFS  # @UnresolvedImport
+import gui.maps
+import olex  # @UnresolvedImport
+import olex_core  # @UnresolvedImport
+import olx  # @UnresolvedImport
+from ImageTools import ImageTools  # @UnresolvedImport
+from PIL import Image, ImageChops
+from olexFunctions import OlexFunctions
+
+import helper_functions
+from fragmentdb_handler import FragmentTable
+from helper_functions import check_restraints_consistency, initialize_user_db, \
+  invert_atomlist_coordinates, frac_to_cart, atomic_distance
+from refine_model_tasks import Refmod
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -34,10 +37,10 @@ instance_path = OV.DataDir()
 
 p_path = os.path.dirname(os.path.abspath(__file__))
 OV.SetVar('FragmentDB_plugin_path', p_path)
-p_name = "Fragment_DB"
-p_scope = "fragment_DB"
-p_htm = "Fragment_DB"
-p_img = [("FragmentDB",'h1')]
+p_name = "FragmentDB"
+p_scope = "FragmentDB"
+p_htm = "fragmentdb"
+p_img = [("FragmentDB", 'h1')]
 
 from PluginTools import PluginTools as PT  # @UnresolvedImport
 
@@ -46,7 +49,8 @@ class FragmentDB(PT):
 
   def __init__(self):
     super(FragmentDB, self).__init__()
-    self.cite_str = "Kratzert, D., Holstein, J.J. & Krossing, I. (2015). J. Appl. Cryst. 48, 933-938."
+    self.cite_str = "D. Kratzert, I. Krossing, (2018), J. Appl. Cryst. 51, 928-934. "
+    self.cite_str2 = "Kratzert, D., Holstein, J.J. & Krossing, I. (2015). J. Appl. Cryst. 48, 933-938."
     self.p_name = p_name
     self.p_path = p_path
     self.p_scope = p_scope
@@ -56,16 +60,15 @@ class FragmentDB(PT):
     self.print_version_date()
     self.setup_gui()
     self.params = OV.GuiParams()
-    self.dbfile  = os.sep.join([self.p_path, "fragment-database.sqlite"])
+    self.dbfile = os.sep.join([self.p_path, "fragment-database.sqlite"])
     self.userdb = 'user-fragment-database.sqlite'
-    self.userdbfile = os.sep.join([instance_path, os.sep,'db', os.sep, self.userdb])
+    self.userdbfile = os.sep.join([instance_path, os.sep, 'db', os.sep, self.userdb])
     if not os.path.exists(self.userdbfile) or os.path.getsize(self.userdbfile) < 100:
       initialize_user_db(self.userdbfile)
     # for edited fragments:
     self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
     print('FragmentDB version:', FDB_VERSION)
-
 
   def get_cell(self):
     """
@@ -81,21 +84,21 @@ class FragmentDB(PT):
     initialize the plugins main form
     """
     try:
-      fragid = int(OV.GetParam('fragment_DB.fragment.fragId'))
+      fragid = int(OV.GetParam('FragmentDB.fragment.fragId'))
     except(RuntimeError, ValueError):
       return
     if fragid == 0:
       return
     self.get_resi_class()
-    self.toggle_resinum(OV.GetParam('fragment_DB.fragment.resitoggle'))
+    self.toggle_resinum(OV.GetParam('FragmentDB.fragment.resitoggle'))
     self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
     self.show_reference()
     resinum = self.find_free_residue_num()
-    #olx.html.SetValue('RESIDUE', resinum)
-    OV.SetParam('fragment_DB.fragment.resinum', resinum)
-    #olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
-    #self.guess_values()
+    # olx.html.SetValue('RESIDUE', resinum)
+    OV.SetParam('FragmentDB.fragment.resinum', resinum)
+    # olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    # self.guess_values()
 
   def set_id(self, fragid=0):
     """
@@ -105,14 +108,7 @@ class FragmentDB(PT):
       int(fragid)
     except(ValueError):
       return
-    OV.SetParam("fragment_DB.fragment.fragId", fragid)
-
-  def guess_values(self):
-    """
-    guesses the values for FVAR, occopancy and PART for a selected target atom
-    """
-    # I need a funtion that returns the atom ids of the selected atoms
-    pass
+    OV.SetParam("FragmentDB.fragment.fragId", fragid)
 
   def clear_mainvalues(self):
     """
@@ -120,23 +116,22 @@ class FragmentDB(PT):
     """
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
     if olx.fs.Exists('largefdbimg.png') == 'true':
-      im = Image.new('RGBA', (1,1), self.params.html.table_bg_colour.rgb)
+      im = Image.new('RGBA', (1, 1), self.params.html.table_bg_colour.rgb)
       OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', resinum)
-    OV.SetParam('fragment_DB.fragment.fragId', 0)
-    #olx.SetVar('fragment_ID', 0)
-    OV.SetParam('fragment_DB.fragment.frag_part', 0)
+    OV.SetParam('FragmentDB.fragment.fragId', 0)
+    # olx.SetVar('fragment_ID', 0)
+    OV.SetParam('FragmentDB.fragment.frag_part', 0)
     olx.html.SetValue('FRAGMENT_PART', 0)
-    OV.SetParam('fragment_DB.fragment.frag_fvar', 1)
+    OV.SetParam('FragmentDB.fragment.frag_fvar', 1)
     olx.html.SetValue('FRAG_FVAR', 1)
     self.set_occu('1.0')
     self.get_fvar_occ()
-    OV.SetParam('fragment_DB.fragment.resi_class', "")
-    OV.SetParam('fragment_DB.new_fragment.frag_resiclass', "")
+    OV.SetParam('FragmentDB.fragment.resi_class', "")
+    OV.SetParam('FragmentDB.new_fragment.frag_resiclass', "")
     olx.html.SetValue('RESIDUE_CLASS', "")
-
 
   def set_occu(self, occ):
     """
@@ -153,18 +148,16 @@ class FragmentDB(PT):
     except(SyntaxError, NameError, ValueError):
       print('Invalid value for occupancy provided')
       return
-    varname = 'fragment_DB.fragment.frag_occ'
+    varname = 'FragmentDB.fragment.frag_occ'
     olx.html.SetValue('FRAG_OCCUPANCY', occ)
     OV.SetParam(varname, occ)
-
 
   def toggle_resinum(self, resinum):
     """
     :param resinum: decide wether on or off
     :type resinum: bool
     """
-    OV.SetParam('fragment_DB.fragment.resitoggle', resinum)
-
+    OV.SetParam('FragmentDB.fragment.resitoggle', resinum)
 
   def set_resiclass(self, resiclass, name):
     """
@@ -173,9 +166,9 @@ class FragmentDB(PT):
     """
     varname = ''
     if name.upper() == 'RESIDUE_CLASS'.upper():
-      varname = 'fragment_DB.fragment.resi_class'
+      varname = 'FragmentDB.fragment.resi_class'
     if name.upper() == 'Inputfrag.residue'.upper():
-      varname = 'fragment_DB.new_fragment.frag_resiclass'
+      varname = 'FragmentDB.new_fragment.frag_resiclass'
     if resiclass is None:
       resiclass = ''
     if not resiclass:
@@ -188,7 +181,7 @@ class FragmentDB(PT):
         return
       # resiclass does not start with a char:
       print('The residue class has to start with a letter.')
-      OV.SetParam('fragment_DB.fragment.resi_class', resiclass[1:].upper())
+      OV.SetParam('FragmentDB.fragment.resi_class', resiclass[1:].upper())
       olx.html.SetValue(name, OV.GetParam(varname))
     # force 4 characters:
     elif len(resiclass) > 4:
@@ -196,7 +189,7 @@ class FragmentDB(PT):
       olx.html.SetValue(name, OV.GetParam(varname))
     else:
       OV.SetParam(varname, resiclass.upper())
-      #olx.html.SetValue(name, OV.GetParam(varname))
+      # olx.html.SetValue(name, OV.GetParam(varname))
 
   def list_fragments(self):
     """
@@ -230,8 +223,8 @@ class FragmentDB(PT):
     # show the first result in combo box and intialize the fragment:
     olx.html.SetValue('LIST_FRAGMENTS', '{}'.format(selected_results[0][1]))
     frag_id = int(selected_results[0][0])
-    OV.SetParam('fragment_DB.fragment.fragId', frag_id)
-    #olx.SetVar('fragment_ID', frag_id)
+    OV.SetParam('FragmentDB.fragment.fragId', frag_id)
+    # olx.SetVar('fragment_ID', frag_id)
     self.init_plugin()
 
   def format_atoms_for_importfrag(self, atoms):
@@ -240,14 +233,14 @@ class FragmentDB(PT):
     """
     newlist = []
     finallist = []
-    if OV.GetParam('fragment_DB.fragment.invert'):
+    if OV.GetParam('FragmentDB.fragment.invert'):
       atoms = invert_atomlist_coordinates(atoms)
     for i in atoms:
       # atoms without sfac:
       newlist.append('{:4.4s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(i[0], i[2], i[3], i[4]))
     atoms = '\n'.join(newlist)
     finallist.append('FRAG')
-    finallist.append('\n'+atoms)
+    finallist.append('\n' + atoms)
     finallist.append('\nFEND')
     text = ' '.join(finallist)
     return text
@@ -265,7 +258,7 @@ class FragmentDB(PT):
     print('Imported atom ids: {}'.format(atom_ids))
     atom_ids = atom_ids.split()
     replatoms = None
-    if OV.GetParam('fragment_DB.fragment.replace'):
+    if OV.GetParam('FragmentDB.fragment.replace'):
       replatoms = self.find_atoms_to_replace(atom_ids)
     # now replace atoms in a certain distance in part 0:
     if replatoms:
@@ -299,8 +292,8 @@ class FragmentDB(PT):
     for aa_id in all_atoms_dict:
       if all_atoms_dict[aa_id][2] == 0:
         for f_id in frag_crd_dict:
-          at1 = all_atoms_dict[aa_id][1] # coordinates
-          at2 = frag_crd_dict[f_id][1] # coordinates
+          at1 = all_atoms_dict[aa_id][1]  # coordinates
+          at2 = frag_crd_dict[f_id][1]  # coordinates
           d = atomic_distance(at1, at2, self.get_cell())
           # now the atoms inside the remdist go into deltion list
           if d < remdist:
@@ -338,7 +331,7 @@ class FragmentDB(PT):
       afix = "6"
     else:
       afix = '0'
-    if OV.GetParam('fragment_DB.fragment.use_dfix'):
+    if OV.GetParam('FragmentDB.fragment.use_dfix'):
       print('Applying DFIX restraints ...')
       olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=True)
       print('Finished.')
@@ -352,14 +345,14 @@ class FragmentDB(PT):
     fit a molecular fragment from the database into olex2
     """
     try:
-      fragId = int(OV.GetParam('fragment_DB.fragment.fragId'))
+      fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))
     except(RuntimeError, ValueError):
       # no fragment chosen-> do nothing
       return False
     OV.cmd("labels false")
-    occupancy = OV.GetParam('fragment_DB.fragment.frag_occ')
+    occupancy = OV.GetParam('FragmentDB.fragment.frag_occ')
     afix = False
-    if OV.GetParam('fragment_DB.fragment.rigid'):
+    if OV.GetParam('FragmentDB.fragment.rigid'):
       afix = True
     # alway use "part -1" to prevent atom deletion:
     if fragId != 0 and fragId is not None:
@@ -368,6 +361,7 @@ class FragmentDB(PT):
       print('Please select a fragment first, or type text and hit Enter key to search.')
       return False
     gui.report.add_to_citation_list(self.cite_str)
+    gui.report.add_to_citation_list(self.cite_str2)
     return True
 
   def atomrenamer(self, labeldict):
@@ -377,7 +371,7 @@ class FragmentDB(PT):
     :type labeldict: dict
     """
     for at in labeldict:
-      olx.Name('#c'+labeldict[at.upper()], at)
+      olx.Name('#c' + labeldict[at.upper()], at)
 
   def define_atom_properties(self, atomids, fragId=None):
     """
@@ -387,14 +381,14 @@ class FragmentDB(PT):
     :param fragId: fragment id
     :type fragId: int
     """
-    resiclass = OV.GetParam('fragment_DB.fragment.resi_class')
-    freevar = int(OV.GetParam('fragment_DB.fragment.frag_fvar'))
-    partnum = OV.GetParam('fragment_DB.fragment.frag_part')
-    if not OV.GetParam('fragment_DB.fragment.use_dfix'):
+    resiclass = OV.GetParam('FragmentDB.fragment.resi_class')
+    freevar = int(OV.GetParam('FragmentDB.fragment.frag_fvar'))
+    partnum = OV.GetParam('FragmentDB.fragment.frag_part')
+    if not OV.GetParam('FragmentDB.fragment.use_dfix'):
       print('Applying fragment properties:')
     if not fragId:
       try:
-        fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) #olx.GetVar('fragment_ID')
+        fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))  # olx.GetVar('fragment_ID')
       except(RuntimeError, ValueError):
         # no fragment chosen-> do nothing
         return
@@ -407,7 +401,7 @@ class FragmentDB(PT):
     if freevar != 1:
       OV.cmd("sel #c{}".format(' #c'.join(atomids)))
       OV.cmd("fvar {}".format(freevar))
-    resi_on = bool(OV.GetParam('fragment_DB.fragment.resitoggle'))
+    resi_on = bool(OV.GetParam('FragmentDB.fragment.resitoggle'))
     resinum = 0
     if resi_on:
       resinum = self.find_free_residue_num()
@@ -415,7 +409,7 @@ class FragmentDB(PT):
         self.make_residue(atomids, resiclass, resinum)
         self.atomrenamer(labeldict)
     # Placing restraints:
-    if not OV.GetParam('fragment_DB.fragment.use_dfix') and not OV.GetParam('fragment_DB.fragment.roff'):
+    if not OV.GetParam('FragmentDB.fragment.use_dfix') and not OV.GetParam('FragmentDB.fragment.roff'):
       self.make_restraints(labeldict, fragId, resinum, resiclass)
     self.make_part(atomids, partnum)
     return atomids
@@ -465,11 +459,11 @@ class FragmentDB(PT):
         # is it a potential atom (starts with alphabetic character):
         if at[0].isalpha():
           try:
-            line.append('#c'+labeldict[at.upper()])
+            line.append('#c' + labeldict[at.upper()])
           except KeyError:
             # in this case, an atom name in the restraint does not
             # exist in the fragments atom list!
-            print('\nUnknown restraint or atom found in restraints line {}.\n'.format(num+1))
+            print('\nUnknown restraint or atom found in restraints line {}.\n'.format(num + 1))
             # I must exit here!
             return
         else:
@@ -480,9 +474,8 @@ class FragmentDB(PT):
       if i[0] in helper_functions.IMPL_RESTRAINT_CARDS and resinum != 0 and resiclass:
         OV.cmd("{} -i {}".format(i[0], ' '.join(line)))
       else:
-      # applies direct restraints:
+        # applies direct restraints:
         OV.cmd("{} {}".format(i[0], ' '.join(line)))
-
 
   def prepare_picture(self, im, max_size=120, ratiolim=0.6):
     """
@@ -510,7 +503,7 @@ class FragmentDB(PT):
     im = im.resize((int(img_w * ratio), int(img_h * ratio)), Image.ANTIALIAS)
     # empty image of max_size
     bgcolor = self.params.html.table_bg_colour.rgb
-    #bgcolor = self.params.html.bg_colour.rgb
+    # bgcolor = self.params.html.bg_colour.rgb
     IM = Image.new('RGBA', (max_size, max_size), bgcolor)
     bg_w, bg_h = IM.size
     img_w, img_h = im.size
@@ -527,7 +520,7 @@ class FragmentDB(PT):
     :type max_size: int
     """
     max_size = int(max_size)
-    fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
+    fragId = OV.GetParam('FragmentDB.fragment.fragId')  # olx.GetVar('fragment_ID')
     pic = self.db.get_picture(fragId)
     if not pic:
       print('No fragment picture found.')
@@ -569,7 +562,7 @@ class FragmentDB(PT):
     if fsize > 1000000:
       print('This file is too large!')
       return
-    if fsize <=1:
+    if fsize <= 1:
       print('No valid picture found!')
       return
     im = Image.open(picfile)
@@ -605,16 +598,16 @@ class FragmentDB(PT):
         # for each position of < or >:
         if rl == '>':
           # forward range
-          left = atom_names.index(restraintat[i-1])+1
-          right = atom_names.index(restraintat[i+1])
-          restraintat[i:i+1] = atom_names[left:right]
+          left = atom_names.index(restraintat[i - 1]) + 1
+          right = atom_names.index(restraintat[i + 1])
+          restraintat[i:i + 1] = atom_names[left:right]
         else:
           # backward range
-          left = atom_names.index(restraintat[i-1])
-          right = atom_names.index(restraintat[i+1])+1
+          left = atom_names.index(restraintat[i - 1])
+          right = atom_names.index(restraintat[i + 1]) + 1
           names = atom_names[right:left]
-          names.reverse() # counting backwards
-          restraintat[i:i+1] = names
+          names.reverse()  # counting backwards
+          restraintat[i:i + 1] = names
     return ' '.join(restraintat)
 
   def find_free_residue_num(self):
@@ -628,7 +621,7 @@ class FragmentDB(PT):
     # find unused numbers in the list:
     resi = False
     try:
-      for i, j in zip(residues, range(1, residues[-1]+1)):
+      for i, j in zip(residues, range(1, residues[-1] + 1)):
         # gap in list found:
         if i != j:
           resi = j
@@ -638,7 +631,7 @@ class FragmentDB(PT):
     # no gap, thus use next number:
     if not resi:
       try:
-        resi = residues[-1]+1
+        resi = residues[-1] + 1
       except IndexError:
         # no residue at all in the structure
         return 1
@@ -666,13 +659,13 @@ class FragmentDB(PT):
     sets the residue class from the respective database fragment.
     """
     try:
-      fragId = int(OV.GetParam('fragment_DB.fragment.fragId')) # olx.GetVar('fragment_ID')
+      fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))  # olx.GetVar('fragment_ID')
     except(RuntimeError, ValueError) as e:
       print('Unable to get fragment Id', e)
       return
     resiclass = self.db.get_residue_class(int(fragId))
-    OV.SetParam('fragment_DB.fragment.resi_class', resiclass)
-    OV.SetParam('fragment_DB.new_fragment.frag_resiclass', resiclass)
+    OV.SetParam('FragmentDB.fragment.resi_class', resiclass)
+    OV.SetParam('FragmentDB.new_fragment.frag_resiclass', resiclass)
     # set the class in the text field of the gui:
     olx.html.SetValue('RESIDUE_CLASS', resiclass.upper())
 
@@ -682,14 +675,14 @@ class FragmentDB(PT):
     :type edit: bool
     """
     try:
-      fragId = OV.GetParam('fragment_DB.fragment.fragId') #olx.GetVar('fragment_ID')
+      fragId = OV.GetParam('FragmentDB.fragment.fragId')  # olx.GetVar('fragment_ID')
     except(RuntimeError, ValueError):
       return
     ref = self.db.get_reference(fragId)
     if not edit:
       pass
       # disabled, because replace checkbox is there
-      #olx.html.SetValue('REFERENCE', ref)
+      # olx.html.SetValue('REFERENCE', ref)
     else:
       # reference of the edit window
       olx.html.SetValue('REFERENCE_edit', ref)
@@ -707,7 +700,7 @@ class FragmentDB(PT):
 
   def prepare_selected_atoms(self):
     """
-    prepares atoms for fragment_DB.new_fragment.frag_atoms
+    prepares atoms for FragmentDB.new_fragment.frag_atoms
     atom field in inputfrag.
     :rtype: list
     """
@@ -723,18 +716,18 @@ class FragmentDB(PT):
         continue
       atoms.append(at)
     atoms.sort()
-    #natsort(atoms)
-    crd = [ olx.Crd(x) for x in atoms ]
+    # natsort(atoms)
+    crd = [olx.Crd(x) for x in atoms]
     # now I want to remove the residue number:
-    atoms = [ y.split('_')[0] for y in atoms]
+    atoms = [y.split('_')[0] for y in atoms]
     for atom, coord in zip(atoms, crd):
       atlist.append('{:4.4s} {:>8.6s} {:>8.6s} {:>8.6s}'.format(atom, *coord.split()))
     at = ' \n'.join(atlist)
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     self.cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.set_cell', self.cell)
-    OV.SetParam('fragment_DB.new_fragment.frag_cell', self.cell)
-    OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
+    OV.SetParam('FragmentDB.new_fragment.frag_cell', self.cell)
+    OV.SetParam('FragmentDB.new_fragment.frag_atoms', at)
     return atlist
 
   def open_edit_fragment_window(self):
@@ -743,17 +736,17 @@ class FragmentDB(PT):
     """
     blank = False
     try:
-      fragId = OV.GetParam('fragment_DB.fragment.fragId')
+      fragId = OV.GetParam('FragmentDB.fragment.fragId')
     except RuntimeError:
       blank = True
     pop_name = "Inputfrag"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-    box_x = int(screen_width*0.2)
-    box_y = int(screen_height*0.1)
+    box_x = int(screen_width * 0.2)
+    box_y = int(screen_height * 0.1)
     width, height = 550, 710
     path = "{}/inputfrag.htm".format(self.p_path)
-    olx.Popup(pop_name, path,  b="tcrp", t="Create/Edit Fragments", w=width,
+    olx.Popup(pop_name, path, b="tcrp", t="Create/Edit Fragments", w=width,
               h=height, x=box_x, y=box_y)
     frag = self.get_frag_for_gui()
     if frag:
@@ -771,8 +764,8 @@ class FragmentDB(PT):
     pop_name = "View Fragment"
     screen_height = int(olx.GetWindowSize('gl').split(',')[3])
     screen_width = int(olx.GetWindowSize('gl').split(',')[2])
-    box_x = int(screen_width*0.1)
-    box_y = int(screen_height*0.1)
+    box_x = int(screen_width * 0.1)
+    box_y = int(screen_height * 0.1)
     width, height = 500, 520
     html = """
     <a target="" href="spy.FragmentDB.save_picture()">
@@ -784,7 +777,7 @@ class FragmentDB(PT):
         align="center">
     """
     OV.write_to_olex('large_fdb_image.htm', html)
-    olx.Popup(pop_name, "large_fdb_image.htm",  b="tcrp", t="View Fragment", w=width,
+    olx.Popup(pop_name, "large_fdb_image.htm", b="tcrp", t="View Fragment", w=width,
               h=height, x=box_x, y=box_y)
 
   def save_picture(self):
@@ -804,14 +797,14 @@ class FragmentDB(PT):
     """
     handles the name of a new/edited fragment
     """
-    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
     if fragname == '':
       return False
     if self.db.has_exact_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
       return False
     else:
-      OV.SetParam('fragment_DB.new_fragment.frag_name', fragname)
+      OV.SetParam('FragmentDB.new_fragment.frag_name', fragname)
       return True
 
   def set_frag_cell(self):
@@ -852,11 +845,11 @@ class FragmentDB(PT):
       [['C4', '0.282212', '0.368636', '0.575493'], ...]
     :rtype: list
     """
-    atoms = OV.GetParam('fragment_DB.new_fragment.frag_atoms')
+    atoms = OV.GetParam('FragmentDB.new_fragment.frag_atoms')
     try:
       atoms = atoms.split('\n')
       # remove empty lines:
-      atoms = [i for i in atoms if i ]
+      atoms = [i for i in atoms if i]
       atoms = [i.split() for i in atoms]
     except AttributeError:
       atoms = None
@@ -876,11 +869,11 @@ class FragmentDB(PT):
     for num, line in enumerate(atoms):
       # line with sfac
       if len(line) > 4 and len(line[1]) < 3:
-        atoms[num] = [line[0]]+line[2:5]
+        atoms[num] = [line[0]] + line[2:5]
       # line without sfac, but long
       if len(line) > 4 and len(line[1]) > 3:
         atoms[num] = line[:4]
-      if len(line) == 4: # name and x,y,z
+      if len(line) == 4:  # name and x,y,z
         atoms[num] = line[:4]
       if len(line) < 4:
         # too short, parameters missing
@@ -907,8 +900,8 @@ class FragmentDB(PT):
       if len(line[0]) == 1:
         # make sure no name is doubled
         while line[0] in atomnames:
-          num = num+1
-          line[0] = line[0]+str(num)
+          num = num + 1
+          line[0] = line[0] + str(num)
     return atoms
 
   def set_frag_restraints(self):
@@ -917,14 +910,14 @@ class FragmentDB(PT):
     :rtype: list
     """
     restraints = []  # @UnusedVariable
-    restr = OV.GetParam('fragment_DB.new_fragment.frag_restraints')
+    restr = OV.GetParam('FragmentDB.new_fragment.frag_restraints')
     try:
       restr = restr.split('\n')
       # remove empty lines:
-      restr = [i.upper() for i in restr if i ]
+      restr = [i.upper() for i in restr if i]
       restr = [i.split() for i in restr]
     except AttributeError as e:  # @UnusedVariable
-      #print(e)
+      # print(e)
       restr = None
       return
     return restr
@@ -934,7 +927,7 @@ class FragmentDB(PT):
     set the residue class of a new fragment
     :rtype: str
     """
-    resi_class = OV.GetParam('fragment_DB.new_fragment.frag_resiclass')
+    resi_class = OV.GetParam('FragmentDB.new_fragment.frag_resiclass')
     if resi_class:
       return resi_class
 
@@ -943,7 +936,7 @@ class FragmentDB(PT):
     prepare the reference for a new/edited fragment
     :rtype: str
     """
-    reference = OV.GetParam('fragment_DB.new_fragment.frag_reference')
+    reference = OV.GetParam('FragmentDB.new_fragment.frag_reference')
     if reference:
       return reference
 
@@ -960,7 +953,7 @@ class FragmentDB(PT):
       atoms_list = self.db[fragId]
     except IndexError:
       return False
-      #print('Database Fragment {} not found.'.format(fragId))
+      # print('Database Fragment {} not found.'.format(fragId))
     if not atoms_list:
       return False
     atoms_list = [[i for i in y] for y in atoms_list]
@@ -968,18 +961,18 @@ class FragmentDB(PT):
       try:
         if element:
           # Have to remove this, because a table is bad to copy&paste:
-          #if as_html:
+          # if as_html:
           #  atlist.append('<tr width=60%><td align=left  width=20%>{:4.4s}&nbsp;</td>  '
           #                    '<td align=right>1 &nbsp;&nbsp;</td> '
           #                    '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
           #                    '<td align=right>{:>10.4f}&nbsp;&nbsp;</td> '
           #                    '<td align=right>{:>10.4f}&nbsp;&nbsp;</td></tr>'.format(i[0], i[2], i[3], i[4]))
-          #else:
+          # else:
           atlist.append('{:4.4s}  1  {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
         else:
           atlist.append('{:4.4s} {:>8.4f} {:>8.4f} {:>8.4f}'.format(i[0], i[2], i[3], i[4]))
       except UnicodeEncodeError:
-        print('Invalid atomline found. Non-ASCII character in line {}.'.format(num+1))
+        print('Invalid atomline found. Non-ASCII character in line {}.'.format(num + 1))
     if not as_html:
       at = ' \n'.join(atlist)
     else:
@@ -1034,7 +1027,7 @@ class FragmentDB(PT):
     execute this to update a fragment
     updates the database information of a fragment
     """
-    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
     state = self.set_frag_name(enable_check=False)
     if not state:
       return
@@ -1055,10 +1048,10 @@ class FragmentDB(PT):
       return
     if restraints:
       helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
-                                            fragname)
+                                              fragname)
     self.delete_fragment(reset=False)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
-                                      reference, picture=pic_data)
+                                     reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
@@ -1082,7 +1075,7 @@ class FragmentDB(PT):
     coords = []
     for line in atlines:
       try:
-        frac_coord = [ float(i) for i in line[1:4] ]
+        frac_coord = [float(i) for i in line[1:4]]
       except ValueError:
         print('Invalid coordinate defined in line "{}"'.format(' '.join(line)))
         return
@@ -1099,7 +1092,7 @@ class FragmentDB(PT):
     get the fragment to display in the multiline edit field
     """
     try:
-      fragId = OV.GetParam('fragment_DB.fragment.fragId')
+      fragId = OV.GetParam('FragmentDB.fragment.fragId')
     except(RuntimeError):
       return
     at = self.prepare_atoms_list(fragId)
@@ -1118,12 +1111,12 @@ class FragmentDB(PT):
     olx.html.SetValue('Inputfrag.restraints', restr)
     olx.html.SetValue('Inputfrag.residue', residue)
     olx.html.SetValue('Inputfrag.reference_ed', reference)
-    OV.SetParam('fragment_DB.new_fragment.frag_name', name)
-    OV.SetParam('fragment_DB.new_fragment.frag_atoms', at)
-    OV.SetParam('fragment_DB.new_fragment.frag_cell', cell)
-    OV.SetParam('fragment_DB.new_fragment.frag_restraints', restr)
-    OV.SetParam('fragment_DB.new_fragment.frag_resiclass', residue)
-    OV.SetParam('fragment_DB.new_fragment.frag_reference', reference)
+    OV.SetParam('FragmentDB.new_fragment.frag_name', name)
+    OV.SetParam('FragmentDB.new_fragment.frag_atoms', at)
+    OV.SetParam('FragmentDB.new_fragment.frag_cell', cell)
+    OV.SetParam('FragmentDB.new_fragment.frag_restraints', restr)
+    OV.SetParam('FragmentDB.new_fragment.frag_resiclass', residue)
+    OV.SetParam('FragmentDB.new_fragment.frag_reference', reference)
     return True
 
   def store_new_fragment(self, atlines, restraints, resiclass, reference):
@@ -1136,7 +1129,7 @@ class FragmentDB(PT):
     """
     # check if the given name already exist in the database
     # store fragment with a new number
-    fragname = OV.GetParam('fragment_DB.new_fragment.frag_name')
+    fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
     self.set_frag_cell()
     try:
       pic_data = OlexVFS.read_from_olex('storepic.png')
@@ -1146,14 +1139,14 @@ class FragmentDB(PT):
     print('Adding fragment "{0}" to the database.'.format(fragname))
     if not check_restraints_consistency(restraints, atlines, fragname):
       print('Fragment was not added to the database!')
-      #self.blink_field('Inputfrag.restraints')
-      #OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
+      # self.blink_field('Inputfrag.restraints')
+      # OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
     if restraints:
       helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
-                                            fragname)
+                                              fragname)
     frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
-                                reference, picture=pic_data)
+                                     reference, picture=pic_data)
     if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     else:
@@ -1176,7 +1169,7 @@ class FragmentDB(PT):
     if olx.fs.Exists('displayimg.png') == 'true':
       OV.CopyVFSFile('blank.png', 'displayimg.png')
     if olx.fs.Exists('largefdbimg.png') == 'true':
-      im = Image.new('RGBA', (1,1), self.params.html.table_bg_colour.rgb)
+      im = Image.new('RGBA', (1, 1), self.params.html.table_bg_colour.rgb)
       OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
 
   def delete_fragment(self, reset=True):
@@ -1185,7 +1178,7 @@ class FragmentDB(PT):
     # Todo: reset all fields (oic, atoms, ...) after deltion
     """
     try:
-      fragId = OV.GetParam('fragment_DB.fragment.fragId')
+      fragId = OV.GetParam('FragmentDB.fragment.fragId')
     except(RuntimeError):
       print('Could not delete a fragment. No fragment is selected.')
       return
@@ -1236,10 +1229,10 @@ class FragmentDB(PT):
     if not olex.f("sel()").split():
       return
     if len(olex.f("sel()").split()) < 3:
-      #print('Please select at least three atoms.')
+      # print('Please select at least three atoms.')
       return
     picfile = "fdb_tmp.png"
-    #OV.cmd('save model "fragdb"') # does not work!
+    # OV.cmd('save model "fragdb"') # does not work!
     gui.maps.mu.MapView('off')
     OV.cmd("Legend False")
     OV.cmd("sel atom bonds")
@@ -1263,7 +1256,7 @@ class FragmentDB(PT):
     OV.cmd("legend true")
     im = Image.open(picfile)
     im = self.trim(im)
-    #im = IT.trim_image(im)  # works not so well as trim above
+    # im = IT.trim_image(im)  # works not so well as trim above
     OlexVFS.save_image_to_olex(im, 'storepic.png', 0)
     iml = self.prepare_picture(im, max_size=450, ratiolim=1.0)
     OlexVFS.save_image_to_olex(iml, 'largefdbimg.png', 0)
@@ -1277,14 +1270,14 @@ class FragmentDB(PT):
       pass
 
   def get_fvar_occ(self):
-    var = OV.GetParam('fragment_DB.fragment.frag_fvar')
-    occ = OV.GetParam('fragment_DB.fragment.frag_occ')
+    var = OV.GetParam('FragmentDB.fragment.frag_fvar')
+    occ = OV.GetParam('FragmentDB.fragment.frag_occ')
     if float(var) < 0:
-      fvar = -(float(abs(var))*10+float(occ))
+      fvar = -(float(abs(var)) * 10 + float(occ))
     else:
-      fvar = float(var)*10+float(occ)
+      fvar = float(var) * 10 + float(occ)
     olx.html.SetValue('FVAROCC', fvar)
-    OV.SetParam('fragment_DB.fragment.fvarocc', fvar)
+    OV.SetParam('FragmentDB.fragment.fvarocc', fvar)
     return fvar
 
   def get_atoms_list(self, part=None, notype=''):
@@ -1320,7 +1313,7 @@ class FragmentDB(PT):
     fragtext = []
     htm = ' '
     try:
-      fragId = OV.GetParam('fragment_DB.fragment.fragId')
+      fragId = OV.GetParam('FragmentDB.fragment.fragId')
     except RuntimeError:
       return False
     if fragId == 0:
@@ -1407,7 +1400,7 @@ class FragmentDB(PT):
     for residue in asym_unit['residues']:
       for atom in residue['atoms']:
         pprint.pprint(atom)
-        #atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
+        # atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
 
 
@@ -1447,4 +1440,3 @@ OV.registerFunction(fdb.display_image, False, "FragmentDB")
 
 OV.registerFunction(ref.results, False, "FragmentDB")
 OV.registerFunction(fdb.clear_mainvalues, False, "FragmentDB")
-
