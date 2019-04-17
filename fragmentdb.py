@@ -42,7 +42,7 @@ p_scope = "FragmentDB"
 p_htm = "fragmentdb"
 p_img = [("FragmentDB", 'h1')]
 
-from PluginTools import PluginTools as PT  # @UnresolvedImport
+from PluginTools import PluginTools as PT
 
 
 class FragmentDB(PT):
@@ -57,7 +57,6 @@ class FragmentDB(PT):
     self.p_htm = p_htm
     self.p_img = p_img
     self.deal_with_phil(operation='read')
-    self.deal_with_phil(operation='save')
     self.print_version_date()
     self.setup_gui()
     self.params = OV.GuiParams()
