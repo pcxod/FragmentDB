@@ -31,6 +31,12 @@ Ideas:
 - list of rings for FLAT restraints
 - http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
 - spy.styles.set_rim_colour(#hex)
+- labels -p does not work anymore in dev.
+- sel resi 1 does not work anymore in dev.
+- what should we do with SADI C1 C2
+- residues as default?
+- live invert during key press
+- better preview needed!
 '''
 
 instance_path = OV.DataDir()
