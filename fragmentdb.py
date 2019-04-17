@@ -23,7 +23,7 @@ from refine_model_tasks import Refmod
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 12
+FDB_VERSION = 13
 
 r'''
 Ideas:
@@ -57,6 +57,7 @@ class FragmentDB(PT):
     self.p_htm = p_htm
     self.p_img = p_img
     self.deal_with_phil(operation='read')
+    self.deal_with_phil(operation='save')
     self.print_version_date()
     self.setup_gui()
     self.params = OV.GuiParams()
@@ -68,7 +69,7 @@ class FragmentDB(PT):
     # for edited fragments:
     self.cell = []
     self.db = FragmentTable(self.dbfile, self.userdbfile)
-    print('FragmentDB version:', FDB_VERSION)
+    print(' FragmentDB version:', FDB_VERSION)
 
   def get_cell(self):
     """

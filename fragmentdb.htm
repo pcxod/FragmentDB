@@ -72,10 +72,10 @@
     $+
       html.Snippet("gui/snippets/input-spin-td",
       "name=FRAGMENT_PART",
-      "value=spy.GetParam(fragment_DB.fragment.frag_part)",
+      "value=spy.GetParam(FragmentDB.fragment.frag_part)",
       "min=-99",
       "max=99",
-      "onchange=spy.SetParam(fragment_DB.fragment.frag_part, html.GetValue(~name~))>>labels -p",
+      "onchange=spy.SetParam(FragmentDB.fragment.frag_part, html.GetValue(~name~))>>labels -p",
       "td1=<td width='12%'>"
       )
     $-
@@ -84,10 +84,10 @@
     $+
       html.Snippet("gui/snippets/input-spin-td",
       "name=FRAG_FVAR",
-      "value=spy.GetParam(fragment_DB.fragment.frag_fvar)",
+      "value=spy.GetParam(FragmentDB.fragment.frag_fvar)",
       "min=-99",
       "max=99",
-      "onchange=spy.SetParam(fragment_DB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>spy.FragmentDB.get_fvar_occ()",
+      "onchange=spy.SetParam(FragmentDB.fragment.frag_fvar, html.GetValue(~name~))>>labels -v>>spy.FragmentDB.get_fvar_occ()",
       "td1=<td width='12%'>"
       )
     $-
@@ -96,7 +96,7 @@
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=FRAG_OCCUPANCY",
-      "value=spy.GetParam(fragment_DB.fragment.frag_occ)",
+      "value=spy.GetParam(FragmentDB.fragment.frag_occ)",
       "min=-4",
       "max=4",
       "onchange=spy.FragmentDB.set_occu(html.GetValue(~name~))>>labels -o>>spy.FragmentDB.get_fvar_occ()",
@@ -108,7 +108,7 @@
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=FVAROCC",
-      "value=spy.GetParam('fragment_DB.fragment.fvarocc')",
+      "value=spy.GetParam('FragmentDB.fragment.fvarocc')",
       "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc",
       "td1=<td width='11%'>"
       )
@@ -123,38 +123,38 @@
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=RESIDUE",
-      "checked=spy.GetParam(fragment_DB.fragment.resitoggle)",
-      "onclick=spy.SetParam('fragment_DB.fragment.resitoggle', html.GetState('~name~'))",
+      "checked=spy.GetParam(FragmentDB.fragment.resitoggle)",
+      "onclick=spy.SetParam('FragmentDB.fragment.resitoggle', html.GetState('~name~'))",
       "td1=<td align='left' width="4%">"
       )
     $-
-  
+
   <td align='right' width="20%"><b>Residue Class:</b></td>
     $+
       html.Snippet("gui/snippets/input-text-td",
       "name=RESIDUE_CLASS",
-      "value=spy.GetParam('fragment_DB.fragment.resi_class')",
+      "value=spy.GetParam('FragmentDB.fragment.resi_class')",
       "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), RESIDUE_CLASS)>>labels -rc",
       "td1=<td width='12%' halign=left>"
       )
     $-
-  
+
   <td align='right' width="12%"><b>Invert:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=invert",
-      "checked=spy.GetParam('fragment_DB.fragment.invert')",
-      "onclick=spy.SetParam('fragment_DB.fragment.invert', html.GetState('~name~'))",
+      "checked=spy.GetParam('FragmentDB.fragment.invert')",
+      "onclick=spy.SetParam('FragmentDB.fragment.invert', html.GetState('~name~'))",
       "td1=<td align='left' width="5%">"
       )
     $-
-  
+
   <td align='right' width="20%"><b>Calculate DFIX:</b></td>
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=dfixornot",
-      "checked=spy.GetParam('fragment_DB.fragment.use_dfix')",
-      "onclick=spy.SetParam('fragment_DB.fragment.use_dfix', html.GetState('~name~'))",
+      "checked=spy.GetParam('FragmentDB.fragment.use_dfix')",
+      "onclick=spy.SetParam('FragmentDB.fragment.use_dfix', html.GetState('~name~'))",
       "td1=<td align='left' width="5%">"
       )
     $-
@@ -168,8 +168,8 @@
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=REPLACE",
-      "checked=spy.GetParam('fragment_DB.fragment.replace')",
-      "onclick=spy.SetParam('fragment_DB.fragment.replace', html.GetState('~name~'))",
+      "checked=spy.GetParam('FragmentDB.fragment.replace')",
+      "onclick=spy.SetParam('FragmentDB.fragment.replace', html.GetState('~name~'))",
       "td1=<td align='left' width="5%">"
       )
     $-
@@ -178,8 +178,8 @@
     $+
     html.Snippet("gui/snippets/input-checkbox-td",
     "name=ROFF",
-    "checked=spy.GetParam('fragment_DB.fragment.roff')",
-    "onclick=spy.SetParam('fragment_DB.fragment.roff', html.GetState('~name~'))",
+    "checked=spy.GetParam('FragmentDB.fragment.roff')",
+    "onclick=spy.SetParam('FragmentDB.fragment.roff', html.GetState('~name~'))",
     "td1=<td align='left' width="5%">"
     )
     $-
@@ -188,8 +188,8 @@
     $+
     html.Snippet("gui/snippets/input-checkbox-td",
     "name=RIGID",
-    "checked=spy.GetParam('fragment_DB.fragment.rigid')",
-    "onclick=spy.SetParam('fragment_DB.fragment.rigid', html.GetState('~name~'))",
+    "checked=spy.GetParam('FragmentDB.fragment.rigid')",
+    "onclick=spy.SetParam('FragmentDB.fragment.rigid', html.GetState('~name~'))",
     "td1=<td align='left' width="5%">"
     )
     $-
