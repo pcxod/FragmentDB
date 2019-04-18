@@ -11,6 +11,7 @@ import olex_core
 import olx
 from PIL import Image, ImageChops
 from olexFunctions import OlexFunctions
+from History import hist
 
 import OlexVFS
 import helper_functions
@@ -49,7 +50,7 @@ p_htm = "fragmentdb"
 p_img = [("FragmentDB", 'h1')]
 
 from PluginTools import PluginTools as PT
-
+from History import hist
 
 class FragmentDB(PT):
 
@@ -352,6 +353,7 @@ class FragmentDB(PT):
     """
     fit a molecular fragment from the database into olex2
     """
+    self.make_history()
     try:
       fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))
     except(RuntimeError, ValueError):
@@ -1397,11 +1399,20 @@ class FragmentDB(PT):
         '''.format(name, imgname, height)
     return html
 
+  def make_history(self):
+    """
+    Creates a new history node for example before the fragment fit.
+    hist has to be imported globally.
+    """
+    hist.create_history()
+
   def revert_last(self):
     """
     Revertes last structure model.
+    tree hast to be imported for every single use!
     """
-    pass
+    from History import tree
+    hist.revert_history(tree.active_node.name)
 
   def det_refmodel(self):
     """
@@ -1470,7 +1481,8 @@ OV.registerFunction(fdb.display_large_image, False, "FragmentDB")
 OV.registerFunction(fdb.save_picture, False, "FragmentDB")
 OV.registerFunction(fdb.store_picture, False, "FragmentDB")
 OV.registerFunction(fdb.display_image, False, "FragmentDB")
-# OV.registerFunction(fdb.revert_last, False, "FragmentDB")
+OV.registerFunction(fdb.revert_last, False, "FragmentDB")
+OV.registerFunction(fdb.make_history, False, "FragmentDB")
 
 OV.registerFunction(ref.results, False, "FragmentDB")
 OV.registerFunction(fdb.clear_mainvalues, False, "FragmentDB")
