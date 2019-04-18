@@ -5,16 +5,16 @@ import os
 import pprint
 from collections import OrderedDict
 
-import OlexVFS  # @UnresolvedImport
 import gui.maps
-import olex  # @UnresolvedImport
-import olex_core  # @UnresolvedImport
-import olx  # @UnresolvedImport
-from ImageTools import ImageTools  # @UnresolvedImport
+import olex
+import olex_core
+import olx
 from PIL import Image, ImageChops
 from olexFunctions import OlexFunctions
 
+import OlexVFS
 import helper_functions
+from ImageTools import ImageTools
 from fragmentdb_handler import FragmentTable
 from helper_functions import check_restraints_consistency, initialize_user_db, \
   invert_atomlist_coordinates, frac_to_cart, atomic_distance
@@ -73,7 +73,6 @@ class FragmentDB(PT):
       initialize_user_db(self.userdbfile)
     # for edited fragments:
     self.cell = []
-    self.db = FragmentTable(self.dbfile, self.userdbfile)
     print(' FragmentDB version:', FDB_VERSION)
 
   def get_cell(self):
@@ -204,7 +203,7 @@ class FragmentDB(PT):
     i[0] => number
     i[1] => name
     """
-    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in self.db])
+    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in FragmentTable(self.dbfile, self.userdbfile)])
     return items
 
   def search_fragments(self, search_string):
@@ -212,13 +211,14 @@ class FragmentDB(PT):
     performs a search for an unsharp name in a list
     """
     selected_list = ''
+    db = FragmentTable(self.dbfile, self.userdbfile)
     if not search_string:
       print("Empty search string.")
       selected_list = self.list_fragments()
       olx.html.SetItems('LIST_FRAGMENTS', selected_list)
       return
     else:
-      selected_results = self.db.find_fragment_by_name(search_string, 8)
+      selected_results = db.find_fragment_by_name(search_string, 8)
       # do nothing in case we searched with the original name (exact one hit):
       if len(selected_results) == 1:
         print('Nothing found...')
@@ -287,6 +287,7 @@ class FragmentDB(PT):
     :param remdist: distance below atoms shoud be deleted.
     :type remdist: float
     """
+    cell = self.get_cell()
     atoms_to_delete = []
     all_atoms_dict = self.get_atoms_list(part=0, notype='')
     frag_crd_dict = {}
@@ -300,7 +301,7 @@ class FragmentDB(PT):
         for f_id in frag_crd_dict:
           at1 = all_atoms_dict[aa_id][1]  # coordinates
           at2 = frag_crd_dict[f_id][1]  # coordinates
-          d = atomic_distance(at1, at2, self.get_cell())
+          d = atomic_distance(at1, at2, cell)
           # now the atoms inside the remdist go into deltion list
           if d < remdist:
             atoms_to_delete.append(str(aa_id))
@@ -322,8 +323,9 @@ class FragmentDB(PT):
     # then defines the further properties of the fragment:
     OV.registerCallback('onFragmentImport', self.onImport)
     fragpath = os.sep.join([OV.StrDir(), 'fragment.txt'])
+    db = FragmentTable(self.dbfile, self.userdbfile)
     try:
-      atoms = self.format_atoms_for_importfrag([i for i in self.db[fragId]])
+      atoms = self.format_atoms_for_importfrag([i for i in db[fragId]])
     except(IndexError):
       return
     try:
@@ -387,6 +389,7 @@ class FragmentDB(PT):
     :param fragId: fragment id
     :type fragId: int
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     resiclass = OV.GetParam('FragmentDB.fragment.resi_class')
     freevar = int(OV.GetParam('FragmentDB.fragment.frag_fvar'))
     partnum = OV.GetParam('FragmentDB.fragment.frag_part')
@@ -400,7 +403,7 @@ class FragmentDB(PT):
         return
     labeldict = OrderedDict()
     atomids = [str(x) for x in atomids]
-    dbatom_names = [i[0].upper() for i in self.db[fragId]]
+    dbatom_names = [i[0].upper() for i in db[fragId]]
     for at_id, name in zip(atomids, dbatom_names):
       labeldict[name.upper()] = at_id
     # select all atomids to do the fit:
@@ -451,7 +454,8 @@ class FragmentDB(PT):
     :param fragId: the database Id of the fragment
     :type fragId: integer
     """
-    restraints = self.db.get_restraints(fragId)
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    restraints = db.get_restraints(fragId)
     if not restraints:
       return
     for num, i in enumerate(restraints):
@@ -525,9 +529,10 @@ class FragmentDB(PT):
     :param max_size: maximum size of the picture in pixels
     :type max_size: int
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     max_size = int(max_size)
     fragId = OV.GetParam('FragmentDB.fragment.fragId')  # olx.GetVar('fragment_ID')
-    pic = self.db.get_picture(fragId)
+    pic = db.get_picture(fragId)
     if not pic:
       print('No fragment picture found.')
       return False
@@ -664,12 +669,13 @@ class FragmentDB(PT):
     """
     sets the residue class from the respective database fragment.
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     try:
       fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))  # olx.GetVar('fragment_ID')
     except(RuntimeError, ValueError) as e:
       print('Unable to get fragment Id', e)
       return
-    resiclass = self.db.get_residue_class(int(fragId))
+    resiclass = db.get_residue_class(int(fragId))
     OV.SetParam('FragmentDB.fragment.resi_class', resiclass)
     OV.SetParam('FragmentDB.new_fragment.frag_resiclass', resiclass)
     # set the class in the text field of the gui:
@@ -684,7 +690,8 @@ class FragmentDB(PT):
       fragId = OV.GetParam('FragmentDB.fragment.fragId')  # olx.GetVar('fragment_ID')
     except(RuntimeError, ValueError):
       return
-    ref = self.db.get_reference(fragId)
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    ref = db.get_reference(fragId)
     if not edit:
       pass
       # disabled, because replace checkbox is there
@@ -803,10 +810,11 @@ class FragmentDB(PT):
     """
     handles the name of a new/edited fragment
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
     if fragname == '':
       return False
-    if self.db.has_exact_name(fragname) and enable_check:
+    if db.has_exact_name(fragname) and enable_check:
       print('\n{} is already in the database. \nPlease choose a different name.\n'.format(fragname))
       return False
     else:
@@ -955,8 +963,9 @@ class FragmentDB(PT):
     """
     atlist = []
     atoms_list = []
+    db = FragmentTable(self.dbfile, self.userdbfile)
     try:
-      atoms_list = self.db[fragId]
+      atoms_list = db[fragId]
     except IndexError:
       return False
       # print('Database Fragment {} not found.'.format(fragId))
@@ -990,8 +999,9 @@ class FragmentDB(PT):
     prepare the fragment name to display in a multiline edit field
     :type fragId: int
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     try:
-      name = str(self.db.get_fragment_name(fragId)[0])
+      name = str(db.get_fragment_name(fragId)[0])
     except:
       print('Could not get a name from the database.')
       return False
@@ -1001,7 +1011,8 @@ class FragmentDB(PT):
     """
     prepare the fragment restraints to display in a multiline edit field
     """
-    restr_list = self.db.get_restraints(fragId)
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    restr_list = db.get_restraints(fragId)
     if not restr_list:
       return False
     restr_list = [[str(i) for i in y] for y in restr_list]
@@ -1033,6 +1044,7 @@ class FragmentDB(PT):
     execute this to update a fragment
     updates the database information of a fragment
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
     state = self.set_frag_name(enable_check=False)
     if not state:
@@ -1056,8 +1068,8 @@ class FragmentDB(PT):
       helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
                                               fragname)
     self.delete_fragment(reset=False)
-    frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
-                                     reference, picture=pic_data)
+    frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
+                                reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
@@ -1097,6 +1109,7 @@ class FragmentDB(PT):
     """
     get the fragment to display in the multiline edit field
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     try:
       fragId = OV.GetParam('FragmentDB.fragment.fragId')
     except(RuntimeError):
@@ -1109,7 +1122,7 @@ class FragmentDB(PT):
       name = "Could not get a fragment name from the database"
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
-    reference = self.db.get_reference(fragId)
+    reference = db.get_reference(fragId)
     cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
     olx.html.SetValue('Inputfrag.set_cell', cell)
@@ -1133,6 +1146,7 @@ class FragmentDB(PT):
     :type resiclass: str
     :type reference: str
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     # check if the given name already exist in the database
     # store fragment with a new number
     fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
@@ -1151,8 +1165,8 @@ class FragmentDB(PT):
     if restraints:
       helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
                                               fragname)
-    frag_id = self.db.store_fragment(fragname, coords, resiclass, restraints,
-                                     reference, picture=pic_data)
+    frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
+                                reference, picture=pic_data)
     if frag_id:
       olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     else:
@@ -1183,12 +1197,13 @@ class FragmentDB(PT):
     deletes a fragment from the database
     # Todo: reset all fields (oic, atoms, ...) after deltion
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     try:
       fragId = OV.GetParam('FragmentDB.fragment.fragId')
     except(RuntimeError):
       print('Could not delete a fragment. No fragment is selected.')
       return
-    del self.db[fragId]
+    del db[fragId]
     olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
     olx.SetVar('fragment_ID', '')
     # Now delete the fields:
@@ -1316,6 +1331,7 @@ class FragmentDB(PT):
 
     Type "spy.FragmentDB.exportfrag" to export the current fragment.
     """
+    db = FragmentTable(self.dbfile, self.userdbfile)
     fragtext = []
     htm = ' '
     try:
@@ -1336,7 +1352,7 @@ class FragmentDB(PT):
       return False
     restr = self.prepare_restraints(fragId)
     residue = self.prepare_residue_class()
-    reference = self.db.get_reference(fragId)
+    reference = db.get_reference(fragId)
     cell = 'FRAG 17 1 1 1 90 90 90'
     fragtext.append('<font face="courier" size="11pt"> ')
     fragtext.append('REM Name: {}'.format(name))
@@ -1375,6 +1391,12 @@ class FragmentDB(PT):
         align="center">
         '''.format(name, imgname, height)
     return html
+
+  def revert_last(self):
+    """
+    Revertes last structure model.
+    """
+    pass
 
   def det_refmodel(self):
     """
@@ -1443,6 +1465,7 @@ OV.registerFunction(fdb.display_large_image, False, "FragmentDB")
 OV.registerFunction(fdb.save_picture, False, "FragmentDB")
 OV.registerFunction(fdb.store_picture, False, "FragmentDB")
 OV.registerFunction(fdb.display_image, False, "FragmentDB")
+# OV.registerFunction(fdb.revert_last, False, "FragmentDB")
 
 OV.registerFunction(ref.results, False, "FragmentDB")
 OV.registerFunction(fdb.clear_mainvalues, False, "FragmentDB")

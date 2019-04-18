@@ -65,7 +65,13 @@ FragmentDB{
     roff = False
       .type = bool
       .help = Decides if restraints should be applied to the fragment or not.
+
+    revert = False
+      .type = bool
+      .help = Revertes last structure version.
+
     }
+
 
   new_fragment{
 

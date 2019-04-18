@@ -193,8 +193,16 @@
     "td1=<td align='left' width="5%">"
     )
     $-
-
-
+<!--
+   $+
+    html.Snippet(GetVar(default_link),
+    "value=Revert",
+    "name=REVERT_BUTTON",
+    "onclick=spy.FragmentDB.revert_last()",
+    "td1=<td align='left' width='10%'>"
+    )
+  $-
+  -->
 
 <!-- #include row_table_off gui/blocks/row_table_off.htm;1; -->
 
