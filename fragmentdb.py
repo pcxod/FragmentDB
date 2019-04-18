@@ -441,6 +441,11 @@ class FragmentDB(PT):
     if resiclass:
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
       OV.cmd("RESI {} {}".format(resiclass, resinum))
+      # Applies a soft SIMU to all neughbouring atoms (not the bonded), because SHELXL behaves different
+      # for residues.
+      # In SHELXL, SIMU_NAME At1 > At5 applies only to each residue itself, not near neighbours of
+      # other residues!
+      OV.cmd('SIMU 0.04 0.08 1')
     else:
       OV.cmd("sel #c{}".format(' #c'.join(atoms)))
       OV.cmd("RESI {}".format(resinum))
