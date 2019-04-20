@@ -1146,7 +1146,6 @@ class FragmentDB(PT):
     frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
     db.database.cur.close()
-    print('###', frag_id)
     if frag_id:
       self.list_all_fragments()
     else:
