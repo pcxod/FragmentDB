@@ -37,6 +37,7 @@ Ideas:
 - residues as default?
 - live invert during key press
 - better preview needed!
+- Why is "part 1 21" not in history node? save_file() possible?
 '''
 
 instance_path = OV.DataDir()
@@ -204,6 +205,11 @@ class FragmentDB(PT):
     db = FragmentTable(self.dbfile, self.userdbfile)
     items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
     olx.html.SetItems('LIST_FRAGMENTS', items)
+
+  def get_fragments(self):
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
+    return items
 
   def search_fragments(self, search_string):
     """
@@ -1145,16 +1151,14 @@ class FragmentDB(PT):
                                               fragname)
     frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
-    db.database.cur.close()
-    if frag_id:
-      self.list_all_fragments()
-    else:
+    if not frag_id:
       print('Something went wrong during fragment storage.')
     # now get the fragment back from the db to display the new cell:
     OV.SetParam('FragmentDB.new_fragment.fragId', frag_id)
     self.fragId = frag_id
     self.clear_mainvalues()
     self.init_plugin()
+    #self.list_all_fragments()
 
   def blank_state(self):
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
@@ -1431,6 +1435,7 @@ OV.registerFunction(fdb.make_selctions_picture, False, "FragmentDB")
 OV.registerFunction(fdb.set_frag_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window, False, "FragmentDB")
 OV.registerFunction(fdb.list_all_fragments, False, "FragmentDB")
+OV.registerFunction(fdb.get_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment, False, "FragmentDB")
 OV.registerFunction(fdb.get_resi_class, False, "FragmentDB")
 OV.registerFunction(fdb.find_free_residue_num, False, "FragmentDB")
