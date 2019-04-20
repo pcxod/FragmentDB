@@ -99,7 +99,6 @@ class FragmentDB(PT):
     self.list_all_fragments()
     OV.SetParam('FragmentDB.new_fragment.frag_name', self.get_fragname())
     olx.html.SetValue('LIST_FRAGMENTS', OV.GetParam('FragmentDB.new_fragment.frag_name'))
-    # self.guess_values()
 
   def set_id(self, fragid=0):
     """
