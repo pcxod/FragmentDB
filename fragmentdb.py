@@ -93,7 +93,7 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', True)
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
-    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    self.list_all_fragments()
     # self.guess_values()
 
   def set_id(self, fragid=0):
@@ -126,7 +126,7 @@ class FragmentDB(PT):
     if olx.fs.Exists('largefdbimg.png') == 'true':
       im = Image.new('RGBA', (1, 1), self.params.html.table_bg_colour.rgb)
       OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
-    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    self.list_all_fragments()
     resinum = self.find_free_residue_num()
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
     olx.html.SetValue('RESIDUE', True)
@@ -194,15 +194,16 @@ class FragmentDB(PT):
       OV.SetParam(varname, resiclass.upper())
       # olx.html.SetValue(name, OV.GetParam(varname))
 
-  def list_fragments(self):
+  def list_all_fragments(self):
     """
     returns the available fragments in the database
     the list of names is separated by semicolon
     i[0] => number
     i[1] => name
     """
-    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in FragmentTable(self.dbfile, self.userdbfile)])
-    return items
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
+    olx.html.SetItems('LIST_FRAGMENTS', items)
 
   def search_fragments(self, search_string):
     """
@@ -212,8 +213,7 @@ class FragmentDB(PT):
     db = FragmentTable(self.dbfile, self.userdbfile)
     if not search_string:
       print("Empty search string.")
-      selected_list = self.list_fragments()
-      olx.html.SetItems('LIST_FRAGMENTS', selected_list)
+      self.list_all_fragments()
       return
     else:
       selected_results = db.find_fragment_by_name(search_string, 8)
@@ -1052,7 +1052,7 @@ class FragmentDB(PT):
                                 reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
-      olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+      self.list_all_fragments()
       olx.SetVar('fragment_ID', frag_id)
     else:
       print('Something went wrong during fragment storage.')
@@ -1146,8 +1146,9 @@ class FragmentDB(PT):
     frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
                                 reference, picture=pic_data)
     db.database.cur.close()
+    print('###', frag_id)
     if frag_id:
-      olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+      self.list_all_fragments()
     else:
       print('Something went wrong during fragment storage.')
     # now get the fragment back from the db to display the new cell:
@@ -1182,7 +1183,7 @@ class FragmentDB(PT):
       print('Can not delete a fragment, because no fragment is selected.')
       return
     del db[self.fragId]
-    olx.html.SetItems('LIST_FRAGMENTS', self.list_fragments())
+    self.list_all_fragments()
     olx.SetVar('fragment_ID', '')
     # Now delete the fields:
     if reset:
@@ -1430,7 +1431,7 @@ OV.registerFunction(fdb.show_reference, False, "FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture, False, "FragmentDB")
 OV.registerFunction(fdb.set_frag_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window, False, "FragmentDB")
-OV.registerFunction(fdb.list_fragments, False, "FragmentDB")
+OV.registerFunction(fdb.list_all_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment, False, "FragmentDB")
 OV.registerFunction(fdb.get_resi_class, False, "FragmentDB")
 OV.registerFunction(fdb.find_free_residue_num, False, "FragmentDB")
