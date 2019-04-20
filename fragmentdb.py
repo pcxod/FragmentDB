@@ -79,13 +79,15 @@ class FragmentDB(PT):
     # Makes residue as default after start:
     OV.SetParam('FragmentDB.fragment.use_residue', True)
     self.fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))
-    self.init_plugin()
+    #self.init_plugin()
 
   def init_plugin(self):
     """
     initialize the plugins main form
     """
     if self.fragId == 0:
+      print('### no fragid!')
+      self.list_all_fragments()
       return
     self.get_resi_class()
     self.set_fragment_picture()
@@ -95,6 +97,8 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE', True)
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
     self.list_all_fragments()
+    OV.SetParam('FragmentDB.new_fragment.frag_name', self.get_fragname())
+    olx.html.SetValue('LIST_FRAGMENTS', OV.GetParam('FragmentDB.new_fragment.frag_name'))
     # self.guess_values()
 
   def set_id(self, fragid=0):
@@ -105,7 +109,7 @@ class FragmentDB(PT):
       int(fragid)
     except(ValueError):
       return False
-    print('Selected fragment {}'.format(fragid))
+    #print('### Selected fragment {}'.format(fragid))
     OV.SetParam("FragmentDB.fragment.fragId", fragid)
     self.fragId = int(fragid)
     return True
@@ -360,7 +364,7 @@ class FragmentDB(PT):
       # no fragment chosen-> do nothing
       print('No fragment selected!')
       return False
-    # save here
+    # saves the current state into the history:
     self.make_history()
     OV.cmd("labels false")
     occupancy = OV.GetParam('FragmentDB.fragment.frag_occ')
@@ -375,6 +379,7 @@ class FragmentDB(PT):
       return False
     gui.report.add_to_citation_list(self.cite_str)
     gui.report.add_to_citation_list(self.cite_str2)
+    olx.html.SetValue('LIST_FRAGMENTS', self.get_fragname())
     return True
 
   def atomrenamer(self, labeldict):
@@ -982,13 +987,13 @@ class FragmentDB(PT):
       at = '<br>'.join(atlist)
     return at
 
-  def prepare_fragname(self):
+  def get_fragname(self):
     """
     prepare the fragment name to display in a multiline edit field
     """
     db = FragmentTable(self.dbfile, self.userdbfile)
     try:
-      name = str(db.get_fragment_name(self.fragId)[0])
+      name = str(db.get_fragment_name(self.fragId))
     except:
       print('Could not get a name from the database.')
       return False
@@ -1101,7 +1106,7 @@ class FragmentDB(PT):
     at = self.prepare_atoms_list()
     if not at:
       return False
-    name = self.prepare_fragname()
+    name = self.get_fragname()
     if name == False:
       name = "Could not get a fragment name from the database"
     restr = self.prepare_restraints()
@@ -1147,10 +1152,8 @@ class FragmentDB(PT):
       # OV.Alert('Invalid restraint', 'One of the restraints is invalid. \nNo changes to the database were performed.', 'OK')
       return
     if restraints:
-      helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
-                                              fragname)
-    frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
-                                reference, picture=pic_data)
+      helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, fragname)
+    frag_id = db.store_fragment(fragname, coords, resiclass, restraints, reference, picture=pic_data)
     if not frag_id:
       print('Something went wrong during fragment storage.')
     # now get the fragment back from the db to display the new cell:
@@ -1325,7 +1328,7 @@ class FragmentDB(PT):
     box_x = int(screen_width * 0.2)
     box_y = int(screen_height * 0.1)
     width, height = 650, 710
-    name = self.prepare_fragname(self.fragId)
+    name = self.get_fragname(self.fragId)
     if name == False:
       return False
     restr = self.prepare_restraints(self.fragId)

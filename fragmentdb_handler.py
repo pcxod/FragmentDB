@@ -4,6 +4,7 @@ Created on 09.10.2014
 @author: Daniel Kratzert
 
 """
+from __future__ import print_function
 import sys
 
 from helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey
@@ -44,7 +45,8 @@ class DatabaseRequest():
     try:
       if isinstance(args[0], (list, tuple)):
         args = args[0]
-    except IndexError:
+    except IndexError as e:
+      # print(e, request, args)
       pass
     try:
       self.cur.execute(request, args)
@@ -400,25 +402,22 @@ class FragmentTable():
     """
     req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
     req_usr = '''SELECT Fragment.Id, Fragment.name FROM userdb.Fragment'''
-    allrows = []
     rows = [list(i) for i in self.database.db_request(req)]
     if self.userdb:
       rows_usr = self.database.db_request(req_usr)
       if rows_usr:
         rows_usr = [[i[0], i[1] + '  *user*'] for i in rows_usr]
         rows_usr = [[i[0] + 1000000, i[1]] for i in rows_usr]
-        allrows = allrows + rows + rows_usr
-      else:
-        allrows = rows
-    for num, i in enumerate(allrows):
+        rows.extend(rows_usr)
+    for num, i in enumerate(rows):
       # searchkey also adds sum formula etc to sortkey:
       key = make_sortkey(i[1], searchkey=False)
-      allrows[num].append(key)
-    if allrows:
-      allrows.sort(key=lambda x: (x[2][0], x[2][1]))
-      for i in allrows:
+      rows[num].append(key)
+    if rows:
+      rows.sort(key=lambda x: (x[2][0], x[2][1]))
+      for i in rows:
         del i[-1]
-      return allrows
+      return rows
     else:
       return False
 
@@ -455,7 +454,7 @@ class FragmentTable():
     returns the "Name" column entry of fragment with id "fragment_id"
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
-    >>> db.get_fragment_name(8)[0]
+    >>> db.get_fragment_name(8)
     u'Hexafluorophosphate, PF6'
 
     :param fragment_id: id of the fragment in the database
@@ -469,7 +468,7 @@ class FragmentTable():
       req_name = '''SELECT userdb.Fragment.Name FROM userdb.Fragment WHERE 
                         Fragment.Id = ? '''
     name = self.database.db_request(req_name, fragment_id)[0]
-    return name
+    return name[0]
 
   def get_picture(self, fragment_id):
     """
