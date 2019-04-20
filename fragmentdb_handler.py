@@ -423,10 +423,9 @@ class FragmentTable():
 
   def fragid_toint(self, fragment_id):
     try:
-      int(fragment_id)
+      return int(fragment_id)
     except ValueError as e:
-      return False
-    return int(fragment_id)
+      return 0
 
   def _get_fragment(self, fragment_id):
     """
@@ -465,8 +464,7 @@ class FragmentTable():
       req_name = '''SELECT Fragment.Name FROM Fragment WHERE Fragment.Id = ? '''
     else:
       fragment_id = fragment_id - 1000000
-      req_name = '''SELECT userdb.Fragment.Name FROM userdb.Fragment WHERE 
-                        Fragment.Id = ? '''
+      req_name = '''SELECT userdb.Fragment.Name FROM userdb.Fragment WHERE Fragment.Id = ? '''
     name = self.database.db_request(req_name, fragment_id)[0]
     return name[0]
 
@@ -486,8 +484,7 @@ class FragmentTable():
       req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
     else:
       fragment_id = fragment_id - 1000000
-      req_picture = '''SELECT Fragment.picture FROM userdb.Fragment WHERE 
-                          Fragment.Id = ? '''
+      req_picture = '''SELECT userdb.Fragment.picture FROM userdb.Fragment WHERE Fragment.Id = ? '''
     try:
       picture = self.database.db_request(req_picture, fragment_id)[0][0]
     except TypeError:
@@ -511,8 +508,7 @@ class FragmentTable():
       req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
     else:
       fragment_id = fragment_id - 1000000
-      req_class = '''SELECT Fragment.class FROM userdb.Fragment WHERE 
-                        Fragment.Id = ?'''
+      req_class = '''SELECT Fragment.class FROM userdb.Fragment WHERE Fragment.Id = ?'''
     classname = self.database.db_request(req_class, fragment_id)
     try:
       classname = classname[0][0]
@@ -535,12 +531,10 @@ class FragmentTable():
     """
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
-      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
-            FROM Restraints WHERE FragmentId = ?'''
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms FROM Restraints WHERE FragmentId = ?'''
     else:
       fragment_id = fragment_id - 1000000
-      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
-            FROM userdb.Restraints WHERE FragmentId = ?'''
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
 
@@ -658,8 +652,7 @@ class FragmentTable():
     if picture:
       picture = sqlite3.Binary(picture)
     table = (fragment_name, resiclass, reference, comment, picture)
-    req = '''INSERT INTO userdb.Fragment (name, class, reference, comment, picture) 
-                            VALUES(?,     ?,      ?,        ?,       ?   )'''
+    req = '''INSERT INTO userdb.Fragment (name, class, reference, comment, picture)  VALUES(?, ?, ?, ?, ?)'''
     fragid = self.database.db_request(req, table)
     return fragid + 1000000
 
@@ -693,8 +686,7 @@ class FragmentTable():
       x = line[1]
       y = line[2]
       z = line[3]
-      req = '''INSERT INTO userdb.atoms (FragmentId, Name, element, x, y, z) 
-                             VALUES(     ?,      ?,     ?,     ?, ?, ?)'''
+      req = '''INSERT INTO userdb.atoms (FragmentId, Name, element, x, y, z) VALUES(?, ?, ?, ?, ?, ?)'''
       self.database.db_request(req, (fragment_id, Name, element, x, y, z))
 
   def _fill_restraint_table(self, fragment_id, restraints_list):
@@ -732,8 +724,7 @@ class FragmentTable():
         restr_table.append(str(fragment_id))
         restr_table.append(line[:4])
         restr_table.append(line[5:])
-        req = '''INSERT INTO userdb.Restraints (FragmentId, ShelxName, atoms)
-                  VALUES(?, ?, ?)'''
+        req = '''INSERT INTO userdb.Restraints (FragmentId, ShelxName, atoms) VALUES(?, ?, ?)'''
         self.database.db_request(req, restr_table)
 
 
@@ -764,12 +755,10 @@ class Restraints():
     """
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
-      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
-                      FROM Restraints WHERE FragmentId = ?'''
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms FROM Restraints WHERE FragmentId = ?'''
     else:
       fragment_id = fragment_id - 1000000
-      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms
-                      FROM userdb.Restraints WHERE FragmentId = ?'''
+      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
     return restraintrows
 

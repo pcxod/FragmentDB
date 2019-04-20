@@ -5,16 +5,16 @@ import os
 import pprint
 from collections import OrderedDict
 
-import OlexVFS
 import gui.maps
 import olex
 import olex_core
 import olx
-from ImageTools import ImageTools
 from PIL import Image, ImageChops
 from olexFunctions import OlexFunctions
 
+import OlexVFS
 import helper_functions
+from ImageTools import ImageTools
 from fragmentdb_handler import FragmentTable
 from helper_functions import check_restraints_consistency, initialize_user_db, \
   invert_atomlist_coordinates, frac_to_cart, atomic_distance
@@ -31,8 +31,6 @@ Ideas:
 - list of rings for FLAT restraints
 - http://interactivepython.org/courselib/static/pythonds/Graphs/Implementation.html
 - spy.styles.set_rim_colour(#hex)
-- labels -p does not work anymore in dev.
-- sel resi 1 does not work anymore in dev.
 - what should we do with SADI C1 C2
 - residues as default?
 - live invert during key press
@@ -79,14 +77,14 @@ class FragmentDB(PT):
     # Makes residue as default after start:
     OV.SetParam('FragmentDB.fragment.use_residue', True)
     self.fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))
-    #self.init_plugin()
+    # self.init_plugin()
 
   def init_plugin(self):
     """
     initialize the plugins main form
     """
     if self.fragId == 0:
-      print('### no fragid!')
+      # print('### no fragid!')
       self.list_all_fragments()
       return
     self.get_resi_class()
@@ -108,7 +106,7 @@ class FragmentDB(PT):
       int(fragid)
     except(ValueError):
       return False
-    #print('### Selected fragment {}'.format(fragid))
+    # print('### Selected fragment {}'.format(fragid))
     OV.SetParam("FragmentDB.fragment.fragId", fragid)
     self.fragId = int(fragid)
     return True
@@ -537,7 +535,7 @@ class FragmentDB(PT):
     max_size = int(max_size)
     pic = db.get_picture(self.fragId)
     if not pic:
-      print('No fragment picture found.')
+      # print('No fragment picture found.')
       return False
     imo = Image.open(StringIO.StringIO(pic))
     # save it as raw and small pic:
@@ -1028,6 +1026,7 @@ class FragmentDB(PT):
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
     self.store_new_fragment(atoms, restraints, resiclass, reference)
+    self.list_all_fragments()
 
   def update_fragment(self):
     """
@@ -1058,12 +1057,11 @@ class FragmentDB(PT):
       helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
                                               fragname)
     self.delete_fragment(reset=False)
-    frag_id = db.store_fragment(fragname, coords, resiclass, restraints,
-                                reference, picture=pic_data)
+    frag_id = db.store_fragment(fragname, coords, resiclass, restraints, reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
-      self.list_all_fragments()
       olx.SetVar('fragment_ID', frag_id)
+      self.fragId = frag_id
     else:
       print('Something went wrong during fragment storage.')
     self.get_frag_for_gui()
@@ -1071,6 +1069,7 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    self.list_all_fragments()
 
   def prepare_coords_for_storage(self, atlines):
     """
@@ -1160,7 +1159,7 @@ class FragmentDB(PT):
     self.fragId = frag_id
     self.clear_mainvalues()
     self.init_plugin()
-    #self.list_all_fragments()
+    # self.list_all_fragments()
 
   def blank_state(self):
     olx.html.SetValue('Inputfrag.SET_ATOM', '')
@@ -1181,18 +1180,17 @@ class FragmentDB(PT):
   def delete_fragment(self, reset=True):
     """
     deletes a fragment from the database
-    # Todo: reset all fields (oic, atoms, ...) after deltion
     """
     db = FragmentTable(self.dbfile, self.userdbfile)
     if not self.fragId:
       print('Can not delete a fragment, because no fragment is selected.')
       return
     del db[self.fragId]
-    self.list_all_fragments()
     olx.SetVar('fragment_ID', '')
     # Now delete the fields:
     if reset:
       self.blank_state()
+    #self.list_all_fragments()
 
   def get_chemdrawstyle(self):
     """
@@ -1327,10 +1325,10 @@ class FragmentDB(PT):
     box_x = int(screen_width * 0.2)
     box_y = int(screen_height * 0.1)
     width, height = 650, 710
-    name = self.get_fragname(self.fragId)
+    name = self.get_fragname()
     if name == False:
       return False
-    restr = self.prepare_restraints(self.fragId)
+    restr = self.prepare_restraints()
     residue = self.prepare_residue_class()
     reference = db.get_reference(self.fragId)
     cell = 'FRAG 17 1 1 1 90 90 90'
@@ -1354,9 +1352,7 @@ class FragmentDB(PT):
 
   def imagedisp(self, name, height=120):
     """
-    todo:
-    make an object for each picture place with a clear state for every
-    state of the plugin.
+    Makes html to dsiplay a picture.
     """
     if olx.fs.Exists('displayimg.png') == 'false':
       imgname = 'blank.png'
