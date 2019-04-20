@@ -1,7 +1,9 @@
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
-
+venv
+olex2-code
+olex2-gui
 tst.sqlite
 
 # Folder config file
@@ -28,7 +30,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
+Icon
+
 
 # Thumbnails
 ._*

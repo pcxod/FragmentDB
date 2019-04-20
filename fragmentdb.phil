@@ -14,7 +14,7 @@ FragmentDB{
       .type = int
       .help = Database Id of the current fragment.
 
-    resitoggle = False
+    use_residue = True
       .type = bool
       .help = Decides wether a residue should be used or not.
 

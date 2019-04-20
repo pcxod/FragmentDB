@@ -38,6 +38,8 @@
     )
   $-
 
+
+
   <td width="72%" align="center" bgcolor="#bgcolor">
     <a target="" href="spy.FragmentDB.display_large_image()">
       $spy.fragmentdb.imagedisp('FDBMOLEPIC')
@@ -123,8 +125,8 @@
     $+
       html.Snippet("gui/snippets/input-checkbox-td",
       "name=RESIDUE",
-      "checked=spy.GetParam(FragmentDB.fragment.resitoggle)",
-      "onclick=spy.SetParam('FragmentDB.fragment.resitoggle', html.GetState('~name~'))",
+      "checked=spy.GetParam('FragmentDB.fragment.use_residue')",
+      "onclick=spy.SetParam('FragmentDB.fragment.use_residue', html.GetState('~name~'))",
       "td1=<td align='left' width="4%">"
       )
     $-
@@ -194,12 +196,13 @@
     )
     $-
 
-   $+
-    html.Snippet("gui/snippets/input-button-td",
+
+  $+
+    html.Snippet(GetVar(default_link),
     "value=Revert Fit",
     "name=REVERT_BUTTON",
     "onclick=spy.FragmentDB.revert_last()",
-    "td1=<td align='right' width='5%'>"
+    "td1=<td align='right' width='14%'>"
     )
   $-
 
