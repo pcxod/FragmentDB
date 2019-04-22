@@ -36,6 +36,7 @@ Ideas:
 - live invert during key press
 - better preview needed!
 - Why is "part 1 21" not in history node? save_file() possible?
+- SIMU 0.04 0.08 1 is not detected by duplicate checker.
 '''
 
 instance_path = OV.DataDir()
@@ -217,12 +218,12 @@ class FragmentDB(PT):
     performs a search for an unsharp name in a list
     """
     selected_list = ''
-    db = FragmentTable(self.dbfile, self.userdbfile)
     if not search_string:
       print("Empty search string.")
       self.list_all_fragments()
       return
     else:
+      db = FragmentTable(self.dbfile, self.userdbfile)
       selected_results = db.find_fragment_by_name(search_string, 8)
       # do nothing in case we searched with the original name (exact one hit):
       if len(selected_results) == 1:
@@ -1033,7 +1034,6 @@ class FragmentDB(PT):
     execute this to update a fragment
     updates the database information of a fragment
     """
-    db = FragmentTable(self.dbfile, self.userdbfile)
     fragname = OV.GetParam('FragmentDB.new_fragment.frag_name')
     state = self.set_frag_name(enable_check=False)
     if not state:
@@ -1057,6 +1057,7 @@ class FragmentDB(PT):
       helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
                                               fragname)
     self.delete_fragment(reset=False)
+    db = FragmentTable(self.dbfile, self.userdbfile)
     frag_id = db.store_fragment(fragname, coords, resiclass, restraints, reference, picture=pic_data)
     print('Updated fragment "{0}".'.format(fragname))
     if frag_id:
@@ -1069,6 +1070,7 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    self.init_plugin()
     self.list_all_fragments()
 
   def prepare_coords_for_storage(self, atlines):
@@ -1098,7 +1100,6 @@ class FragmentDB(PT):
     """
     get the fragment to display in the multiline edit field
     """
-    db = FragmentTable(self.dbfile, self.userdbfile)
     if not self.fragId:
       return False
     at = self.prepare_atoms_list()
@@ -1109,6 +1110,7 @@ class FragmentDB(PT):
       name = "Could not get a fragment name from the database"
     restr = self.prepare_restraints()
     residue = self.prepare_residue_class()
+    db = FragmentTable(self.dbfile, self.userdbfile)
     reference = db.get_reference(self.fragId)
     cell = '1  1  1  90  90  90'
     olx.html.SetValue('Inputfrag.SET_ATOM', at)
@@ -1181,10 +1183,10 @@ class FragmentDB(PT):
     """
     deletes a fragment from the database
     """
-    db = FragmentTable(self.dbfile, self.userdbfile)
     if not self.fragId:
       print('Can not delete a fragment, because no fragment is selected.')
       return
+    db = FragmentTable(self.dbfile, self.userdbfile)
     del db[self.fragId]
     olx.SetVar('fragment_ID', '')
     # Now delete the fields:
@@ -1313,7 +1315,6 @@ class FragmentDB(PT):
 
     Type "spy.FragmentDB.exportfrag" to export the current fragment.
     """
-    db = FragmentTable(self.dbfile, self.userdbfile)
     fragtext = []
     htm = ' '
     if not self.fragId or self.fragId == 0:
@@ -1330,6 +1331,7 @@ class FragmentDB(PT):
       return False
     restr = self.prepare_restraints()
     residue = self.prepare_residue_class()
+    db = FragmentTable(self.dbfile, self.userdbfile)
     reference = db.get_reference(self.fragId)
     cell = 'FRAG 17 1 1 1 90 90 90'
     fragtext.append('<font face="courier" size="11pt"> ')

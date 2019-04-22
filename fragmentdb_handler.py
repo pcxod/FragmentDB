@@ -5,6 +5,7 @@ Created on 09.10.2014
 
 """
 from __future__ import print_function
+
 import sys
 
 from helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey
@@ -400,14 +401,13 @@ class FragmentTable():
     """
     returns all fragment names in the database, sorted by name
     """
-    req = '''SELECT Fragment.Id, Fragment.name FROM Fragment'''
-    req_usr = '''SELECT Fragment.Id, Fragment.name FROM userdb.Fragment'''
+    req = '''SELECT Id, name FROM Fragment'''
+    req_usr = '''SELECT Id, name FROM userdb.Fragment'''
     rows = [list(i) for i in self.database.db_request(req)]
     if self.userdb:
       rows_usr = self.database.db_request(req_usr)
       if rows_usr:
-        rows_usr = [[i[0], i[1] + '  *user*'] for i in rows_usr]
-        rows_usr = [[i[0] + 1000000, i[1]] for i in rows_usr]
+        rows_usr = [[i[0] + 1000000, i[1] + '  *user*'] for i in rows_usr]
         rows.extend(rows_usr)
     for num, i in enumerate(rows):
       # searchkey also adds sum formula etc to sortkey:
@@ -481,10 +481,10 @@ class FragmentTable():
     """
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
-      req_picture = '''SELECT Fragment.picture FROM Fragment WHERE Fragment.Id = ? '''
+      req_picture = '''SELECT picture FROM Fragment WHERE Id = ? '''
     else:
       fragment_id = fragment_id - 1000000
-      req_picture = '''SELECT userdb.Fragment.picture FROM userdb.Fragment WHERE Fragment.Id = ? '''
+      req_picture = '''SELECT picture FROM userdb.Fragment WHERE Id = ? '''
     try:
       picture = self.database.db_request(req_picture, fragment_id)[0][0]
     except TypeError:
@@ -505,10 +505,10 @@ class FragmentTable():
     """
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
-      req_class = '''SELECT Fragment.class FROM Fragment WHERE Fragment.Id = ?'''
+      req_class = '''SELECT class FROM Fragment WHERE Id = ?'''
     else:
       fragment_id = fragment_id - 1000000
-      req_class = '''SELECT Fragment.class FROM userdb.Fragment WHERE Fragment.Id = ?'''
+      req_class = '''SELECT class FROM userdb.Fragment WHERE Id = ?'''
     classname = self.database.db_request(req_class, fragment_id)
     try:
       classname = classname[0][0]
