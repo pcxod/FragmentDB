@@ -95,7 +95,7 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', True)
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
-    self.list_all_fragments()
+    #self.list_all_fragments()
     OV.SetParam('FragmentDB.new_fragment.frag_name', self.get_fragname())
     olx.html.SetValue('LIST_FRAGMENTS', OV.GetParam('FragmentDB.new_fragment.frag_name'))
 
@@ -1054,8 +1054,7 @@ class FragmentDB(PT):
       print('\nFragment was not added to the database!')
       return
     if restraints:
-      helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell,
-                                              fragname)
+      helper_functions.check_sadi_consistence(atlines, restraints, self.frag_cell, fragname)
     self.delete_fragment(reset=False)
     db = FragmentTable(self.dbfile, self.userdbfile)
     frag_id = db.store_fragment(fragname, coords, resiclass, restraints, reference, picture=pic_data)
@@ -1070,7 +1069,7 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    self.init_plugin()
+    #self.init_plugin()
     self.list_all_fragments()
 
   def prepare_coords_for_storage(self, atlines):
