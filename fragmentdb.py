@@ -5,16 +5,16 @@ import os
 import pprint
 from collections import OrderedDict
 
+import OlexVFS
 import gui.maps
 import olex
 import olex_core
 import olx
+from ImageTools import ImageTools
 from PIL import Image, ImageChops
 from olexFunctions import OlexFunctions
 
-import OlexVFS
 import helper_functions
-from ImageTools import ImageTools
 from fragmentdb_handler import FragmentTable
 from helper_functions import check_restraints_consistency, initialize_user_db, \
   invert_atomlist_coordinates, frac_to_cart, atomic_distance
@@ -95,7 +95,7 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', True)
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
-    #self.list_all_fragments()
+    # self.list_all_fragments()
     OV.SetParam('FragmentDB.new_fragment.frag_name', self.get_fragname())
     olx.html.SetValue('LIST_FRAGMENTS', OV.GetParam('FragmentDB.new_fragment.frag_name'))
 
@@ -1069,7 +1069,7 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    #self.init_plugin()
+    # self.init_plugin()
     self.list_all_fragments()
 
   def prepare_coords_for_storage(self, atlines):
@@ -1191,7 +1191,7 @@ class FragmentDB(PT):
     # Now delete the fields:
     if reset:
       self.blank_state()
-    #self.list_all_fragments()
+    # self.list_all_fragments()
 
   def get_chemdrawstyle(self):
     """
@@ -1416,6 +1416,77 @@ class FragmentDB(PT):
         pprint.pprint(atom)
         # atoms[atom['aunit_id']] = [ atom['label'], atom['crd'][0], atom['part'], resnum, atom['type'] ]
     return atoms
+
+
+############## New ################
+
+class Fragment():
+  def __init__(self):
+    pass
+
+  def store_fragment(self):
+    pass
+
+  def load_fragment(self):
+    pass
+
+
+class Editor():
+  def __init__(self):
+    self.name = ''
+    self.residue_num = 0
+    self.residue_class = ''
+    self.atoms = []
+    self.restraints = []
+    self.reference = ''
+
+
+class Atom():
+  def __init__(self):
+    """
+    Holds an atom from a fragment.
+    """
+    self.name = ''
+    self.element = 0
+    self.cart_coordinates = []
+    self.frac_coordinates = []
+
+
+class Restraint():
+  def __init__(self):
+    """
+    Holds a restraint from a fragment.
+    """
+    pass
+
+
+class Display():
+  def __init__(self):
+    self.name = ''
+    self.residue_class = ''
+    self.reference = ''
+    self.use_residue = True
+    self.part = 0
+    self.free_variable = 1
+    self.occupancy = 1.0
+    self.invert = False
+    self.use_dfix = False
+    self.replace = False
+    self.no_restraints = False
+    self.keep_rigid = False
+    ##### Buttons:
+    self.revert_fit = False
+    self.short_list = False
+    self.full_list = False
+
+  def get_fragment_list(self):
+    pass
+
+  def clean_display(self):
+    """
+    Sets all gui elements to initial state.
+    """
+    pass
 
 
 fdb = FragmentDB()
