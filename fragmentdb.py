@@ -1431,6 +1431,7 @@ class Fragment():
     pass
 
 
+
 class Editor():
   def __init__(self):
     self.name = ''
@@ -1440,24 +1441,6 @@ class Editor():
     self.restraints = []
     self.reference = ''
 
-
-class Atom():
-  def __init__(self):
-    """
-    Holds an atom from a fragment.
-    """
-    self.name = ''
-    self.element = 0
-    self.cart_coordinates = []
-    self.frac_coordinates = []
-
-
-class Restraint():
-  def __init__(self):
-    """
-    Holds a restraint from a fragment.
-    """
-    pass
 
 
 class Display():

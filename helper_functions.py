@@ -472,27 +472,32 @@ def remove_partsymbol(atom):
   return atom
 
 
-def flatten(nested):
+def my_isnumeric(value):
   """
-  flattens a nested list
+  Determines if a string can be converted to a number.
+  """
+  try:
+    float(value)
+  except ValueError:
+    return False
+  return True
+
+
+def flatten(lis):
+  """
+  Given a list, possibly nested to any level, return it flattened.
+  From: http://code.activestate.com/recipes/578948-flattening-an-arbitrarily-nested-list-in-python/
+
   >>> flatten([['wer', 234, 'brdt5'], ['dfg'], [[21, 34,5], ['fhg', 4]]])
   ['wer', 234, 'brdt5', 'dfg', 21, 34, 5, 'fhg', 4]
   """
-  result = []
-  try:
-    # dont iterate over string-like objects:
-    try:
-      nested + ''
-    except(TypeError):
-      pass
+  new_lis = []
+  for item in lis:
+    if isinstance(item, list):
+      new_lis.extend(flatten(item))
     else:
-      raise TypeError
-    for sublist in nested:
-      for element in flatten(sublist):
-        result.append(element)
-  except(TypeError):
-    result.append(nested)
-  return result
+      new_lis.append(item)
+  return new_lis
 
 
 def frac_to_cart(frac_coord, cell):

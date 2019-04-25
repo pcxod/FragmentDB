@@ -8,13 +8,50 @@ from __future__ import print_function
 
 import sys
 
-from helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey
+from helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey, my_isnumeric
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
 from sqlite3 import OperationalError
 
-__all__ = ['DatabaseRequest', 'FragmentTable', 'Restraints']
+__all__ = ['DatabaseRequest', 'FragmentTable', 'Atom']
+
+
+class Atom():
+  def __init__(self, name, element, x, y, z):
+    """
+    Holds an atom from a fragment.
+    """
+    self.name = str(name)
+    if element:
+      self.element_num = int(element)
+    else:
+      self.element_num = 999
+    self.cart_coordinates = [float(x), float(y), float(z)]
+
+  def __repr__(self):
+    return "{:<5} {:<4} {:>8.4f} {:>8.4f} {:>8.4f}".format(self.name, self.element_num, *self.cart_coordinates)
+
+
+class Restraint():
+  def __init__(self, args):
+    """
+    Holds a restraint from a fragment.
+    """
+    self.name = args[0]
+    self.params = []
+    self.atoms = []
+    if len(args) > 0:
+      for x in list(args[1:][0].split()):
+        if my_isnumeric(x):
+          self.params.append(float(x))
+        else:
+          self.atoms.append(str(x))
+
+  def __repr__(self):
+    return "{} {} {}".format(self.name,
+                             ' '.join([str(x) for x in self.params]),
+                             ' '.join([str(x) for x in self.atoms]))
 
 
 class DatabaseRequest():
@@ -73,7 +110,7 @@ class FragmentTable():
   >>> dbfile = 'tests/tst.sqlite'
   >>> db = FragmentTable(dbfile, './tests/tst-usr.sqlite')
   >>> print(db[3])
-  [(u'O1', u'8', -0.7562, 1.6521, -0.3348), (u'C1', u'6', -2.1051, 1.9121, -0.4223), (u'C2', u'6', -2.5884, 1.9919, -1.8717), (u'F1', u'9', -1.9571, 2.9653, -2.5781), (u'F2', u'9', -3.9264, 2.2817, -1.9122), (u'F3', u'9', -2.413, 0.8316, -2.546)]
+  [O1    8     -0.7562   1.6521  -0.3348, C1    6     -2.1051   1.9121  -0.4223, C2    6     -2.5884   1.9919  -1.8717, F1    9     -1.9571   2.9653  -2.5781, F2    9     -3.9264   2.2817  -1.9122, F3    9     -2.4130   0.8316  -2.5460]
 
   >>> for num, i in enumerate(db):
   ...   print(i)
@@ -176,17 +213,17 @@ class FragmentTable():
     False
 
     >>> print(db[5])
-    [(u'C1', u'6', 0.5337, 0.6968, 0.0), (u'C2', u'6', 0.5337, -0.6968, 0.0), (u'C3', u'6', -0.6618, -1.4038, 0.0), (u'C4', u'6', -1.8695, -0.6988, 0.0), (u'C5', u'6', -1.8695, 0.6988, 0.0), (u'C6', u'6', -0.6618, 1.4037, 0.0), (u'F1', u'9', 1.7137, 1.3554, 0.0), (u'F2', u'9', 1.7137, -1.3554, 0.0)]
+    [C1    6      0.5337   0.6968  -0.0000, C2    6      0.5337  -0.6968   0.0000, C3    6     -0.6618  -1.4038   0.0000, C4    6     -1.8695  -0.6988   0.0000, C5    6     -1.8695   0.6988   0.0000, C6    6     -0.6618   1.4037   0.0000, F1    9      1.7137   1.3554   0.0000, F2    9      1.7137  -1.3554   0.0000]
 
     >>> for i in db[8]:
     ...   print(i)
-    (u'P1', u'15', 0.0, 0.0, -0.0001)
-    (u'F1', u'9', -1.5721, 0.4748, 0.1103)
-    (u'F2', u'9', -0.1279, -0.042, -1.6402)
-    (u'F3', u'9', 1.5722, -0.4749, -0.1103)
-    (u'F4', u'9', 0.1278, 0.042, 1.6403)
-    (u'F5', u'9', 0.4704, 1.5755, -0.077)
-    (u'F6', u'9', -0.4705, -1.5754, 0.077)
+    P1    15     0.0000  -0.0000  -0.0001
+    F1    9     -1.5721   0.4748   0.1103
+    F2    9     -0.1279  -0.0420  -1.6402
+    F3    9      1.5722  -0.4749  -0.1103
+    F4    9      0.1278   0.0420   1.6403
+    F5    9      0.4704   1.5755  -0.0770
+    F6    9     -0.4705  -1.5754   0.0770
 
     >>> print(db[-1])
     Only positive index numbers allowed!
@@ -219,7 +256,7 @@ class FragmentTable():
     >>> db = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> del db[2]
     >>> db[2]
-    [(u'N1', u'7', 5.2916, 0.1111, 10.84), (u'N2', u'7', 4.1672, 1.8088, 9.1734), (u'C1', u'6', 5.8369, -0.7123, 11.7478), (u'C2', u'6', 5.9368, -2.0826, 11.5626), (u'C3', u'6', 5.4664, -2.6325, 10.3782), (u'C4', u'6', 4.9264, -1.7885, 9.4165), (u'C5', u'6', 4.8535, -0.4237, 9.6802), (u'C6', u'6', 4.2675, 0.5478, 8.7222), (u'C7', u'6', 3.8265, 0.1802, 7.4491), (u'C8', u'6', 3.2516, 1.1452, 6.6304), (u'C9', u'6', 3.1267, 2.4421, 7.1103), (u'C10', u'6', 3.5991, 2.7331, 8.3809)]
+    [N1    7      5.2916   0.1111  10.8400, N2    7      4.1672   1.8088   9.1734, C1    6      5.8369  -0.7123  11.7478, C2    6      5.9368  -2.0826  11.5626, C3    6      5.4664  -2.6325  10.3782, C4    6      4.9264  -1.7885   9.4165, C5    6      4.8535  -0.4237   9.6802, C6    6      4.2675   0.5478   8.7222, C7    6      3.8265   0.1802   7.4491, C8    6      3.2516   1.1452   6.6304, C9    6      3.1267   2.4421   7.1103, C10   6      3.5991   2.7331   8.3809]
     >>> print('before: ' + str(len(db)))
     before: 71
 
@@ -433,6 +470,11 @@ class FragmentTable():
     :param fragment_id: id of the fragment in the database
     :type fragment_id: int
     :rtype: tuple
+
+    >>> dbfile = 'tests/tst1.sqlite'
+    >>> db = FragmentTable(dbfile)
+    >>> db._get_fragment(8)[0]
+    P1    15     0.0000  -0.0000  -0.0001
     """
     fragment_id = self.fragid_toint(fragment_id)
     req_atoms = ("""SELECT Atoms.name, Atoms.element, Atoms.x, Atoms.y, Atoms.z
@@ -446,7 +488,7 @@ class FragmentTable():
     else:
       fragment_id = fragment_id - 1000000
       atomrows = self.database.db_request(req_atoms_usr, fragment_id)
-    return atomrows
+    return [Atom(*at) for at in atomrows]
 
   def get_fragment_name(self, fragment_id):
     """
@@ -524,19 +566,19 @@ class FragmentTable():
     >>> dbfile = 'tests/tst1.sqlite'
     >>> db = FragmentTable(dbfile)
     >>> db.get_restraints(5)
-    [(u'SADI', u'0.02 C1 F1 C2 F2'), (u'SADI', u'0.02 C1 C6 C5 C6 C1 C2 C4 C5 C3 C4 C2 C3'), (u'SADI', u'0.04 C1 F2 C3 F2 C2 F1 C6 F1'), (u'SADI', u'0.04 C4 C6 C3 C5 C2 C4 C1 C3 C2 C6 C1 C5'), (u'FLAT', u'C1 > F2'), (u'SIMU', u'C1 > F2'), (u'RIGU', u'C1 > F2')]
+    [SADI 0.02 C1 F1 C2 F2, SADI 0.02 C1 C6 C5 C6 C1 C2 C4 C5 C3 C4 C2 C3, SADI 0.04 C1 F2 C3 F2 C2 F1 C6 F1, SADI 0.04 C4 C6 C3 C5 C2 C4 C1 C3 C2 C6 C1 C5, FLAT  C1 > F2, SIMU  C1 > F2, RIGU  C1 > F2]
 
     :param fragment_Id: id of the fragment in the database
     :type fragment_Id: int
     """
     fragment_id = self.fragid_toint(fragment_id)
     if fragment_id < 1000000:
-      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms FROM Restraints WHERE FragmentId = ?'''
+      req_restr = '''SELECT ShelxName, Atoms FROM Restraints WHERE FragmentId = ?'''
     else:
       fragment_id = fragment_id - 1000000
-      req_restr = '''SELECT Restraints.ShelxName, Restraints.Atoms FROM userdb.Restraints WHERE FragmentId = ?'''
+      req_restr = '''SELECT ShelxName, Atoms FROM userdb.Restraints WHERE FragmentId = ?'''
     restraintrows = self.database.db_request(req_restr, fragment_id)
-    return restraintrows
+    return [Restraint(re) for re in restraintrows]
 
   def get_reference(self, fragment_id):
     """
@@ -682,6 +724,7 @@ class FragmentTable():
         raise Exception('wrong data type "{}" for atom list.'.format(type(atom_table[0])))
     for line in atom_table:
       Name = line[0]
+      # I don't have this information
       element = 999  # line[1]
       x = line[1]
       y = line[2]
@@ -727,25 +770,12 @@ class FragmentTable():
         req = '''INSERT INTO userdb.Restraints (FragmentId, ShelxName, atoms) VALUES(?, ?, ?)'''
         self.database.db_request(req, restr_table)
 
-
-class Restraints():
-  def __init__(self, dbfile, userdb):
-    self.database = DatabaseRequest(dbfile, userdb)
-
-  def fragid_toint(self, fragment_id):
-    try:
-      int(fragment_id)
-    except ValueError as e:
-      print(e)
-      return
-    return int(fragment_id)
-
   def get_restraints_from_fragmentId(self, fragment_id):
     """
     returns the restraints from a database entry
 
     >>> dbfile = 'tests/tst1.sqlite'
-    >>> res = Restraints(dbfile, 'tests/tst-usr.sqlite')
+    >>> res = FragmentTable(dbfile, 'tests/tst-usr.sqlite')
     >>> res.get_restraints_from_fragmentId(7)
     [(u'DFIX', u'1.783 C1 CL1 C1 CL2 C1 CL3'), (u'DANG', u'2.946 CL1 CL2 CL2 CL3 CL3 CL1'), (u'RIGU', u'C1 > CL3'), (u'SIMU', u'C1 > CL3')]
 
