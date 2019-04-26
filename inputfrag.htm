@@ -12,7 +12,7 @@
           <td width='90%'>
             $+
             html.Snippet("gui/snippets/input-button",
-            "name=picture",
+            "name=PICTURE_INPUT_BUTTON",
             "value=Change picture",
             "onclick=spy.FragmentDB.store_picture('Select picture', '*.png; *.tiff; *.tif; *.jpg; *.jpeg',
             '')",
@@ -50,7 +50,7 @@
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
               $+
               html.Snippet("gui/snippets/input-text",
-              "name=set_name",
+              "name=NAME_INPUT",
               "width='100%'",
               "onchange=spy.SetParam(FragmentDB.new_fragment.frag_name, html.GetValue(~name~))",
               "multiline=False"
@@ -66,7 +66,7 @@
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
               $+
               html.Snippet("gui/snippets/input-text",
-              "name=set_cell",
+              "name=UNIT_CELL_INPUT",
               "width='100%'",
               "value='1 1 1 90 90 90'",
               "onchange=spy.SetParam(FragmentDB.new_fragment.frag_cell, html.GetValue(~name~))",
@@ -82,7 +82,7 @@
           <td><b>
             $+
             html.Snippet("gui/snippets/input-button",
-            "name=use_atoms",
+            "name=USE_SELECTED_BUTTON",
             "value=Use Selected Atoms:",
             "onclick=spy.FragmentDB.prepare_selected_atoms()>>spy.FragmentDB.make_selctions_picture()",
             "width=45%"
@@ -91,7 +91,7 @@
           </b>
             $+
             html.Snippet("gui/snippets/input-button",
-            "name=exportfrag",
+            "name=EXPORT_FRAG_BUTTON",
             "value=Export Fragment",
             "onclick=spy.FragmentDB.exportfrag()",
             "width=45%"
@@ -105,7 +105,7 @@
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
               $+
               html.Snippet("gui/snippets/input-text",
-              "name=SET_ATOM",
+              "name=ATOMS_INPUT",
               "width='100%'",
               "height=160",
               "onchange=spy.SetParam('FragmentDB.new_fragment.frag_atoms', html.GetValue('~name~'))",
@@ -122,7 +122,7 @@
             <font face='courier' size="$GetVar('HtmlFontSizeControls')">
               $+
               html.Snippet("gui/snippets/input-text",
-              "name=restraints",
+              "name=RESTRAINTS_INPUT",
               "width='100%'",
               "height=120",
               "onchange=spy.SetParam(FragmentDB.new_fragment.frag_restraints, html.GetValue(~name~))",
@@ -141,7 +141,7 @@
                 <td align="left" width='15%'>
                   $+
                   html.Snippet("gui/snippets/input-text",
-                  "name=residue",
+                  "name=RESIDUE_INPUT",
                   "width='95%'",
                   "onchange=spy.FragmentDB.set_resiclass(html.GetValue(~name~), Inputfrag.residue)",
                   "multiline=False"
@@ -153,7 +153,7 @@
                   <font face='courier' size="$GetVar('HtmlFontSizeControls')">
                     $+
                     html.Snippet("gui/snippets/input-text",
-                    "name=reference_ed",
+                    "name=REFERENCE_INPUT",
                     "width='100%'",
                     "onchange=spy.SetParam(FragmentDB.new_fragment.frag_reference,
                     html.GetValue(~name~))",
@@ -174,7 +174,7 @@
                 <td>
                   $+
                   html.Snippet("gui/snippets/input-button",
-                  "name=AddFrag",
+                  "name=ADD_FRAG_BUTTON",
                   "value=Add as New",
                   "onclick=spy.FragmentDB.add_new_frag()",
                   "width=100%"
@@ -184,7 +184,7 @@
                 <td>
                   $+
                   html.Snippet("gui/snippets/input-button",
-                  "name=UpdateFragment",
+                  "name=UPDATE_FRAG_BUTTON",
                   "value=Update",
                   "onclick=spy.FragmentDB.update_fragment()",
                   "width=100%"
@@ -194,7 +194,7 @@
                 <td>
                   $+
                   html.Snippet("gui/snippets/input-button",
-                  "name=DeleteFragment",
+                  "name=DELTE_FRAG_BUTTON",
                   "value=Delete",
                   "onclick=spy.FragmentDB.delete_fragment()",
                   "width=100%"

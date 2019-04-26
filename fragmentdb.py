@@ -197,21 +197,7 @@ class FragmentDB(PT):
       OV.SetParam(varname, resiclass.upper())
       # olx.html.SetValue(name, OV.GetParam(varname))
 
-  def list_all_fragments(self):
-    """
-    returns the available fragments in the database
-    the list of names is separated by semicolon
-    i[0] => number
-    i[1] => name
-    """
-    db = FragmentTable(self.dbfile, self.userdbfile)
-    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
-    olx.html.SetItems('LIST_FRAGMENTS', items)
 
-  def get_fragments(self):
-    db = FragmentTable(self.dbfile, self.userdbfile)
-    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
-    return items
 
   def search_fragments(self, search_string):
     """
@@ -1162,21 +1148,7 @@ class FragmentDB(PT):
     self.init_plugin()
     # self.list_all_fragments()
 
-  def blank_state(self):
-    olx.html.SetValue('Inputfrag.SET_ATOM', '')
-    olx.html.SetValue('Inputfrag.set_cell', '')
-    olx.html.SetValue('Inputfrag.set_name', '')
-    olx.html.SetValue('Inputfrag.restraints', '')
-    olx.html.SetValue('Inputfrag.residue', '')
-    olx.html.SetValue('Inputfrag.reference_ed', '')
-    olx.html.SetValue('RESIDUE_CLASS', '')
-    olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
-    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    if olx.fs.Exists('displayimg.png') == 'true':
-      OV.CopyVFSFile('blank.png', 'displayimg.png')
-    if olx.fs.Exists('largefdbimg.png') == 'true':
-      im = Image.new('RGBA', (1, 1), self.params.html.table_bg_colour.rgb)
-      OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
+
 
   def delete_fragment(self, reset=True):
     """
@@ -1444,7 +1416,7 @@ class Editor():
 
 
 class Display():
-  def __init__(self):
+  def __init__(self, dbfile, userdbfile):
     self.name = ''
     self.residue_class = ''
     self.reference = ''
@@ -1461,15 +1433,45 @@ class Display():
     self.revert_fit = False
     self.short_list = False
     self.full_list = False
+    #####
+    self.dbfile = dbfile
+    self.userdbfile = userdbfile
+    self.params = OV.GuiParams()
 
-  def get_fragment_list(self):
-    pass
+  def list_all_fragments(self):
+    """
+    returns the available fragments in the database
+    the list of names is separated by semicolon
+    i[0] => number
+    i[1] => name
+    """
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
+    olx.html.SetItems('LIST_FRAGMENTS', items)
+
+  def get_fragments(self):
+    db = FragmentTable(self.dbfile, self.userdbfile)
+    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
+    return items
 
   def clean_display(self):
     """
     Sets all gui elements to initial state.
     """
-    pass
+    olx.html.SetValue('Inputfrag.ATOMS_INPUT', '')
+    olx.html.SetValue('Inputfrag.UNIT_CELL_INPUT', '')
+    olx.html.SetValue('Inputfrag.NAME_INPUT', '')
+    olx.html.SetValue('Inputfrag.RESTRAINTS_INPUT', '')
+    olx.html.SetValue('Inputfrag.RESIDUE_INPUT', '')
+    olx.html.SetValue('Inputfrag.REFERENCE_INPUT', '')
+    olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
+    #olx.html.SetValue('RESIDUE_CLASS', '')   # TODO: Do I need this?
+    olx.html.SetImage('FDBMOLEPIC', 'blank.png')
+    if olx.fs.Exists('displayimg.png') == 'true':
+      OV.CopyVFSFile('blank.png', 'displayimg.png')
+    if olx.fs.Exists('largefdbimg.png') == 'true':
+      im = Image.new('RGBA', (1, 1), self.params.html.table_bg_colour.rgb)
+      OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
 
 
 fdb = FragmentDB()
