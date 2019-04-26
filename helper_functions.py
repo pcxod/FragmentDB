@@ -344,7 +344,7 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
         return True
       for i in pairs:
         if i in pairlist or tuple(reversed(i)) in pairlist:
-          print('*** Duplicate atom pair "{}" in SADI restraint line {} of "{}". ***'.format(" ".join(i),
+          print('Duplicate atom pair "{}" in SADI restraint line {} of "{}".'.format(" ".join(i),
                                                                                              num, fragment))
         pairlist.append(i)
         try:
