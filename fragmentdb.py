@@ -36,7 +36,6 @@ Ideas:
 - live invert during key press
 - better preview needed!
 - Why is "part 1 21" not in history node? save_file() possible?
-- SIMU 0.04 0.08 1 is not detected by duplicate checker.
 '''
 
 instance_path = OV.DataDir()

@@ -151,7 +151,7 @@ class FragmentTable():
 
     :rtype: int
     """
-    rows = []
+    rows = 0
     num = 0
     for table_name in ['Fragment', 'userdb.Fragment']:
       req = 'SELECT COUNT(*) FROM {}'.format(table_name)
