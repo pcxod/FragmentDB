@@ -7,6 +7,6 @@
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/DSR-db</path>
 <path>/DSR-db/pyUtil</path>
-<path>/${PROJECT_DIR_NAME}/plugin-Fragment_DB</path>
+<path>/${PROJECT_DIR_NAME}/plugin-FragmentDB</path>
 </pydev_pathproperty>
 </pydev_project>

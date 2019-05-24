@@ -6,10 +6,11 @@ Created on 03.05.2015
 here are only functions that are completely independent of olex
 '''
 from __future__ import print_function
-from collections import Counter
-from math import radians, cos, sqrt, sin
+
 import string
+from collections import Counter
 from copy import deepcopy
+from math import radians, cos, sqrt, sin
 
 # import ast
 
@@ -233,7 +234,7 @@ def check_restraints_consistency(restraints, atoms, fragment_name):
 def pairwise(iterable):
   """
   s -> (s0,s1), (s2,s3), (s4, s5), ...
-  
+
   >>> liste = ['C1', 'C2', 'C2', 'C3', 'C4', 'C5', 'C5', 'C6']
   >>> pairwise(liste)
   [('C1', 'C2'), ('C2', 'C3'), ('C4', 'C5'), ('C5', 'C6')]
@@ -342,6 +343,8 @@ def check_sadi_consistence(atoms, restr, cell, fragment):
       if len(pairs) <= 2:
         return True
       for i in pairs:
+        if i in pairlist or tuple(reversed(i)) in pairlist:
+          print('Duplicate atom pair "{}" in SADI restraint line {} of "{}".'.format(" ".join(i), num, fragment))
         pairlist.append(i)
         try:
           a = atoms[atnames.index(i[0])][1:4]
@@ -386,8 +389,8 @@ def nalimov_test(data):
   0.09444
   """
   # q-values for degrees of freedom:
-  f = {1 : 1.409, 2: 1.645, 3: 1.757, 4: 1.814, 5: 1.848, 6: 1.870, 7: 1.885, 8: 1.895,
-       9 : 1.903, 10: 1.910, 11: 1.916, 12: 1.920, 13: 1.923, 14: 1.926, 15: 1.928,
+  f = {1: 1.409, 2: 1.645, 3: 1.757, 4: 1.814, 5: 1.848, 6: 1.870, 7: 1.885, 8: 1.895,
+       9: 1.903, 10: 1.910, 11: 1.916, 12: 1.920, 13: 1.923, 14: 1.926, 15: 1.928,
        16: 1.931, 17: 1.933, 18: 1.935, 19: 1.936, 20: 1.937, 30: 1.945}
   fact = sqrt(float(len(data)) / (len(data) - 1))
   fval = len(data) - 2

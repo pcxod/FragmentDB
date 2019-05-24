@@ -113,6 +113,9 @@ No restraints will be applied to the fitting fragment.
 ##Rigid group
 Keeps the fitted fragment rigid during refinement.
 
+##Revert Fit
+Goes back in the history just before the last fragment fit.
+
 #Results
 #Results
 This table shows the list of the most disagreeable restraints (in case there are some).  
