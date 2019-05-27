@@ -357,6 +357,7 @@ class FragmentDB(PT):
     """
     fit a molecular fragment from the database into olex2
     """
+    OV.cmd("mode off")
     if not self.fragId:
       # no fragment chosen-> do nothing
       print('No fragment selected!')
