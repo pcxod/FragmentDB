@@ -23,7 +23,7 @@ from refine_model_tasks import Refmod
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 13
+FDB_VERSION = 14
 
 r'''
 Ideas:
@@ -83,10 +83,6 @@ class FragmentDB(PT):
     """
     initialize the plugins main form
     """
-    if self.fragId == 0:
-      # print('### no fragid!')
-      self.list_all_fragments()
-      return
     self.get_resi_class()
     self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
@@ -1159,7 +1155,7 @@ class FragmentDB(PT):
     OV.SetParam('FragmentDB.new_fragment.fragId', frag_id)
     self.fragId = frag_id
     self.clear_mainvalues()
-    self.init_plugin()
+    #self.init_plugin()
     # self.list_all_fragments()
 
   def blank_state(self):
