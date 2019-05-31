@@ -5,6 +5,7 @@ venv
 olex2-code
 olex2-gui
 tst.sqlite
+*.pyc
 
 # Folder config file
 Desktop.ini
