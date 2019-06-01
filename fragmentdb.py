@@ -84,10 +84,6 @@ class FragmentDB(PT):
     """
     initialize the plugins main form
     """
-    if self.fragId == 0:
-      # print('### no fragid!')
-      self.list_all_fragments()
-      return
     self.get_resi_class()
     self.set_fragment_picture()
     self.display_image('FDBMOLEPIC', 'displayimg.png')
@@ -95,7 +91,6 @@ class FragmentDB(PT):
     resinum = self.find_free_residue_num()
     olx.html.SetValue('RESIDUE', True)
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
-    # self.list_all_fragments()
     OV.SetParam('FragmentDB.new_fragment.frag_name', self.get_fragname())
     olx.html.SetValue('LIST_FRAGMENTS', OV.GetParam('FragmentDB.new_fragment.frag_name'))
 
@@ -129,7 +124,7 @@ class FragmentDB(PT):
     if olx.fs.Exists('largefdbimg.png') == 'true':
       im = Image.new('RGBA', (1, 1), self.params.html.table_bg_colour.rgb)
       OlexVFS.save_image_to_olex(im, 'largefdbimg.png', 0)
-    self.list_all_fragments()
+    olx.html.SetItems('LIST_FRAGMENTS', self.get_all_fragments())
     resinum = self.find_free_residue_num()
     OV.SetParam('FragmentDB.fragment.resinum', resinum)
     olx.html.SetValue('RESIDUE', True)
@@ -206,7 +201,7 @@ class FragmentDB(PT):
     selected_list = ''
     if not search_string:
       print("Empty search string.")
-      self.list_all_fragments()
+      olx.html.SetItems('LIST_FRAGMENTS', self.get_all_fragments())
       return
     else:
       db = FragmentTable(self.dbfile, self.userdbfile)
@@ -1013,7 +1008,7 @@ class FragmentDB(PT):
     resiclass = self.prepare_residue_class()
     reference = self.prepare_reference()
     self.store_new_fragment(atoms, restraints, resiclass, reference)
-    self.list_all_fragments()
+    olx.html.SetItems('LIST_FRAGMENTS', self.get_all_fragments())
 
   def update_fragment(self):
     """
@@ -1055,8 +1050,7 @@ class FragmentDB(PT):
     olx.html.SetValue('RESIDUE_CLASS', '')
     self.show_reference()
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
-    # self.init_plugin()
-    self.list_all_fragments()
+    olx.html.SetItems('LIST_FRAGMENTS', self.get_all_fragments())
 
   def prepare_coords_for_storage(self, atlines):
     """
@@ -1146,9 +1140,7 @@ class FragmentDB(PT):
     self.fragId = frag_id
     self.clear_mainvalues()
     self.init_plugin()
-    # self.list_all_fragments()
-
-
+    olx.html.SetItems('LIST_FRAGMENTS', self.get_all_fragments())
 
   def delete_fragment(self, reset=True):
     """
@@ -1163,7 +1155,7 @@ class FragmentDB(PT):
     # Now delete the fields:
     if reset:
       self.blank_state()
-    # self.list_all_fragments()
+    olx.html.SetItems('LIST_FRAGMENTS', self.get_all_fragments())
 
   def get_chemdrawstyle(self):
     """
@@ -1438,7 +1430,7 @@ class Display():
     self.userdbfile = userdbfile
     self.params = OV.GuiParams()
 
-  def list_all_fragments(self):
+  def get_all_fragments(self):
     """
     returns the available fragments in the database
     the list of names is separated by semicolon
@@ -1446,13 +1438,7 @@ class Display():
     i[1] => name
     """
     db = FragmentTable(self.dbfile, self.userdbfile)
-    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
-    olx.html.SetItems('LIST_FRAGMENTS', items)
-
-  def get_fragments(self):
-    db = FragmentTable(self.dbfile, self.userdbfile)
-    items = ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
-    return items
+    return ';'.join(['{}<-{}'.format(i[1], i[0]) for i in db])
 
   def clean_display(self):
     """
@@ -1465,7 +1451,7 @@ class Display():
     olx.html.SetValue('Inputfrag.RESIDUE_INPUT', '')
     olx.html.SetValue('Inputfrag.REFERENCE_INPUT', '')
     olx.html.SetImage('Inputfrag.MOLEPIC2', 'blank.png')
-    #olx.html.SetValue('RESIDUE_CLASS', '')   # TODO: Do I need this?
+    olx.html.SetValue('Inputfrag.RESIDUE_CLASS', '')   # TODO: Do I need this?
     olx.html.SetImage('FDBMOLEPIC', 'blank.png')
     if olx.fs.Exists('displayimg.png') == 'true':
       OV.CopyVFSFile('blank.png', 'displayimg.png')
@@ -1489,8 +1475,7 @@ OV.registerFunction(fdb.show_reference, False, "FragmentDB")
 OV.registerFunction(fdb.make_selctions_picture, False, "FragmentDB")
 OV.registerFunction(fdb.set_frag_atoms, False, "FragmentDB")
 OV.registerFunction(fdb.open_edit_fragment_window, False, "FragmentDB")
-OV.registerFunction(fdb.list_all_fragments, False, "FragmentDB")
-OV.registerFunction(fdb.get_fragments, False, "FragmentDB")
+OV.registerFunction(fdb.get_all_fragments, False, "FragmentDB")
 OV.registerFunction(fdb.fit_db_fragment, False, "FragmentDB")
 OV.registerFunction(fdb.get_resi_class, False, "FragmentDB")
 OV.registerFunction(fdb.find_free_residue_num, False, "FragmentDB")
