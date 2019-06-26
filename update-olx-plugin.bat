@@ -23,26 +23,22 @@ rem del %FDBDIR%\*.pyc
 
 rem ##########################################
 
-xcopy /Y %GIT%\__init__.py %FDBDIR2%
-xcopy /Y %GIT%\drawstyle.cds %FDBDIR2%
+xcopy /Y %GIT%\*.py  %FDBDIR2%
+xcopy /Y %GIT%\*.htm  %FDBDIR2%
+xcopy /Y %GIT%\*.md  %FDBDIR2%
 xcopy /Y %GIT%\fragment-database.sqlite %FDBDIR2%
-xcopy /Y %GIT%\fragmentdb.htm %FDBDIR2%
-xcopy /Y %GIT%\fragmentdb.md  %FDBDIR2%
+xcopy /Y %GIT%\drawstyle.cds %FDBDIR2%
 xcopy /Y %GIT%\fragmentdb.phil %FDBDIR2%
-xcopy /Y %GIT%\fragmentdb.py %FDBDIR2%
-xcopy /Y %GIT%\fragmentdb_handler.py %FDBDIR2%
-xcopy /Y %GIT%\helper_functions.py %FDBDIR2%
-xcopy /Y %GIT%\inputfrag.htm %FDBDIR2%
-xcopy /Y %GIT%\plugins.xld %FDBDIR2%
-xcopy /Y %GIT%\README.md %FDBDIR2%
-xcopy /Y %GIT%\refine_model_tasks.py %FDBDIR2%
 
-
-xcopy /Y %FDBDIR2%\__init__.pyc %GIT%
-xcopy /Y %FDBDIR2%\fragmentdb_handler.pyc %GIT%
-xcopy /Y %FDBDIR2%\fragmentdb.pyc %GIT%
-xcopy /Y %FDBDIR2%\helper_functions.pyc %GIT%
-xcopy /Y %FDBDIR2%\refine_model_tasks.pyc %GIT%
+rem xcopy /Y %GIT%\__init__.py %FDBDIR2%
+rem xcopy /Y %GIT%\fragmentdb.htm %FDBDIR2%
+rem xcopy /Y %GIT%\fragmentdb.py %FDBDIR2%
+rem xcopy /Y %GIT%\fragmentdb_handler.py %FDBDIR2%
+rem xcopy /Y %GIT%\helper_functions.py %FDBDIR2%
+rem xcopy /Y %GIT%\inputfrag.htm %FDBDIR2%
+rem xcopy /Y %GIT%\plugins.xld %FDBDIR2%
+rem xcopy /Y %GIT%\README.md %FDBDIR2%
+rem xcopy /Y %GIT%\refine_model_tasks.py %FDBDIR2%
 
 
 pause
