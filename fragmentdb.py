@@ -74,8 +74,9 @@ class FragmentDB(PT):
     # for edited fragments:
     self.cell = []
     print(' FragmentDB version:', FDB_VERSION)
+    # Better not for now 10.07.2019:
     # Makes residue as default after start:
-    OV.SetParam('FragmentDB.fragment.use_residue', True)
+    #OV.SetParam('FragmentDB.fragment.use_residue', True)
     self.fragId = int(OV.GetParam('FragmentDB.fragment.fragId'))
     # self.init_plugin()
 
