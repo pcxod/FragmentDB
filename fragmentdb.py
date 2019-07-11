@@ -23,7 +23,7 @@ from refine_model_tasks import Refmod
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 14
+FDB_VERSION = 15
 
 r'''
 Ideas:
@@ -42,8 +42,8 @@ instance_path = OV.DataDir()
 
 p_path = os.path.dirname(os.path.abspath(__file__))
 OV.SetVar('FragmentDB_plugin_path', p_path)
-p_name = "FragmentDB"
-p_scope = "fragmentdb"
+p_name = "fragmentdb"
+p_scope = "FragmentDB"
 p_htm = "fragmentdb"
 p_img = [("FragmentDB", 'h1')]
 
@@ -411,7 +411,7 @@ class FragmentDB(PT):
     resinum = 0
     if resi_on:
       resinum = self.find_free_residue_num()
-      if resiclass and resinum or not resiclass and resinum:
+      if resinum:
         self.make_residue(atomids, resiclass, resinum)
         self.atomrenamer(labeldict)
     # Placing restraints:
