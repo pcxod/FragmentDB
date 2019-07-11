@@ -43,7 +43,7 @@ instance_path = OV.DataDir()
 p_path = os.path.dirname(os.path.abspath(__file__))
 OV.SetVar('FragmentDB_plugin_path', p_path)
 p_name = "FragmentDB"
-p_scope = "FragmentDB"
+p_scope = "fragmentdb"
 p_htm = "fragmentdb"
 p_img = [("FragmentDB", 'h1')]
 
