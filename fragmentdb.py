@@ -16,14 +16,13 @@ import OlexVFS
 import helper_functions
 from ImageTools import ImageTools
 from fragmentdb_handler import FragmentTable
-from helper_functions import check_restraints_consistency, initialize_user_db, \
-  invert_atomlist_coordinates, frac_to_cart, atomic_distance
+from helper_functions import check_restraints_consistency, initialize_user_db, frac_to_cart, atomic_distance
 from refine_model_tasks import Refmod
 
 OV = OlexFunctions()
 IT = ImageTools()
 # FragmentDB version number:
-FDB_VERSION = 15
+FDB_VERSION = 16
 
 r'''
 Ideas:
@@ -241,8 +240,8 @@ class FragmentDB(PT):
     """
     newlist = []
     finallist = []
-    if OV.GetParam('FragmentDB.fragment.invert'):
-      atoms = invert_atomlist_coordinates(atoms)
+    #if OV.GetParam('FragmentDB.fragment.invert'):
+    #  atoms = invert_atomlist_coordinates(atoms)
     for i in atoms:
       # atoms without sfac:
       newlist.append('{:4.4s} {:>7.4f}  {:>7.4f}  {:>7.4f}'.format(i[0], i[2], i[3], i[4]))
@@ -341,13 +340,17 @@ class FragmentDB(PT):
       afix = "6"
     else:
       afix = '0'
+    if OV.GetParam('FragmentDB.fragment.invert'):
+      invert = True
+    else:
+      invert = False
     if OV.GetParam('FragmentDB.fragment.use_dfix'):
       print('Applying DFIX restraints ...')
-      olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=True)
+      olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=True, i=invert)
       print('Finished.')
       # onImport() runs after ImportFrag
     else:
-      olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=False)
+      olx.ImportFrag(fragpath, a=afix, p=part, o=occ, d=False, i=invert)
     return
 
   def fit_db_fragment(self):
