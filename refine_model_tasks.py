@@ -6,7 +6,7 @@ Created on 23.10.2015
 import os
 
 # import pprint
-from helper_functions import REL_RESTR_CARDS, SHX_CARDS, remove_partsymbol
+from FragmentDB.helper_functions import REL_RESTR_CARDS, SHX_CARDS, remove_partsymbol
 
 try:
   import olx  # @UnresolvedImport

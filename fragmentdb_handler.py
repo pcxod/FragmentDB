@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import sys
 
-from helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey
+from FragmentDB.helper_functions import dice_coefficient2, SHX_CARDS, make_sortkey
 
 __metaclass__ = type  # use new-style classes
 import sqlite3
@@ -27,7 +27,7 @@ class DatabaseRequest():
     # open the database
     self.con = sqlite3.connect(dbfile, check_same_thread=False)
     if userdb_path:
-      self.con.execute('ATTACH "{}" AS userdb'.format(userdb_path.encode("utf-8")))
+      self.con.execute('ATTACH "{}" AS userdb'.format(userdb_path))
     self.con.execute("PRAGMA foreign_keys = ON")
     # self.con.text_factory = str
     # self.con.text_factory = sqlite3.OptimizedUnicode

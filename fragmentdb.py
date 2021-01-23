@@ -1,23 +1,21 @@
 from __future__ import print_function
-
-import StringIO
-import os
-import pprint
-from collections import OrderedDict
-
-import gui.maps
-import olex
-import olex_core
-import olx
-from PIL import Image, ImageChops
 from olexFunctions import OlexFunctions
-
-import OlexVFS
-import helper_functions
-from ImageTools import ImageTools
-from fragmentdb_handler import FragmentTable
-from helper_functions import check_restraints_consistency, initialize_user_db, frac_to_cart, atomic_distance
-from refine_model_tasks import Refmod
+from collections import OrderedDict
+from ImageTools import ImageTools  # @UnresolvedImport
+import io
+from PIL import Image, ImageFile, ImageDraw, ImageChops
+import FragmentDB.helper_functions as helper_functions
+from FragmentDB.helper_functions import check_restraints_consistency, initialize_user_db,\
+      invert_atomlist_coordinates, frac_to_cart, atomic_distance
+import os
+import olex  # @UnresolvedImport
+import gui.maps
+import olx  # @UnresolvedImport
+import OlexVFS  # @UnresolvedImport
+import olex_core  # @UnresolvedImport
+from FragmentDB.fragmentdb_handler import FragmentTable
+from FragmentDB.refine_model_tasks import Refmod
+import pprint
 
 OV = OlexFunctions()
 IT = ImageTools()
@@ -466,7 +464,7 @@ class FragmentDB(PT):
       # i[1] is a string of atoms like 'C1 C2'
       restraint_atoms = i[1].upper()
       if '>' in restraint_atoms or '<' in restraint_atoms:
-        restraint_atoms = self.range_resolver(restraint_atoms.split(), labeldict.keys())
+        restraint_atoms = self.range_resolver(restraint_atoms.split(), list(labeldict.keys()))
       line = []
       for at in restraint_atoms.split():
         # is it a potential atom (starts with alphabetic character):
@@ -521,7 +519,7 @@ class FragmentDB(PT):
     bg_w, bg_h = IM.size
     img_w, img_h = im.size
     # offset for image placement
-    offset = (bg_w - img_w) / 2, (bg_h - img_h) / 2
+    offset = (bg_w - img_w) // 2, (bg_h - img_h) // 2
     # place image in center of background image:
     IM.paste(im, offset)
     return IM
@@ -538,7 +536,7 @@ class FragmentDB(PT):
     if not pic:
       # print('No fragment picture found.')
       return False
-    imo = Image.open(StringIO.StringIO(pic))
+    imo = Image.open(io.BytesIO(pic))
     # save it as raw and small pic:
     OlexVFS.save_image_to_olex(imo, 'storepic.png', 0)
     im = self.prepare_picture(imo, max_size)
