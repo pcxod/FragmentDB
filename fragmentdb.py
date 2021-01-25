@@ -1,18 +1,18 @@
 from __future__ import print_function
 from olexFunctions import OlexFunctions
 from collections import OrderedDict
-from ImageTools import ImageTools  # @UnresolvedImport
+from ImageTools import ImageTools
 import io
 from PIL import Image, ImageFile, ImageDraw, ImageChops
 import FragmentDB.helper_functions as helper_functions
 from FragmentDB.helper_functions import check_restraints_consistency, initialize_user_db,\
       invert_atomlist_coordinates, frac_to_cart, atomic_distance
 import os
-import olex  # @UnresolvedImport
+import olex
 import gui.maps
-import olx  # @UnresolvedImport
-import OlexVFS  # @UnresolvedImport
-import olex_core  # @UnresolvedImport
+import olx
+import OlexVFS
+import olex_core
 from FragmentDB.fragmentdb_handler import FragmentTable
 from FragmentDB.refine_model_tasks import Refmod
 import pprint
@@ -771,11 +771,11 @@ class FragmentDB(PT):
     width, height = 500, 520
     html = """
     <a target="" href="spy.FragmentDB.save_picture()">
-    <zimg name="LMOLEPIC" 
-        border="0" 
-        src="largefdbimg.png" 
-        height=450 
-        width=450 
+    <zimg name="LMOLEPIC"
+        border="0"
+        src="largefdbimg.png"
+        height=450
+        width=450
         align="center">
     """
     OV.write_to_olex('large_fdb_image.htm', html)
@@ -1358,11 +1358,11 @@ class FragmentDB(PT):
     else:
       imgname = 'displayimg.png'
     html = '''
-      <zimg name="{}" 
-        border="0" 
+      <zimg name="{}"
+        border="0"
         src="{}"
-        height={} 
-        width=120 
+        height={}
+        width=120
         align="center">
         '''.format(name, imgname, height)
     return html
