@@ -676,7 +676,7 @@ class FragmentTable():
       print('No atoms supplied! Doing nothing')
       return
     if not isinstance(atom_table[0], (list, tuple)):
-      if isinstance(atom_table[0], (str, unicode)):
+      if isinstance(atom_table[0], str):
         atom_table = [i.split() for i in atom_table]
       else:
         raise Exception('wrong data type "{}" for atom list.'.format(type(atom_table[0])))
@@ -713,7 +713,7 @@ class FragmentTable():
     if isinstance(restraints_list[0], (list, tuple)):
       # convert to list of stings
       restraints_list = [' '.join(['{}'.format(a) for a in i]) for i in restraints_list]
-    if isinstance(restraints_list[0], (str, unicode)):
+    if isinstance(restraints_list[0], str):
       pass
     else:
       raise Exception('wrong data type "{}" for restraint list.'.format(
