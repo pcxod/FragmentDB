@@ -1,12 +1,15 @@
 # FragmentDB Plugin
 
 FragmentDB is a powerful plugin tool for fragment fitting during refinement 
-with Olex2. It extracts pre-constructed molecular fragments such as common solvents, 
-anions, and cations from a database and fits them into an existing model. Users can 
-add their own fragments as well. FragmentDB can greatly simplify dealing with, e.g., 
-a disordered solvent or ion on a special position.
+with [Olex2](https://www.olexsys.org). It extracts pre-constructed molecular fragments 
+such as common solvents, anions, and cations from a database and fits them into an 
+existing model. Users can add their own fragments as well. FragmentDB can greatly 
+simplify dealing with, e.g., a disordered solvent or ion on a special position.
 
-![Program Window](https://github.com/dkratzert/FragmentDB/blob/master/pictures/main_plugin.png?raw=true) 
+FragmentDB is part of Olex2 and located in the **tools menu**, so there is no download or 
+installation necessary. 
+
+![Program Window](pictures/fragmentdb/fragmentdb_1.png) 
 
 ## Literature
 
@@ -45,7 +48,6 @@ Fragments created or changed by the user will get a \*user\* tag at the end of t
 names. Any database editor capable of handling [SQLite](https://www.sqlite.org/index.html) files can be used to modify 
 the user fragment database.
 
-# Picture
 
 ## Picture
 
@@ -66,7 +68,7 @@ be modified. The editor can also be used to create and enter new fragments in th
 database.
 
 
-![Editor Window](https://github.com/dkratzert/FragmentDB/blob/master/pictures/fragment_editor.PNG?raw=true)
+![Editor Window](pictures/fragmentdb/fragmentdb_2.png)
 
 
 ## Editor Options
@@ -123,7 +125,6 @@ be the default name of the residue.
 
 # Properties
 
-## Properties
 
 Define **PART**s, free variables (**FVAR**) and **Occupancy** for the fragment here. 
 The value of the free variable and occupation factor combination as it appears in the 
@@ -140,7 +141,6 @@ screen when any parameter of PART, FVAR, occupancy or residue is changed. The re
 number is separated from the atom label with an underscore, e.g., C3A_1 means atom 
 C3A in residue 1.
 
-# Properties 2
 
 ## Use a residue
 
@@ -164,7 +164,6 @@ calculated DFIX/DANG restraints. The ADPs in the resulting fragment will not be
 restrained in any way, so the thermal ellipsoids of atoms in the fragment may appear 
 unusual during refinement.
 
-# Properties 3
 
 ## Replace Mode
 
