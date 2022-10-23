@@ -1,31 +1,32 @@
 # FragmentDB Plugin
 
-FragmentDB is an extremely powerful plugin tool for fragment fitting during refinement 
+FragmentDB is a powerful plugin tool for fragment fitting during refinement 
 with Olex2. It extracts pre-constructed molecular fragments such as common solvents, 
 anions, and cations from a database and fits them into an existing model. Users can 
 add their own fragments as well. FragmentDB can greatly simplify dealing with, e.g., 
 a disordered solvent or ion on a special position.
 
+![Program Window](https://github.com/dkratzert/FragmentDB/blob/master/pictures/main_plugin.png?raw=true) 
+
 ## Literature
 
 * D. Kratzert, I. Krossing, J. Appl. Cryst. 2018, 51, 928-934. doi: 10.1107/S1600576718004508
-  &nbsp; URL[https://dkratzert.de/files/dsr/documents/dsr\_2\_reprint.pdf,PAPER]
+   [download](https://dkratzert.de/files/dsr/documents/dsr\_2\_reprint.pdf)
 
 * D. Kratzert, J.J. Holstein, I. Krossing, J. Appl. Cryst. 2015, 48, 933-938. doi:10.1107/S1600576715005580
-  &nbsp; URL[https://dkratzert.de/files/dsr/documents/dsr\_1.pdf,PAPER]
+   [download](https://dkratzert.de/files/dsr/documents/dsr\_1.pdf) 
 
 
 # Fragment Chooser
 
 To start, choose a fragment from the drop-down menu. Clicking on a name in the list 
 selects the fragment to be fitted into the model and displays its chemical structure 
-in this panel.
-
+in this panel.  
 
 To search for a particular fragment in the database, type in part of its name and hit 
-'<c>Enter</c>'. For example, a search for 'CF3' finds all fragments containing a
+*Enter*. For example, a search for 'CF3' finds all fragments containing a
 trifluoromethyl group, as well as structurally similar fragments. Select the desired 
-fragment from the abbreviated drop-down menu containing the search results.
+fragment from the shortened drop-down menu containing the search results.
 
 ## Reset
 
@@ -36,26 +37,27 @@ after a search.
 
 The main database is write-protected, but it is possible to add new fragments to the 
 collection or change existing fragments. They will be stored in a separate database 
-in ~Datadir()/db/user-fragment-database.sqlite~. Type '<c>shell DataDir()/db</c>' to 
+in `Datadir()/db/user-fragment-database.sqlite`.  
+Type `shell DataDir()/db` to 
 open this folder. The user fragment database will never be overwritten by any Olex2 
 plugin updates!
-Fragments created or changed by the user will get a \*user\* tag at the end of their 
-names. Any database editor capable of handling .sqlite files can be used to modify 
+Fragments created or changed by the user will get a `*user*` tag at the end of their 
+names. Any database editor capable of handling [SQLite](https://www.sqlite.org/index.html) files can be used to modify 
 the user fragment database.
 
 # Picture
 
-# Picture
+## Picture
 
 Displays the chemical structure of the fragment. Click on the structure to display a 
-magnified version. User-defined fragments will only display a chemical structure if 
-the user has added one when entering the fragment in the user fragment database.
+magnified version. User-defined fragments will only display either an auto-generated structure
+or a user-defined drawing that can be selected in the fragment editor.
 
 ## Fit!
 
-The <b>Fit!</b> button starts the process of fitting the chosen fragment into the 
-structure. The fragment appears on the screen in **Mode Fit**, and can be moved or 
-rotated as desired. Press '<c>Escape</c>' to exit the mode.
+The *Fit!* button starts the process of fitting the chosen fragment into the 
+structure. The fragment appears on the screen in *Mode Fit*, and can be moved or 
+rotated as desired. Press *Escape* to exit the mode.
 
 ## Edit
 
@@ -63,16 +65,20 @@ Clicking this button will open an editor in which the currently selected fragmen
 be modified. The editor can also be used to create and enter new fragments in the 
 database.
 
+
+![Editor Window](https://github.com/dkratzert/FragmentDB/blob/master/pictures/fragment_editor.PNG?raw=true)
+
+
 ## Editor Options
 
 ### Change Picture
 
-Use a different picture for the chemical structure of the fragment. Pictures must have 
+Use a different picture for the chemical structure of the fragment. Pictures should have 
 a resolution of at least 600 dpi.
 
 ### Drawstyle
 
-Saves a ~ChemDraw~ style file for drawing fragment structures with the same appearance 
+Saves a *ChemDraw* style file for drawing fragment structures with the same appearance 
 as the predefined ones.
 
 ### Name
@@ -82,31 +88,31 @@ Name of the fragment.
 ### Unit cell
 
 Cell parameters of the structure from which the fragment was obtained. 
-Use 1 1 1 90 90 90 for rectangular Cartesian coordinates. The cell constants are used 
+Use `1 1 1 90 90 90` for rectangular Cartesian coordinates. The cell constants are used 
 to calculate Cartesian coordinates for atoms of a fragment being added to the database.
 
 ### Use selected atoms
 
-Uses the selected atoms for the **Atoms** field and creates a picture of the 
-fragment's chemical structure.
+Uses the selected atoms for the *Atoms* field and creates a picture of the 
+fragment's chemical structure. 
 
 ### Atoms
 
-Insert atoms here, as, for example: O2 8 1.3984 -0.3778 0.4922. It is possible to 
-copy atom symbols and coordinates directly from SHELX files or copy coordinates 
-generated by the free and open-source molecule editor ~Avogadro~ available at 
-URL[http://avogadro.cc/, http://avogadro.cc].
+Insert atoms here manually, as, for example: `O2 8  1.3984  -0.3778  0.4922`. 
+It is possible to copy atom symbols and coordinates directly from SHELX files or 
+copy coordinates generated by the free and open-source molecule editor *Avogadro* 
+available at [http://avogadro.cc/](http://avogadro.cc). Nevertheless, the simplest 
+and least error-prone method is to use the 'Use selected atoms' button.
 
 ### Restraints
 
-Type any SHELX-compatible restraint(s) for the fragment in this field, except *SAME*. 
+Type any SHELX-compatible restraint(s) for the fragment in this field, except `SAME`. 
 The length of a line is unlimited. Thus, for example, a CF3 group has the following
-restraints:
+restraints:   
 
+`SADI C1 F1 C1 F2 C1 F3`
 
-SADI C1 F1 C1 F2 C1 F3
-
-SADI 0.03 F1 F2 F2 F3 F3 F1
+`SADI 0.03 F1 F2 F2 F3 F3 F1`
 
 ### Residue
 
@@ -117,20 +123,22 @@ be the default name of the residue.
 
 # Properties
 
-# Properties
+## Properties
 
 Define **PART**s, free variables (**FVAR**) and **Occupancy** for the fragment here. 
-The value of the free variable index corresponding to these parameters is generated
-automatically and is shown in the last box on this line. For example, the free variable 
+The value of the free variable and occupation factor combination as it appears in the 
+SHELX instruction file is automatically generated from the input values and displayed 
+in the last field of this line. For example, the free variable 
 index 31.0 in SHELX notation specifies free variable (FVAR) 3 and a multiplicative 
 factor of 1.0, for a site occupancy equal to FVAR 3. On the other hand, -31.0 also 
 specifies free variable 3, with a multiplicative factor of -1.0, i.e, the site 
 occupancy will be (1-FVAR 3), to ensure that the total site occupancy always sums to 1.
 
 Parameters of the fitted fragment such as PART number, FVAR, occupancy, and residue 
-number (if any) are displayed with other atomic information on the screen when 
-hovering over an atom with the mouse. The residue number is separated from the atom 
-label with an underscore, e.g., C3A_1 means atom C3A in residue 1.
+number (if any) are displayed with other atomic information in the structure on the 
+screen when any parameter of PART, FVAR, occupancy or residue is changed. The residue 
+number is separated from the atom label with an underscore, e.g., C3A_1 means atom 
+C3A in residue 1.
 
 # Properties 2
 
