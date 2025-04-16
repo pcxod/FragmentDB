@@ -781,7 +781,7 @@ def initialize_user_db(user_dbpath):
   con = lite.connect(user_dbpath)
   con.text_factory = str
   cur = con.cursor()
-  print('initializing FragmentDB user databse.')
+  print('initializing FragmentDB user database.')
   con.execute("PRAGMA foreign_keys = ON")
   cur.execute("DROP TABLE IF EXISTS fragment")
   cur.execute("DROP TABLE IF EXISTS atoms")
