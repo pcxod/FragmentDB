@@ -719,8 +719,8 @@ class FragmentDB(PT):
     atoms = []
     # make a list without H atoms:
     for at in atoms_all:
-      if at[0] == 'H' and at[:2] not in ('He', 'Hf', 'Ho', 'Hg'):
-        continue
+      # if at[0] == 'H' and at[:2] not in ('He', 'Hf', 'Ho', 'Hg'):
+      #  continue
       atoms.append(at)
     atoms.sort()
     # natsort(atoms)

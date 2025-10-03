@@ -240,7 +240,7 @@ def pairwise(iterable):
   [('C1', 'C2'), ('C2', 'C3'), ('C4', 'C5'), ('C5', 'C6')]
   """
   a = iter(iterable)
-  return zip(a, a)
+  return list(zip(a, a))
 
 
 def mean(values):
