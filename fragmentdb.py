@@ -65,7 +65,10 @@ class FragmentDB(PT):
     self.params = OV.GuiParams()
     self.dbfile = os.sep.join([self.p_path, "fragment-database.sqlite"])
     self.userdb = 'user-fragment-database.sqlite'
-    self.userdbfile = os.sep.join([instance_path, os.sep, 'db', os.sep, self.userdb])
+    db_path = olex.f(OV.GetParam('user.report.db_location'))
+    if not os.path.exists(db_path):
+      os.makedirs(db_path)
+    self.userdbfile = os.path.join(db_path, self.userdb)
     if not os.path.exists(self.userdbfile) or os.path.getsize(self.userdbfile) < 100:
       initialize_user_db(self.userdbfile)
     # for edited fragments:
